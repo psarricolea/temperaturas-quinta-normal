@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}</style>
+<title>Olas de calor y noches cálidas en Santiago (Quinta Normal)</title>
+<meta name="description" content="Visor interactivo de olas de calor diurnas y rachas de noches cálidas en Santiago, estación Quinta Normal, temporadas cálidas (noviembre a marzo) desde 1951-52.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root {
+  --bg: #f6f7f5;
+  --surface: #ffffff;
+  --surface-2: #eceeea;
+  --ink: #1b2220;
+  --ink-2: #4a5552;
+  --ink-3: #75807c;
+  --line: #d9ddd8;
+  --heat: #c2452d;
+  --curico: #008c7e;
+  --chillan: #7a4fb8;
+  --tx: #c2452d;
+  --tn: #2f63b0;
+  --band: rgba(194, 69, 45, 0.13);
+  --band-tn: rgba(47, 99, 176, 0.12);
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "Public Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
+    --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --curico: #2aa8a2; --chillan: #9b7bd8;
+    --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
+  --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --curico: #2aa8a2; --chillan: #9b7bd8;
+  --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 0 64px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); font-weight: 700; text-transform: uppercase; }
+h2 { font-size: 1.7rem; text-transform: uppercase; }
+h3 { font-size: 1.2rem; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.85rem; color: var(--ink-3); font-weight: 600; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+a { color: var(--heat); }
+:focus-visible { outline: 2px solid var(--heat); outline-offset: 2px; }
+
+/* Portada */
+header.hero { display: grid; gap: 18px; padding-block: 36px 22px; }
+.hero .lede { color: var(--ink-2); font-size: 1.05rem; }
+.byline { font-size: 0.92rem; color: var(--ink-2); margin: -6px 0 0; }
+.byline a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.stripes { display: grid; gap: 6px; }
+.stripe-row { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 10px; }
+.stripe-row .lbl { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.stripe { display: grid; height: 46px; border-radius: 3px; overflow: hidden; cursor: pointer; }
+.stripe span { display: block; height: 100%; }
+.stripe span:hover { outline: 2px solid var(--ink); outline-offset: -2px; }
+.stripe-axis { display: grid; grid-template-columns: 84px 1fr; gap: 10px; font-size: 0.75rem; color: var(--ink-3); }
+.stripe-axis div:last-child { display: flex; justify-content: space-between; font-family: var(--font-data); }
+.legend-ramp { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--ink-3); flex-wrap: wrap; }
+.legend-ramp .ramp { display: flex; height: 10px; width: 180px; border-radius: 2px; overflow: hidden; }
+.legend-ramp .ramp span { flex: 1; }
+
+/* Barra de control */
+.controls { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 10px; display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.seg button { font: inherit; font-size: 0.9rem; border: 0; background: transparent; color: var(--ink-2); padding: 7px 14px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 600; }
+.ctl-label { font-size: 0.78rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 8px; }
+.ctl { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+select { font: inherit; font-size: 0.9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); }
+
+/* Secciones */
+section { padding-block: 34px 6px; display: grid; gap: 16px; }
+.sec-head { display: grid; gap: 6px; }
+.sec-head p { color: var(--ink-2); }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; min-width: 0; }
+.panel-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.chart { width: 100%; min-height: 320px; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.kpi-city { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.kpi .v { font-family: var(--font-data); font-size: 1.55rem; font-weight: 500; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.kpi .k { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+.pill { display: inline-block; font-size: 0.72rem; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--line); color: var(--ink-2); font-family: var(--font-body); vertical-align: middle; }
+.pill.sig { border-color: var(--heat); color: var(--heat); }
+
+/* Explorador */
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 5px 10px; background: var(--surface); }
+.ev-chip .dot { width: 8px; height: 8px; }
+.explorer-top { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center; }
+.events-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.ev-chip { font-size: 0.82rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 10px; background: var(--surface); }
+.ev-chip b { font-family: var(--font-data); font-weight: 500; }
+.muted { color: var(--ink-3); font-size: 0.85rem; }
+
+/* Tabla */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); max-height: 520px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
+th, td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
+th { position: sticky; top: 0; background: var(--surface-2); font-weight: 600; cursor: pointer; user-select: none; font-size: 0.8rem; }
+th[aria-sort="ascending"]::after { content: " ▲"; font-size: 0.7em; }
+th[aria-sort="descending"]::after { content: " ▼"; font-size: 0.7em; }
+td { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+td:first-child { font-family: var(--font-body); }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: var(--surface-2); }
+
+/* Umbrales */
+.umb-wrap { max-height: none; }
+#umb-tabla th, #umb-tabla td { text-align: right; }
+#umb-tabla th:first-child, #umb-tabla td:first-child { text-align: left; }
+#umb-tabla th { cursor: default; }
+#umb-tabla tbody tr { cursor: default; }
+#umb-tabla tr.hl td { background: var(--band); }
+#umb-tabla tr.hl td:first-child { font-weight: 600; }
+
+/* Método */
+.method { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.method .panel { padding: 16px; display: grid; gap: 8px; align-content: start; }
+.method p { font-size: 0.92rem; color: var(--ink-2); }
+.formula { font-family: var(--font-data); font-size: 0.85rem; background: var(--surface-2); padding: 8px 10px; border-radius: 4px; overflow-x: auto; }
+footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 0.82rem; display: grid; gap: 4px; }
+
+@media (max-width: 860px) {
+  .grid-2, .kpis, .method { grid-template-columns: minmax(0, 1fr); }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wrap { padding-inline: 16px; }
+  .stripe-row, .stripe-axis { grid-template-columns: 76px 1fr; }
+  .stripe-row .lbl { font-size: 0.82rem; letter-spacing: 0.02em; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Santiago · Estación Quinta Normal · Temporada cálida (noviembre a marzo)</div>
+    <h1>Olas de calor y noches cálidas en Santiago</h1>
+    <p class="byline">Creado por Pablo Sarricolea · Contacto: <a href="mailto:psarricolea@uchilefau.cl">psarricolea@uchilefau.cl</a></p>
+    <p class="lede">Días dentro de una ola de calor diurna y noches dentro de una racha de noches cálidas en cada temporada cálida, de la <span class="num" id="t-ini">–</span> a la <span class="num" id="t-fin">–</span>. Cada franja es una temporada; el color indica cuántos días quedaron dentro de un evento. Haz clic en una franja para abrir esa temporada en el explorador.</p>
+    <div class="stripes" id="stripes" aria-label="Franjas de días en evento por temporada"></div>
+    <div class="stripe-axis"><div></div><div id="stripe-axis"></div></div>
+    <div class="legend-ramp"><span>Días en evento por temporada:</span><span class="num">0</span><span class="ramp" id="ramp"></span><span class="num" id="ramp-max">–</span></div>
+    <div class="muted" id="en-curso"></div>
+  </header>
+
+  <div class="controls" role="toolbar" aria-label="Leyenda de tipos">
+    <div class="ctl"><span class="ctl-label">Tipos de evento</span>
+      <span class="tag"><span class="dot" style="background:var(--tx)"></span>Ola de calor diurna · TX &gt; P90</span>
+      <span class="tag"><span class="dot" style="background:var(--tn)"></span>Racha de noches cálidas · TN &gt; P90</span>
+    </div>
+    <div class="muted">Tres o más días seguidos sobre el percentil 90 de ese día del calendario.</div>
+  </div>
+
+  <div id="carga" class="muted" style="padding-top:24px">Cargando datos…</div>
+
+  <section id="resumen">
+    <div class="sec-head"><div class="eyebrow">Resumen</div><h2>Cuántos eventos y cómo han cambiado</h2></div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section id="burbujas">
+    <div class="sec-head">
+      <div class="eyebrow">Evolución por temporada</div>
+      <h2>Días en evento por temporada cálida</h2>
+      <p>Cada círculo es una temporada con al menos un evento. El tamaño indica la duración media de sus eventos y el color su intensidad media (IS, grados acumulados por sobre el umbral). La línea discontinua es el promedio del período de referencia. Pasa el cursor para ver el detalle y haz clic para abrir la temporada en el explorador.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="bub-TX"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="bub-TN"></div></div>
+    </div>
+  </section>
+
+  <section id="explorador">
+    <div class="sec-head">
+      <div class="eyebrow">Explorador diario</div>
+      <h2>Una temporada, día a día</h2>
+      <p>Temperaturas máxima (TX) y mínima (TN) diarias junto a sus umbrales P90. Las bandas rojas son días en ola de calor diurna y las azules, noches dentro de una racha de noches cálidas.</p>
+    </div>
+    <div class="explorer-top">
+      <div class="ctl"><label class="ctl-label" for="sel-temp">Temporada</label><select id="sel-temp"></select></div>
+    </div>
+    <div class="panel"><div class="chart" id="daily" style="min-height:420px"></div></div>
+    <div class="events-list" id="ev-list"></div>
+  </section>
+
+  <section id="umbrales">
+    <div class="sec-head">
+      <div class="eyebrow">Umbrales</div>
+      <h2>Umbrales P90 mes a mes</h2>
+      <p>Temperatura que hay que superar para que un día cuente como cálido (TX, olas de calor) o una noche como cálida (TN, rachas de noches cálidas). El umbral cambia día a día; la tabla muestra el promedio de cada mes y el rango entre su día más bajo y el más alto. Las filas destacadas son los meses en que se buscan eventos (noviembre a marzo).</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title">Umbral diario a lo largo del año</div><div class="chart" id="umb-chart"></div></div>
+      <div class="table-wrap umb-wrap">
+        <table id="umb-tabla">
+          <thead><tr><th>Mes</th><th><span class="dot" style="background:var(--tx)"></span> P90 TX (°C)</th><th>Rango TX</th><th><span class="dot" style="background:var(--tn)"></span> P90 TN (°C)</th><th>Rango TN</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="calendario">
+    <div class="sec-head">
+      <div class="eyebrow">Calendario</div>
+      <h2>Cuándo ocurren dentro de la temporada</h2>
+      <p>Cada fila es una temporada y cada celda un día, del 1 de noviembre al 31 de marzo. Las celdas coloreadas son días dentro de un evento.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="cal-TX" style="min-height:620px"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="cal-TN" style="min-height:620px"></div></div>
+    </div>
+  </section>
+
+  <section id="distribucion">
+    <div class="sec-head">
+      <div class="eyebrow">Comparación</div>
+      <h2>Duración e intensidad de cada evento</h2>
+      <p>Número de eventos según su duración y su intensidad (IS), comparando olas de calor diurnas y rachas de noches cálidas en todo el período.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title">Duración (días)</div><div class="chart" id="hist-dur"></div></div>
+      <div class="panel"><div class="panel-title">Intensidad IS (°C)</div><div class="chart" id="hist-is"></div></div>
+    </div>
+  </section>
+
+  <section id="eventos">
+    <div class="sec-head">
+      <div class="eyebrow">Catálogo</div>
+      <h2>Todos los eventos detectados</h2>
+      <p>Ordena por cualquier columna. Haz clic en una fila para abrir esa temporada en el explorador. Máximo y media se refieren a TX en las olas diurnas y a TN en las rachas de noches cálidas.</p>
+    </div>
+    <div class="explorer-top">
+      <div class="ctl"><label class="ctl-label" for="sel-tab-tipo">Tipo</label>
+        <select id="sel-tab-tipo"><option value="">Ambos</option><option value="TX">Olas de calor diurnas</option><option value="TN">Noches cálidas</option></select>
+      </div>
+      <div class="muted" id="tab-count"></div>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla">
+        <thead><tr>
+          <th data-k="tipo">Tipo</th><th data-k="T">Temporada</th><th data-k="inicio">Inicio</th><th data-k="fin">Fin</th>
+          <th data-k="duracion">Días</th><th data-k="IS" aria-sort="descending">IS (°C)</th><th data-k="IS_dia">IS/día</th>
+          <th data-k="maximo">Máximo (°C)</th><th data-k="media">Media (°C)</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="metodo">
+    <div class="sec-head"><div class="eyebrow">Método</div><h2>Cómo se definen los eventos</h2></div>
+    <div class="method">
+      <div class="panel"><h3>Umbral diario</h3>
+        <p>Para cada día del calendario se calcula el percentil 90 de TX y de TN con una ventana móvil de 5 días (el día ±2) sobre el período de referencia <span class="num">1991-2020</span>, siguiendo el criterio ETCCDI sin remuestreo.</p></div>
+      <div class="panel"><h3>Eventos</h3>
+        <p><b>Ola de calor diurna:</b> tres o más días consecutivos con TX sobre su P90. <b>Racha de noches cálidas:</b> tres o más noches consecutivas con TN sobre su P90. Solo se buscan entre noviembre y marzo, y cada temporada se rotula por los años que abarca (2022-23 va de nov. 2022 a mar. 2023). Solo se resumen temporadas con al menos 140 días con datos.</p></div>
+      <div class="panel"><h3>Intensidad y tendencia</h3>
+        <p><b>IS</b> suma los grados por sobre el P90 de cada día del evento. Cinco días a +2 °C dan IS = 10 °C. La tendencia es la pendiente lineal de los días en evento por temporada y su significancia se evalúa con Mann-Kendall.</p>
+        <div class="formula">IS = Σ (T − P90<sub>día</sub>)</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Gráfico de burbujas según Serrano-Notivoli et al. (2023), <i>Atmospheric Research</i> 293, 106931. Índices de extremos según el criterio ETCCDI.</div>
+    <div>Datos diarios de temperatura de la estación Quinta Normal (Santiago). Elaboración: Pablo Sarricolea, Departamento de Geografía, Universidad de Chile. Último dato: <span class="num" id="gen"></span>.</div>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var BASE = "salidas/tablas/";
+  var TIPOS = ["TX", "TN"];
+  var NOM = { TX: "Olas de calor diurnas", TN: "Rachas de noches cálidas" };
+  var NOM1 = { TX: "Ola de calor", TN: "Noches cálidas" };
+  var UNI = { TX: ["ola", "olas", "días"], TN: ["racha", "rachas", "noches"] };
+  var HEAT = ["#fdf0c4", "#f9d27c", "#f4a54a", "#e5732f", "#c94427", "#9c2421", "#651520"];
+  var REF = [1991, 2020];
+  var state = { T: null, sortK: "IS", sortDir: -1 };
+  var EV = [], RES = {}, TEMPS = [], TEND = {}, DAILY = null, ACTUAL = null;
+
+  // ---------- utilidades ----------
+  function csv(txt) {
+    var L = txt.trim().split(/\r?\n/), h = L[0].split(",");
+    return L.slice(1).map(function (l) { var v = l.split(","), r = {}; h.forEach(function (k, i) { r[k] = v[i]; }); return r; });
+  }
+  function num(v) { return v === undefined || v === "" || v === "NA" ? null : +v; }
+  function seasonOf(f) { var y = +f.slice(0, 4), m = +f.slice(5, 7); return m >= 7 ? y + 1 : y; }
+  function lab(T) { return (T - 1) + "-" + String(T % 100).padStart(2, "0"); }
+  function fmt(n, d) { return Number(n).toLocaleString("es-CL", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  var MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  function fdate(s) { return +s.slice(8, 10) + " " + MES[+s.slice(5, 7) - 1] + " " + s.slice(0, 4); }
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+  function heatColor(v, max) {
+    if (v <= 0) return css("--surface-2");
+    var x = Math.min(1, v / max) * (HEAT.length - 1), i = Math.floor(x);
+    return HEAT[Math.min(i + (x - i > 0.5 ? 1 : 0), HEAT.length - 1)];
+  }
+  function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+
+  // ---------- carga ----------
+  fetch("data.json", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error("data.json"); return r.json(); })
+    .then(function (J) { prepare(J); document.getElementById("carga").remove(); init(); })
+    .catch(function (e) { document.getElementById("carga").textContent = "No se pudieron cargar los datos (" + e.message + ")."; });
+
+  function cols(o) { var k = Object.keys(o), n = o[k[0]].length, out = []; for (var i = 0; i < n; i++) { var r = {}; k.forEach(function (c) { r[c] = o[c][i]; }); out.push(r); } return out; }
+  var UMB = null;
+  function prepare(J) {
+    var temp = cols(J.temporadas);
+    TEMPS = temp.map(function (r) { return r.temporada; });
+    TIPOS.forEach(function (k) { RES[k] = {}; });
+    temp.forEach(function (r) {
+      RES.TX[r.temporada] = { T: r.temporada, n: r.olas_calor_n, dias: r.olas_calor_dias, ev: [] };
+      RES.TN[r.temporada] = { T: r.temporada, n: r.rachas_noches_calidas_n, dias: r.rachas_noches_calidas_dias, ev: [] };
+    });
+    function addEv(rows, tipo) {
+      rows.forEach(function (r) {
+        var e = { tipo: tipo, T: seasonOf(r.inicio), inicio: r.inicio, fin: r.fin, duracion: r.duracion, maximo: r.maximo, media: r.media, IS: r.exceso_grados_dia };
+        e.IS_dia = e.duracion ? e.IS / e.duracion : 0;
+        EV.push(e);
+        if (RES[tipo][e.T]) RES[tipo][e.T].ev.push(e);
+      });
+    }
+    addEv(cols(J.olas), "TX"); addEv(cols(J.rachas), "TN");
+    TIPOS.forEach(function (k) {
+      TEMPS.forEach(function (T) {
+        var r = RES[k][T];
+        r.dur_media = mean(r.ev.map(function (e) { return e.duracion; }));
+        r.dur_max = Math.max.apply(null, r.ev.map(function (e) { return e.duracion; }).concat([0]));
+        r.IS_media = mean(r.ev.map(function (e) { return e.IS; }));
+      });
+    });
+    TEND = J.tendencias;
+    var d = J.diario, idx = {};
+    d.ola = d.ola.map(Boolean); d.noc = d.noc.map(Boolean);
+    d.fecha.forEach(function (f, i) { var T = seasonOf(f); (idx[T] = idx[T] || []).push(i); });
+    DAILY = { d: d, idx: idx, last: J.meta.ultimo_dato };
+    var Tl = seasonOf(DAILY.last), ml = +DAILY.last.slice(5, 7);
+    if (TEMPS.indexOf(Tl) < 0 && idx[Tl] && (ml >= 11 || ml <= 3)) ACTUAL = Tl;
+    UMB = J.umbrales;
+  }
+
+  // ---------- plotly ----------
+  function baseLayout(extra) {
+    var l = {
+      paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+      font: { family: "Public Sans, Segoe UI, Arial, sans-serif", color: css("--ink-2"), size: 12 },
+      margin: { l: 48, r: 12, t: 10, b: 44 },
+      hoverlabel: { bgcolor: css("--surface"), bordercolor: css("--line"), font: { color: css("--ink"), family: "Public Sans, Arial, sans-serif", size: 12 } },
+      xaxis: { gridcolor: css("--line"), zerolinecolor: css("--line"), linecolor: css("--line"), tickfont: { family: "IBM Plex Mono, Menlo, monospace", size: 11 } },
+      yaxis: { gridcolor: css("--line"), zerolinecolor: css("--line"), linecolor: css("--line"), tickfont: { family: "IBM Plex Mono, Menlo, monospace", size: 11 } },
+      showlegend: false
+    };
+    return Object.assign(l, extra || {});
+  }
+  if (window.Plotly) Plotly.register({ moduleType: "locale", name: "es", dictionary: {}, format: {
+    days: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+    shortDays: ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
+    months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    shortMonths: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+    date: "%d/%m/%Y", decimal: ",", thousands: "." } });
+  var CFG = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"], locale: "es" };
+
+  function series(k) { return TEMPS.map(function (T) { return RES[k][T]; }); }
+  function refMean(k) { return mean(series(k).filter(function (r) { return r.T >= REF[0] && r.T <= REF[1]; }).map(function (r) { return r.dias; })); }
+  function diasMax() { var m = 0; TIPOS.forEach(function (k) { series(k).forEach(function (r) { m = Math.max(m, r.dias); }); }); return m; }
+
+  // ---------- franjas ----------
+  function drawStripes() {
+    var box = document.getElementById("stripes"), MX = diasMax();
+    box.innerHTML = "";
+    [["TX", "Días"], ["TN", "Noches"]].forEach(function (p) {
+      var k = p[0], row = document.createElement("div"); row.className = "stripe-row";
+      row.innerHTML = '<div class="lbl"><span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + p[1] + "</div>";
+      var st = document.createElement("div"); st.className = "stripe";
+      st.style.gridTemplateColumns = "repeat(" + TEMPS.length + ", 1fr)";
+      series(k).forEach(function (x) {
+        var s = document.createElement("span");
+        s.style.background = heatColor(x.dias, MX);
+        s.title = lab(x.T) + ": " + x.dias + " " + UNI[k][2] + " en " + x.n + " " + (x.n === 1 ? UNI[k][0] : UNI[k][1]);
+        s.addEventListener("click", function () { openSeason(x.T); });
+        st.appendChild(s);
+      });
+      row.appendChild(st); box.appendChild(row);
+    });
+    document.getElementById("stripe-axis").innerHTML = [0, 0.25, 0.5, 0.75, 1].map(function (p) { return "<span>" + lab(TEMPS[Math.round(p * (TEMPS.length - 1))]) + "</span>"; }).join("");
+    document.getElementById("ramp").innerHTML = HEAT.map(function (h) { return '<span style="background:' + h + '"></span>'; }).join("");
+    document.getElementById("ramp-max").textContent = MX;
+  }
+
+  // ---------- KPI ----------
+  function drawKpis() {
+    var box = document.getElementById("kpis"); box.innerHTML = "";
+    var key = { TX: "olas_calor_dias", TN: "rachas_noches_calidas_dias" };
+    TIPOS.forEach(function (k) {
+      var r = series(k), nEv = r.reduce(function (a, x) { return a + x.n; }, 0), dias = r.reduce(function (a, x) { return a + x.dias; }, 0);
+      var ref = refMean(k), mUlt = mean(r.slice(-5).map(function (x) { return x.dias; }));
+      var t = TEND[key[k]], b = t ? t.ols_por_decada : null, p = t ? t.p_valor : null, sig = p !== null && p < 0.05;
+      var top = r.slice().sort(function (a, c) { return c.dias - a.dias; })[0];
+      var html = '<div class="panel-title"><span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + NOM[k] + "</div>" +
+        '<div class="kpi-grid">' +
+        '<div class="kpi"><div class="v">' + nEv + '</div><div class="k">' + UNI[k][1] + " en " + TEMPS.length + " temporadas (" + fmt(dias) + " " + UNI[k][2] + ")</div></div>" +
+        '<div class="kpi"><div class="v">' + fmt(ref, 1) + '</div><div class="k">' + UNI[k][2] + " por temporada, promedio " + REF[0] + "-" + REF[1] + "</div></div>" +
+        '<div class="kpi"><div class="v">' + fmt(mUlt, 1) + '</div><div class="k">' + UNI[k][2] + ' por temporada, últimas 5 temporadas</div></div>' +
+        '<div class="kpi"><div class="v">' + (b !== null ? (b > 0 ? "+" : "") + fmt(b, 1) : "–") + '</div><div class="k">' + UNI[k][2] + ' por década <span class="pill' + (sig ? " sig" : "") + '">' + (sig ? "significativa" : "no signif.") + "</span></div></div>" +
+        "</div>" +
+        '<div class="muted">Temporada con más ' + UNI[k][2] + ': <b class="num">' + lab(top.T) + "</b> (" + top.dias + " " + UNI[k][2] + "). Tendencia: Mann-Kendall, p = " + (p !== null ? p.toExponential(1) : "–") + ".</div>";
+      var div = document.createElement("div"); div.className = "kpi-city"; div.innerHTML = html; box.appendChild(div);
+    });
+  }
+
+  // ---------- burbujas ----------
+  function drawBubbles() {
+    var allMax = diasMax(), T0 = TEMPS[0], T1 = TEMPS[TEMPS.length - 1];
+    var ticks = TEMPS.filter(function (T) { return T % 10 === 1; });
+    TIPOS.forEach(function (k) {
+      var r = series(k), con = r.filter(function (x) { return x.n > 0; }), sin = r.filter(function (x) { return x.n === 0; });
+      var ref = refMean(k), ISMAX = Math.max.apply(null, con.map(function (x) { return x.IS_media; }).concat([1]));
+      var top = con.slice().sort(function (a, b) { return b.dias - a.dias || b.IS_media - a.IS_media; }).slice(0, 3);
+      var traces = [
+        { x: sin.map(function (x) { return x.T; }), y: sin.map(function () { return 0; }), mode: "markers", type: "scatter",
+          marker: { size: 4, color: css("--line") }, hovertemplate: "%{customdata}<br>sin eventos<extra></extra>", customdata: sin.map(function (x) { return lab(x.T); }) },
+        { x: con.map(function (x) { return x.T; }), y: con.map(function (x) { return x.dias; }), mode: "markers", type: "scatter",
+          customdata: con.map(function (x) { return [lab(x.T), x.n, x.dur_media, x.IS_media, x.dur_max]; }),
+          marker: { size: con.map(function (x) { return 7 + (x.dur_media - 3) * 3.6; }), color: con.map(function (x) { return x.IS_media; }),
+            cmin: 0, cmax: ISMAX, colorscale: HEAT.map(function (h, i) { return [i / (HEAT.length - 1), h]; }),
+            line: { color: css("--surface"), width: 1.5 }, opacity: 0.92, showscale: true,
+            colorbar: { title: { text: "IS media<br>por evento (°C)", side: "top", font: { size: 11, family: "Public Sans, Arial, sans-serif", color: css("--ink-2") } }, thickness: 10, len: 0.6, outlinewidth: 0, tickfont: { family: "IBM Plex Mono, monospace", size: 10, color: css("--ink-2") } } },
+          hovertemplate: "<b>%{customdata[0]}</b><br>%{y} " + UNI[k][2] + " en %{customdata[1]} evento(s)<br>Duración media %{customdata[2]:.1f} d (máx %{customdata[4]})<br>IS media %{customdata[3]:.1f} °C<extra></extra>" }
+      ];
+      var ann = top.map(function (x, i) {
+        return { x: x.T, y: x.dias, text: lab(x.T) + " (" + x.dias + ")", showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css("--ink-3"),
+          ax: -46, ay: 0, xanchor: "right", font: { size: 11, color: i === 0 ? css("--heat") : css("--ink"), family: "Public Sans, Arial" } };
+      });
+      ann.push({ x: T0 + 1, y: ref, xanchor: "left", yanchor: "bottom", showarrow: false, text: REF[0] + "-" + REF[1] + " (" + fmt(ref, 1) + ")", font: { size: 11, color: css("--ink-3") } });
+      var lay = baseLayout({
+        margin: { l: 44, r: 70, t: 10, b: 44 },
+        shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: ref, y1: ref, line: { color: css("--ink-3"), width: 1, dash: "dash" } }],
+        annotations: ann
+      });
+      lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [T0 - 1.5, T1 + 1.5] });
+      lay.yaxis = Object.assign(lay.yaxis, { title: { text: k === "TX" ? "Días en ola de calor" : "Noches en racha cálida", font: { size: 12 } }, range: [-1, allMax * 1.15 + 1] });
+      var el = document.getElementById("bub-" + k);
+      Plotly.react(el, traces, lay, CFG);
+      el.removeAllListeners && el.removeAllListeners("plotly_click");
+      el.on("plotly_click", function (ev) { openSeason(ev.points[0].x); });
+    });
+  }
+
+  // ---------- explorador ----------
+  function allSeasons() { var s = TEMPS.slice(); if (ACTUAL) s.push(ACTUAL); return s; }
+  function fillSeasonSelect() {
+    var s = document.getElementById("sel-temp");
+    s.innerHTML = allSeasons().reverse().map(function (T) { return '<option value="' + T + '">' + lab(T) + (T === ACTUAL ? " (en curso)" : "") + "</option>"; }).join("");
+    if (!state.T) state.T = series("TX").slice().sort(function (a, b) { return b.dias - a.dias; })[0].T;
+    s.value = state.T;
+  }
+  function shift(s, h) { var dt = new Date(s + "T12:00:00Z"); dt.setUTCHours(12 + h * 24); return dt.toISOString().slice(0, 19).replace("T", " "); }
+  function bands(ii, f, flag, color, y0, y1) {
+    var out = [], run = null, d = DAILY.d;
+    ii.forEach(function (i, k) {
+      if (flag[i] && run === null) run = k;
+      if ((!flag[i] || k === ii.length - 1) && run !== null) {
+        var end = flag[i] ? k : k - 1;
+        out.push({ type: "rect", xref: "x", yref: "paper", x0: shift(f[run], -0.5), x1: shift(f[end], 0.5), y0: y0, y1: y1, fillcolor: color, line: { width: 0 }, layer: "below" });
+        run = null;
+      }
+    });
+    return out;
+  }
+  function drawDaily() {
+    var T = state.T, d = DAILY.d, ii = DAILY.idx[T] || [];
+    var f = ii.map(function (i) { return d.fecha[i]; });
+    var shapes = bands(ii, f, d.ola, css("--band"), 0.5, 1).concat(bands(ii, f, d.noc, css("--band-tn"), 0, 0.5));
+    var traces = [
+      { x: f, y: ii.map(function (i) { return d.p90_tx[i]; }), name: "P90 TX", mode: "lines", line: { color: css("--tx"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TX %{y:.1f} °C<extra></extra>" },
+      { x: f, y: ii.map(function (i) { return d.tx[i]; }), name: "TX", mode: "lines+markers", line: { color: css("--tx"), width: 2 }, marker: { size: 4 }, hovertemplate: "TX %{y:.1f} °C<extra></extra>" },
+      { x: f, y: ii.map(function (i) { return d.p90_tn[i]; }), name: "P90 TN", mode: "lines", line: { color: css("--tn"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TN %{y:.1f} °C<extra></extra>" },
+      { x: f, y: ii.map(function (i) { return d.tn[i]; }), name: "TN", mode: "lines+markers", line: { color: css("--tn"), width: 2 }, marker: { size: 4 }, hovertemplate: "TN %{y:.1f} °C<extra></extra>" }
+    ];
+    var lay = baseLayout({ shapes: shapes, hovermode: "x unified", showlegend: true,
+      legend: { orientation: "h", y: 1.08, x: 0, font: { size: 12, color: css("--ink-2") } }, margin: { l: 48, r: 12, t: 30, b: 40 } });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Temperatura (°C)", font: { size: 12 } } });
+    lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%d %b", hoverformat: "%a %d %b %Y", range: [shift((T - 1) + "-11-01", -0.5), shift(T + "-03-31", 0.5)] });
+    Plotly.react("daily", traces, lay, CFG);
+
+    var ev = EV.filter(function (e) { return e.T === T; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : 1; });
+    document.getElementById("ev-list").innerHTML = ev.length ? ev.map(function (e) {
+      return '<div class="ev-chip"><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + " · " + fdate(e.inicio) + " → " + fdate(e.fin) + " · <b>" + e.duracion + " d</b> · IS <b>" + fmt(e.IS, 1) + " °C</b> · máx <b>" + fmt(e.maximo, 1) + " °C</b></div>";
+    }).join("") : '<div class="muted">Sin olas de calor ni rachas de noches cálidas en ' + lab(T) + ".</div>";
+  }
+  function openSeason(T) {
+    state.T = +T;
+    document.getElementById("sel-temp").value = state.T;
+    drawDaily();
+    document.getElementById("explorador").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
+
+  // ---------- umbrales ----------
+  var MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+  function drawUmbrales() {
+    var u = UMB, by = {}, fechas = [];
+    u.doy.forEach(function (doy, i) {
+      var dt = new Date(Date.UTC(2001, 0, doy)), m = dt.getUTCMonth();
+      (by[m] = by[m] || { tx: [], tn: [] }); by[m].tx.push(u.tx_p90[i]); by[m].tn.push(u.tn_p90[i]);
+      // eje de julio a junio para centrar la temporada cálida
+      var y = m >= 6 ? 2000 : 2001; fechas.push(y + "-" + String(m + 1).padStart(2, "0") + "-" + String(dt.getUTCDate()).padStart(2, "0"));
+    });
+    var orden = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
+    function mn(a) { return Math.min.apply(null, a); } function mx(a) { return Math.max.apply(null, a); }
+    document.querySelector("#umb-tabla tbody").innerHTML = orden.map(function (m) {
+      var b = by[m], act = m >= 10 || m <= 2;
+      return "<tr" + (act ? ' class="hl"' : "") + "><td>" + MESES[m] + "</td><td>" + fmt(mean(b.tx), 1) + "</td><td>" + fmt(mn(b.tx), 1) + "–" + fmt(mx(b.tx), 1) + "</td><td>" + fmt(mean(b.tn), 1) + "</td><td>" + fmt(mn(b.tn), 1) + "–" + fmt(mx(b.tn), 1) + "</td></tr>";
+    }).join("");
+    var ix = fechas.map(function (_, i) { return i; }).sort(function (a, b) { return fechas[a] < fechas[b] ? -1 : 1; });
+    var x = ix.map(function (i) { return fechas[i]; });
+    var tr = [
+      { x: x, y: ix.map(function (i) { return u.tx_p90[i]; }), name: "P90 TX", mode: "lines", line: { color: css("--tx"), width: 2 }, hovertemplate: "%{x|%d %b}: P90 TX %{y:.1f} °C<extra></extra>" },
+      { x: x, y: ix.map(function (i) { return u.tn_p90[i]; }), name: "P90 TN", mode: "lines", line: { color: css("--tn"), width: 2 }, hovertemplate: "%{x|%d %b}: P90 TN %{y:.1f} °C<extra></extra>" }
+    ];
+    var lay = baseLayout({ showlegend: true, legend: { orientation: "h", y: 1.1, x: 0, font: { color: css("--ink-2") } }, margin: { l: 44, r: 12, t: 30, b: 40 },
+      shapes: [{ type: "rect", xref: "x", yref: "paper", x0: "2000-11-01", x1: "2001-03-31", y0: 0, y1: 1, fillcolor: css("--surface-2"), line: { width: 0 }, layer: "below" }],
+      annotations: [{ x: "2001-01-15", y: 1, yref: "paper", yanchor: "top", showarrow: false, text: "Temporada de búsqueda (nov-mar)", font: { size: 11, color: css("--ink-3") } }] });
+    lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%b", dtick: "M1", range: ["2000-07-01", "2001-06-30"] });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Umbral (°C)", font: { size: 12 } } });
+    Plotly.react("umb-chart", tr, lay, CFG);
+  }
+
+  // ---------- calendario ----------
+  function drawCalendar() {
+    var d = DAILY.d, NC = 152;
+    TIPOS.forEach(function (k) {
+      var flag = k === "TX" ? d.ola : d.noc, z = [], txt = [], Ts = allSeasons();
+      Ts.forEach(function (T) {
+        var row = new Array(NC).fill(null), tr = new Array(NC).fill(""), start = Date.UTC(T - 1, 10, 1);
+        (DAILY.idx[T] || []).forEach(function (i) {
+          var f = d.fecha[i], c = Math.round((Date.parse(f + "T00:00:00Z") - start) / 864e5);
+          if (c < 0 || c >= NC) return;
+          var tx = d.tx[i], tn = d.tn[i];
+          row[c] = (tx === null && tn === null) ? null : (flag[i] ? 1 : 0);
+          tr[c] = fdate(f) + "<br>TX " + (tx === null ? "–" : tx) + " °C (P90 " + d.p90_tx[i] + ")<br>TN " + (tn === null ? "–" : tn) + " °C (P90 " + d.p90_tn[i] + ")" + (flag[i] ? "<br><b>" + (k === "TX" ? "En ola de calor" : "En racha de noches cálidas") + "</b>" : "");
+        });
+        z.push(row); txt.push(tr);
+      });
+      var col = css("--" + k.toLowerCase());
+      var tr = [{ z: z, text: txt, x: Array.from({ length: NC }, function (_, c) { return c; }), y: Ts.map(lab), type: "heatmap", hoverongaps: false,
+        colorscale: [[0, css("--surface-2")], [0.5, css("--surface-2")], [0.5, col], [1, col]], zmin: 0, zmax: 1, showscale: false, xgap: 0.5, ygap: 1,
+        hovertemplate: "<b>%{y}</b><br>%{text}<extra></extra>" }];
+      var lay = baseLayout({ margin: { l: 60, r: 8, t: 6, b: 34 } });
+      lay.xaxis = Object.assign(lay.xaxis, { tickvals: [0, 30, 61, 92, 120, 150], ticktext: ["1 nov", "1 dic", "1 ene", "1 feb", "1 mar", "31 mar"], showgrid: false });
+      lay.yaxis = Object.assign(lay.yaxis, { type: "category", tickvals: Ts.filter(function (T) { return T % 10 === 1; }).map(lab), showgrid: false, autorange: "reversed" });
+      var el = document.getElementById("cal-" + k);
+      Plotly.react(el, tr, lay, CFG);
+      el.removeAllListeners && el.removeAllListeners("plotly_click");
+      el.on("plotly_click", function (ev) { openSeason(+ev.points[0].y.slice(0, 4) + 1); });
+    });
+  }
+
+  // ---------- histogramas ----------
+  function drawHists() {
+    function hist(id, key, size, start, xt) {
+      var tr = TIPOS.map(function (k) {
+        return { x: EV.filter(function (e) { return e.tipo === k; }).map(function (e) { return e[key]; }),
+          type: "histogram", name: NOM[k], xbins: { start: start, size: size }, marker: { color: css("--" + k.toLowerCase()), line: { color: css("--surface"), width: 1 } },
+          hovertemplate: NOM[k] + ": %{y} eventos<br>" + xt + " %{x}<extra></extra>" };
+      });
+      var lay = baseLayout({ barmode: "group", bargap: 0.18, bargroupgap: 0.06, showlegend: true, legend: { orientation: "h", y: 1.12, x: 0, font: { color: css("--ink-2") } }, margin: { l: 44, r: 12, t: 30, b: 40 } });
+      lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Número de eventos", font: { size: 12 } } });
+      lay.xaxis = Object.assign(lay.xaxis, { title: { text: xt, font: { size: 12 } } });
+      Plotly.react(id, tr, lay, CFG);
+    }
+    hist("hist-dur", "duracion", 1, 2.5, "Duración (días)");
+    hist("hist-is", "IS", 2, 0, "IS (°C)");
+  }
+
+  // ---------- tabla ----------
+  function drawTable() {
+    var ft = document.getElementById("sel-tab-tipo").value;
+    var r = EV.filter(function (e) { return !ft || e.tipo === ft; });
+    var k = state.sortK, dir = state.sortDir;
+    r.sort(function (a, b) { return (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir; });
+    document.querySelectorAll("#tabla th").forEach(function (th) { th.setAttribute("aria-sort", th.dataset.k === k ? (dir > 0 ? "ascending" : "descending") : "none"); });
+    document.querySelector("#tabla tbody").innerHTML = r.map(function (e) {
+      return '<tr data-t="' + e.T + '"><td><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + "</td><td>" + lab(e.T) + "</td><td>" + e.inicio + "</td><td>" + e.fin + "</td><td>" + e.duracion + "</td><td>" + fmt(e.IS, 1) + "</td><td>" + fmt(e.IS_dia, 2) + "</td><td>" + fmt(e.maximo, 1) + "</td><td>" + fmt(e.media, 1) + "</td></tr>";
+    }).join("");
+    document.getElementById("tab-count").textContent = r.length + " eventos";
+  }
+
+  // ---------- inicio ----------
+  function drawAll() { drawStripes(); drawKpis(); if (window.Plotly) { drawBubbles(); drawDaily(); drawUmbrales(); drawCalendar(); drawHists(); } drawTable(); }
+  function init() {
+    document.querySelectorAll("#tabla th").forEach(function (th) {
+      th.addEventListener("click", function () {
+        if (state.sortK === th.dataset.k) state.sortDir *= -1; else { state.sortK = th.dataset.k; state.sortDir = ["tipo", "T", "inicio", "fin"].indexOf(th.dataset.k) >= 0 ? 1 : -1; }
+        drawTable();
+      });
+    });
+    document.querySelector("#tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr) openSeason(tr.dataset.t); });
+    document.getElementById("sel-tab-tipo").addEventListener("change", drawTable);
+    document.getElementById("sel-temp").addEventListener("change", function (e) { state.T = +e.target.value; drawDaily(); });
+
+    document.getElementById("t-ini").textContent = lab(TEMPS[0]);
+    document.getElementById("t-fin").textContent = lab(TEMPS[TEMPS.length - 1]);
+    document.getElementById("gen").textContent = fdate(DAILY.last);
+    if (ACTUAL) {
+      var ii = DAILY.idx[ACTUAL], d = DAILY.d;
+      var a = ii.filter(function (i) { return d.ola[i]; }).length, b = ii.filter(function (i) { return d.noc[i]; }).length;
+      document.getElementById("en-curso").innerHTML = 'Temporada <b class="num">' + lab(ACTUAL) + "</b> en curso (no incluida en las franjas): " + a + " días en ola de calor y " + b + " noches en racha cálida hasta el " + fdate(DAILY.last) + '. <a href="#explorador" id="ver-actual">Ver en el explorador</a>.';
+      document.getElementById("ver-actual").addEventListener("click", function (e) { e.preventDefault(); openSeason(ACTUAL); });
+    }
+    fillSeasonSelect();
+    drawAll();
+    var redraw = function () { drawAll(); };
+    try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw); } catch (e) {}
+  }
+})();
+</script>
+</body>
+</html>
