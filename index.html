@@ -3,191 +3,385 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>body{margin:0}</style>
 <title>Olas de calor y noches cálidas en Santiago (Quinta Normal)</title>
-<meta name="description" content="Visor interactivo de olas de calor diurnas y rachas de noches cálidas en Santiago, estación Quinta Normal, temporadas cálidas (noviembre a marzo) desde 1951-52.">
+<meta name="description" content="Visor interactivo de olas de calor diurnas y rachas de noches cálidas en Santiago, estación Quinta Normal, temporadas cálidas (noviembre a marzo) desde 1951-52. Incluye buscador por mes, explorador diario y una sección para aprender.">
+<meta name="author" content="Pablo Sarricolea">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Olas de calor y noches cálidas en Santiago (Quinta Normal)">
+<meta property="og:description" content="Explora 75 temporadas cálidas de Santiago: busca olas de calor por mes, revisa cada temporada día a día y aprende cómo se definen los eventos.">
+<meta property="og:url" content="https://psarricolea.github.io/temperaturas-quinta-normal/">
+<meta property="og:locale" content="es_CL">
+<meta name="theme-color" content="#131716">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23131716'/%3E%3Crect x='5' y='6' width='4' height='20' fill='%23f9d27c'/%3E%3Crect x='11' y='6' width='4' height='20' fill='%23f4a54a'/%3E%3Crect x='17' y='6' width='4' height='20' fill='%23e5732f'/%3E%3Crect x='23' y='6' width='4' height='20' fill='%239c2421'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-
 :root {
   --bg: #f6f7f5;
   --surface: #ffffff;
   --surface-2: #eceeea;
   --ink: #1b2220;
   --ink-2: #4a5552;
-  --ink-3: #75807c;
+  --ink-3: #6b7672;
   --line: #d9ddd8;
   --heat: #c2452d;
-  --curico: #008c7e;
-  --chillan: #7a4fb8;
   --tx: #c2452d;
   --tn: #2f63b0;
+  --ok: #1f7a55;
   --band: rgba(194, 69, 45, 0.13);
   --band-tn: rgba(47, 99, 176, 0.12);
   --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --font-body: "Public Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --radius: 6px;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(20, 30, 26, 0.05), 0 6px 20px rgba(20, 30, 26, 0.05);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
-    --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --curico: #2aa8a2; --chillan: #9b7bd8;
-    --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16); color-scheme: dark;
+    --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f;
+    --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
+    --shadow: none; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
-  --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --curico: #2aa8a2; --chillan: #9b7bd8;
-  --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16); color-scheme: dark;
+  --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f;
+  --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
+  --shadow: none; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
-.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 0 64px; }
+html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; }
+main.wrap { padding-block: 0 64px; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.01em; text-wrap: balance; margin: 0; line-height: 1.1; }
-h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); font-weight: 700; text-transform: uppercase; }
-h2 { font-size: 1.7rem; text-transform: uppercase; }
+h1 { font-size: clamp(2.2rem, 5.2vw, 3.7rem); font-weight: 700; text-transform: uppercase; }
+h1 em { font-style: normal; color: var(--heat); }
+h2 { font-size: 1.8rem; text-transform: uppercase; }
 h3 { font-size: 1.2rem; }
-p { margin: 0; max-width: 68ch; }
+p { margin: 0; max-width: 70ch; }
 .eyebrow { font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.85rem; color: var(--ink-3); font-weight: 600; }
 .num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 a { color: var(--heat); }
 :focus-visible { outline: 2px solid var(--heat); outline-offset: 2px; }
+button { font: inherit; color: inherit; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--bg); padding: 8px 12px; z-index: 50; }
+.skip:focus { left: 8px; top: 8px; }
+
+/* Barra superior */
+.topbar { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.topbar .wrap { display: flex; align-items: center; gap: 18px; height: 52px; }
+.brand { display: flex; align-items: center; gap: 9px; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 1.02rem; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.brand i { display: inline-grid; grid-template-columns: repeat(4, 4px); gap: 2px; height: 18px; }
+.brand i b { display: block; border-radius: 1px; }
+.nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; flex: 1; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { color: var(--ink-2); text-decoration: none; font-size: 0.88rem; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
+.nav a:hover { background: var(--surface-2); color: var(--ink); }
+.nav a.on { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--heat); border-radius: 6px 6px 0 0; }
+.icon-btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; height: 32px; padding: 0 10px; cursor: pointer; font-size: 0.82rem; color: var(--ink-2); white-space: nowrap; }
+.icon-btn:hover { color: var(--ink); border-color: var(--ink-3); }
 
 /* Portada */
-header.hero { display: grid; gap: 18px; padding-block: 36px 22px; }
-.hero .lede { color: var(--ink-2); font-size: 1.05rem; }
-.byline { font-size: 0.92rem; color: var(--ink-2); margin: -6px 0 0; }
+header.hero { display: grid; gap: 22px; padding-block: 40px 22px; }
+.hero-top { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 28px; align-items: end; }
+.hero-text { display: grid; gap: 14px; }
+.hero .lede { color: var(--ink-2); font-size: 1.08rem; }
+.byline { font-size: 0.9rem; color: var(--ink-3); }
 .byline a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 0.92rem; text-decoration: none; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--ink-3); }
+.btn.small { padding: 5px 11px; font-size: 0.84rem; }
+.status { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 12px; box-shadow: var(--shadow); }
+.status-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.live { display: inline-flex; align-items: center; gap: 6px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); }
+.live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.status .v { font-family: var(--font-data); font-size: 1.7rem; line-height: 1.1; font-weight: 500; }
+.status .k { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+.status .today { border-top: 1px solid var(--line); padding-top: 10px; font-size: 0.86rem; color: var(--ink-2); }
 .stripes { display: grid; gap: 6px; }
 .stripe-row { display: grid; grid-template-columns: 84px 1fr; align-items: center; gap: 10px; }
 .stripe-row .lbl { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.stripe { display: grid; height: 46px; border-radius: 3px; overflow: hidden; cursor: pointer; }
+.stripe { display: grid; height: 50px; border-radius: 4px; overflow: hidden; cursor: pointer; }
 .stripe span { display: block; height: 100%; }
 .stripe span:hover { outline: 2px solid var(--ink); outline-offset: -2px; }
 .stripe-axis { display: grid; grid-template-columns: 84px 1fr; gap: 10px; font-size: 0.75rem; color: var(--ink-3); }
 .stripe-axis div:last-child { display: flex; justify-content: space-between; font-family: var(--font-data); }
-.legend-ramp { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--ink-3); flex-wrap: wrap; }
+.legend-row { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; font-size: 0.8rem; color: var(--ink-3); }
+.legend-ramp { display: flex; align-items: center; gap: 8px; }
 .legend-ramp .ramp { display: flex; height: 10px; width: 180px; border-radius: 2px; overflow: hidden; }
 .legend-ramp .ramp span { flex: 1; }
-
-/* Barra de control */
-.controls { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 10px; display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
-.seg button { font: inherit; font-size: 0.9rem; border: 0; background: transparent; color: var(--ink-2); padding: 7px 14px; cursor: pointer; }
-.seg button + button { border-left: 1px solid var(--line); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 600; }
-.ctl-label { font-size: 0.78rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 8px; }
-.ctl { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-select { font: inherit; font-size: 0.9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink); }
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.84rem; border: 1px solid var(--line); border-radius: 99px; padding: 3px 11px; background: var(--surface); color: var(--ink-2); }
 
 /* Secciones */
-section { padding-block: 34px 6px; display: grid; gap: 16px; }
+section { padding-block: 44px 6px; display: grid; gap: 18px; }
 .sec-head { display: grid; gap: 6px; }
 .sec-head p { color: var(--ink-2); }
 .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; min-width: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; min-width: 0; box-shadow: var(--shadow); }
 .panel-title { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.panel-note { font-size: 0.8rem; color: var(--ink-3); margin-top: 2px; }
 .chart { width: 100%; min-height: 320px; }
+.muted { color: var(--ink-3); font-size: 0.85rem; }
 
-/* KPI */
+/* KPI y récords */
 .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.kpi-city { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.kpi-city { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; min-width: 0; box-shadow: var(--shadow); }
 .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .kpi .v { font-family: var(--font-data); font-size: 1.55rem; font-weight: 500; line-height: 1.15; font-variant-numeric: tabular-nums; }
 .kpi .k { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
 .pill { display: inline-block; font-size: 0.72rem; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--line); color: var(--ink-2); font-family: var(--font-body); vertical-align: middle; }
 .pill.sig { border-color: var(--heat); color: var(--heat); }
+.records { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rec { text-align: left; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--tx); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 2px; cursor: pointer; }
+.rec.tn { border-left-color: var(--tn); }
+.rec:hover { border-color: var(--ink-3); border-left-color: var(--tx); }
+.rec.tn:hover { border-left-color: var(--tn); }
+.rec .k { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); }
+.rec .v { font-family: var(--font-data); font-size: 1.35rem; font-weight: 500; }
+.rec .d { font-size: 0.84rem; color: var(--ink-2); }
+
+/* Controles */
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); }
+.seg button { font-size: 0.88rem; border: 0; background: transparent; color: var(--ink-2); padding: 7px 13px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 600; }
+.chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 99px; padding: 6px 13px; font-size: 0.88rem; cursor: pointer; }
+.chip:hover { border-color: var(--ink-3); }
+.chip[aria-pressed="true"] { background: var(--heat); border-color: var(--heat); color: #fff; font-weight: 600; }
+.chip .n { font-family: var(--font-data); font-size: 0.76rem; opacity: 0.75; margin-left: 4px; }
+.ctl-label { font-size: 0.74rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; }
+.ctl { display: grid; gap: 5px; align-content: start; }
+.ctl-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+select, input[type="date"] { font: inherit; font-size: 0.88rem; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.filters { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-wrap: wrap; gap: 16px 28px; box-shadow: var(--shadow); }
+.result-bar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; }
+.result-sum { font-size: 0.95rem; color: var(--ink-2); }
+.result-sum b { color: var(--ink); font-family: var(--font-data); font-weight: 500; }
+.lookup { display: grid; grid-template-columns: auto 1fr; gap: 14px 20px; align-items: center; background: var(--surface-2); border-radius: var(--radius); padding: 14px 16px; }
+.lookup-out { font-size: 0.92rem; color: var(--ink-2); }
+.lookup-out b { color: var(--ink); }
 
 /* Explorador */
-.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 0.88rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 5px 10px; background: var(--surface); }
-.ev-chip .dot { width: 8px; height: 8px; }
-.explorer-top { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center; }
+.explorer-top { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
 .events-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.ev-chip { font-size: 0.82rem; border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 10px; background: var(--surface); }
+.ev-chip { font-size: 0.82rem; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--surface); }
+.ev-chip .dot { width: 8px; height: 8px; }
 .ev-chip b { font-family: var(--font-data); font-weight: 500; }
-.muted { color: var(--ink-3); font-size: 0.85rem; }
+.season-stats { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.88rem; color: var(--ink-2); }
+.season-stats b { font-family: var(--font-data); font-weight: 500; color: var(--ink); }
 
-/* Tabla */
-.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); max-height: 520px; }
+/* Tablas */
+.table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); max-height: 520px; }
 table { border-collapse: collapse; width: 100%; font-size: 0.86rem; }
 th, td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
 th:first-child, td:first-child, th:nth-child(2), td:nth-child(2) { text-align: left; }
-th { position: sticky; top: 0; background: var(--surface-2); font-weight: 600; cursor: pointer; user-select: none; font-size: 0.8rem; }
+th { position: sticky; top: 0; background: var(--surface-2); font-weight: 600; cursor: pointer; user-select: none; font-size: 0.8rem; z-index: 1; }
 th[aria-sort="ascending"]::after { content: " ▲"; font-size: 0.7em; }
 th[aria-sort="descending"]::after { content: " ▼"; font-size: 0.7em; }
 td { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
 td:first-child { font-family: var(--font-body); }
 tbody tr { cursor: pointer; }
 tbody tr:hover { background: var(--surface-2); }
-
-/* Umbrales */
+.empty { padding: 28px; text-align: center; color: var(--ink-3); }
 .umb-wrap { max-height: none; }
 #umb-tabla th, #umb-tabla td { text-align: right; }
 #umb-tabla th:first-child, #umb-tabla td:first-child { text-align: left; }
-#umb-tabla th { cursor: default; }
+#umb-tabla th { cursor: default; position: static; }
 #umb-tabla tbody tr { cursor: default; }
 #umb-tabla tr.hl td { background: var(--band); }
 #umb-tabla tr.hl td:first-child { font-weight: 600; }
 
-/* Método */
-.method { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+/* Aprende */
+#aprende { background: var(--surface-2); margin-inline: -20px; padding: 44px 20px 40px; margin-top: 44px; border-radius: 12px; }
+.learn-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 8px; align-content: start; }
+.learn-card .n { font-family: var(--font-data); color: var(--heat); font-size: 0.8rem; }
+.learn-card p { font-size: 0.92rem; color: var(--ink-2); }
+.subhead { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1.25rem; margin-top: 10px; }
+.lab { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; }
+.lab svg { width: 100%; height: auto; display: block; }
+.lab-rows { display: grid; gap: 4px; align-content: start; }
+.lab-row { display: grid; grid-template-columns: 56px 1fr 62px 52px; gap: 8px; align-items: center; font-size: 0.84rem; }
+.lab-row input[type="range"] { width: 100%; accent-color: var(--heat); }
+.lab-row .ex { font-family: var(--font-data); font-size: 0.78rem; color: var(--ink-3); text-align: right; }
+.lab-row .ex.up { color: var(--heat); }
+.verdict { border-radius: 6px; padding: 10px 12px; font-size: 0.92rem; background: var(--surface-2); border-left: 3px solid var(--ink-3); }
+.verdict.yes { border-left-color: var(--heat); background: var(--band); }
+.quiz { display: grid; gap: 14px; }
+.q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; }
+.q .qt { font-weight: 600; }
+.q .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.q .opts button { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 0.9rem; }
+.q .opts button:hover:not(:disabled) { border-color: var(--ink-3); }
+.q .opts button.right { border-color: var(--ok); color: var(--ok); font-weight: 600; }
+.q .opts button.wrong { border-color: var(--heat); color: var(--heat); text-decoration: line-through; }
+.q .fb { font-size: 0.88rem; color: var(--ink-2); }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 16px; }
+details + details { margin-top: 8px; }
+summary { cursor: pointer; padding: 12px 0; font-weight: 600; list-style-position: outside; }
+details p { padding-bottom: 14px; color: var(--ink-2); font-size: 0.93rem; }
+dl.glos { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin: 0; font-size: 0.92rem; }
+dl.glos dt { font-family: var(--font-data); font-weight: 500; color: var(--ink); }
+dl.glos dd { margin: 0; color: var(--ink-2); }
+
+/* Método y pie */
 .method .panel { padding: 16px; display: grid; gap: 8px; align-content: start; }
 .method p { font-size: 0.92rem; color: var(--ink-2); }
 .formula { font-family: var(--font-data); font-size: 0.85rem; background: var(--surface-2); padding: 8px 10px; border-radius: 4px; overflow-x: auto; }
-footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 0.82rem; display: grid; gap: 4px; }
+.cite { display: grid; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.cite blockquote { margin: 0; font-size: 0.92rem; color: var(--ink-2); border-left: 3px solid var(--line); padding-left: 12px; }
+footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 0.82rem; display: grid; gap: 4px; }
+.to-top { position: fixed; right: 16px; bottom: 16px; z-index: 20; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); cursor: pointer; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
 
+@media (max-width: 960px) {
+  .hero-top { grid-template-columns: minmax(0, 1fr); }
+  .records { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 860px) {
-  .grid-2, .kpis, .method { grid-template-columns: minmax(0, 1fr); }
+  .grid-2, .grid-3, .kpis, .lab { grid-template-columns: minmax(0, 1fr); }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wrap { padding-inline: 16px; }
-  .stripe-row, .stripe-axis { grid-template-columns: 76px 1fr; }
+  #aprende { margin-inline: -16px; padding-inline: 16px; border-radius: 0; }
+  .stripe-row, .stripe-axis { grid-template-columns: 70px 1fr; }
   .stripe-row .lbl { font-size: 0.82rem; letter-spacing: 0.02em; }
+  .brand span { display: none; }
+  .lookup { grid-template-columns: minmax(0, 1fr); }
+  dl.glos { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  dl.glos dd { margin-bottom: 8px; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (max-width: 520px) { .records { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
+@media print { .topbar, .to-top, .cta { display: none; } }
 </style>
 </head>
 <body>
+<a class="skip" href="#contenido">Saltar al contenido</a>
 
-<div class="wrap">
-  <header class="hero">
-    <div class="eyebrow">Santiago · Estación Quinta Normal · Temporada cálida (noviembre a marzo)</div>
-    <h1>Olas de calor y noches cálidas en Santiago</h1>
-    <p class="byline">Creado por Pablo Sarricolea · Contacto: <a href="mailto:psarricolea@uchilefau.cl">psarricolea@uchilefau.cl</a></p>
-    <p class="lede">Días dentro de una ola de calor diurna y noches dentro de una racha de noches cálidas en cada temporada cálida, de la <span class="num" id="t-ini">–</span> a la <span class="num" id="t-fin">–</span>. Cada franja es una temporada; el color indica cuántos días quedaron dentro de un evento. Haz clic en una franja para abrir esa temporada en el explorador.</p>
+<div class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="Inicio"><i aria-hidden="true"><b style="background:#f9d27c"></b><b style="background:#f4a54a"></b><b style="background:#e5732f"></b><b style="background:#9c2421"></b></i><span>Calor en Santiago</span></a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#resumen">Panorama</a>
+      <a href="#buscador">Buscador</a>
+      <a href="#explorador">Explorador</a>
+      <a href="#calendario">Calendario</a>
+      <a href="#umbrales">Umbrales</a>
+      <a href="#aprende">Aprende</a>
+      <a href="#metodo">Método</a>
+    </nav>
+    <button class="icon-btn" id="btn-tema" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
+  </div>
+</div>
+
+<main class="wrap" id="contenido">
+  <header class="hero" id="inicio">
+    <div class="hero-top">
+      <div class="hero-text">
+        <div class="eyebrow">Santiago de Chile · Estación Quinta Normal · Temporada cálida (noviembre a marzo)</div>
+        <h1>Olas de calor y <em>noches cálidas</em> en Santiago</h1>
+        <p class="lede">Un registro de <span class="num" id="t-n">–</span> temporadas cálidas, de la <span class="num" id="t-ini">–</span> a la <span class="num" id="t-fin">–</span>, para ver cuándo ocurrieron los episodios de calor extremo, cuánto duraron y cómo han cambiado.</p>
+        <div class="cta">
+          <a class="btn" href="#buscador">Buscar olas por mes</a>
+          <a class="btn ghost" href="#explorador">Explorar una temporada</a>
+          <a class="btn ghost" href="#aprende">Aprender</a>
+        </div>
+        <p class="byline">Creado por Pablo Sarricolea, Departamento de Geografía, Universidad de Chile · <a href="mailto:psarricolea@uchilefau.cl">psarricolea@uchilefau.cl</a></p>
+      </div>
+      <aside class="status" id="status" aria-label="Estado de la temporada"></aside>
+    </div>
     <div class="stripes" id="stripes" aria-label="Franjas de días en evento por temporada"></div>
     <div class="stripe-axis"><div></div><div id="stripe-axis"></div></div>
-    <div class="legend-ramp"><span>Días en evento por temporada:</span><span class="num">0</span><span class="ramp" id="ramp"></span><span class="num" id="ramp-max">–</span></div>
-    <div class="muted" id="en-curso"></div>
-  </header>
-
-  <div class="controls" role="toolbar" aria-label="Leyenda de tipos">
-    <div class="ctl"><span class="ctl-label">Tipos de evento</span>
+    <div class="legend-row">
+      <div class="legend-ramp"><span>Días en evento por temporada:</span><span class="num">0</span><span class="ramp" id="ramp"></span><span class="num" id="ramp-max">–</span></div>
+      <span>Cada franja es una temporada. Haz clic para abrirla en el explorador.</span>
+    </div>
+    <div class="legend-row">
       <span class="tag"><span class="dot" style="background:var(--tx)"></span>Ola de calor diurna · TX &gt; P90</span>
       <span class="tag"><span class="dot" style="background:var(--tn)"></span>Racha de noches cálidas · TN &gt; P90</span>
+      <span>Tres o más días seguidos sobre el percentil 90 de ese día del calendario.</span>
     </div>
-    <div class="muted">Tres o más días seguidos sobre el percentil 90 de ese día del calendario.</div>
-  </div>
+  </header>
 
   <div id="carga" class="muted" style="padding-top:24px">Cargando datos…</div>
 
   <section id="resumen">
-    <div class="sec-head"><div class="eyebrow">Resumen</div><h2>Cuántos eventos y cómo han cambiado</h2></div>
+    <div class="sec-head"><div class="eyebrow">Panorama</div><h2>Cuántos eventos y cómo han cambiado</h2></div>
     <div class="kpis" id="kpis"></div>
+    <div class="subhead">Récords del registro</div>
+    <div class="records" id="records"></div>
   </section>
 
   <section id="burbujas">
     <div class="sec-head">
       <div class="eyebrow">Evolución por temporada</div>
       <h2>Días en evento por temporada cálida</h2>
-      <p>Cada círculo es una temporada con al menos un evento. El tamaño indica la duración media de sus eventos y el color su intensidad media (IS, grados acumulados por sobre el umbral). La línea discontinua es el promedio del período de referencia. Pasa el cursor para ver el detalle y haz clic para abrir la temporada en el explorador.</p>
+      <p>Cada círculo es una temporada con al menos un evento. El tamaño indica la duración media de sus eventos y el color su intensidad media (IS, grados acumulados por sobre el umbral). La línea discontinua es el promedio del período de referencia. Haz clic en un círculo para abrir la temporada.</p>
     </div>
     <div class="grid-2">
       <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="bub-TX"></div></div>
       <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="bub-TN"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Promedio por década</div>
+      <div class="panel-note">Días (o noches) en evento por temporada, promediados en cada década. Las décadas incompletas se indican con el número de temporadas.</div>
+      <div class="chart" id="dec-chart" style="min-height:280px"></div>
+    </div>
+  </section>
+
+  <section id="buscador">
+    <div class="sec-head">
+      <div class="eyebrow">Buscador</div>
+      <h2>Busca olas de calor por mes</h2>
+      <p>Elige uno o varios meses, el tipo de evento, el período y la duración mínima. Un evento aparece en un mes si al menos uno de sus días cae en él. Haz clic en una fila para abrir esa temporada en el explorador.</p>
+    </div>
+    <div class="filters">
+      <div class="ctl"><span class="ctl-label">Mes</span><div class="chips" id="f-meses" role="group" aria-label="Meses"></div></div>
+      <div class="ctl"><span class="ctl-label">Tipo de evento</span>
+        <div class="seg" id="f-tipo" role="group" aria-label="Tipo de evento">
+          <button type="button" data-v="" aria-pressed="true">Ambos</button>
+          <button type="button" data-v="TX" aria-pressed="false">Olas de calor</button>
+          <button type="button" data-v="TN" aria-pressed="false">Noches cálidas</button>
+        </div>
+      </div>
+      <div class="ctl"><span class="ctl-label">Período</span>
+        <div class="ctl-row"><select id="f-desde" aria-label="Desde la temporada"></select><span class="muted">a</span><select id="f-hasta" aria-label="Hasta la temporada"></select></div>
+      </div>
+      <div class="ctl"><label class="ctl-label" for="f-dur">Duración mínima</label>
+        <select id="f-dur"><option value="3">3 días o más</option><option value="4">4 días o más</option><option value="5">5 días o más</option><option value="7">7 días o más</option><option value="10">10 días o más</option></select>
+      </div>
+      <div class="ctl" style="align-content:end"><button class="btn ghost small" type="button" id="f-reset">Limpiar filtros</button></div>
+    </div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title">Eventos por mes</div><div class="panel-note">Según el tipo, período y duración elegidos. Haz clic en una barra para filtrar por ese mes.</div><div class="chart" id="mes-chart" style="min-height:270px"></div></div>
+      <div class="panel"><div class="panel-title" id="heat-title">Días en ola por mes y década</div><div class="panel-note">Promedio por temporada en cada década. Muestra en qué meses se concentra el calor y cómo se ha desplazado.</div><div class="chart" id="heat-chart" style="min-height:270px"></div></div>
+    </div>
+    <div class="result-bar">
+      <div class="result-sum" id="tab-count" aria-live="polite"></div>
+      <button class="btn ghost small" type="button" id="btn-csv">Descargar resultado (CSV)</button>
+    </div>
+    <div class="table-wrap">
+      <table id="tabla">
+        <thead><tr>
+          <th data-k="tipo">Tipo</th><th data-k="T">Temporada</th><th data-k="inicio">Inicio</th><th data-k="fin">Fin</th>
+          <th data-k="duracion">Días</th><th data-k="IS" aria-sort="descending">IS (°C)</th><th data-k="IS_dia">IS/día</th>
+          <th data-k="maximo">Máximo (°C)</th><th data-k="media">Media (°C)</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="muted">Máximo y media se refieren a TX en las olas diurnas y a TN en las rachas de noches cálidas.</p>
+    <div class="lookup">
+      <div class="ctl"><label class="ctl-label" for="f-fecha">¿Qué pasó un día concreto?</label><input type="date" id="f-fecha"></div>
+      <div class="lookup-out" id="fecha-out" aria-live="polite">Elige una fecha entre noviembre y marzo para ver sus temperaturas, el umbral de ese día y si formó parte de un evento.</div>
     </div>
   </section>
 
@@ -198,17 +392,35 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       <p>Temperaturas máxima (TX) y mínima (TN) diarias junto a sus umbrales P90. Las bandas rojas son días en ola de calor diurna y las azules, noches dentro de una racha de noches cálidas.</p>
     </div>
     <div class="explorer-top">
-      <div class="ctl"><label class="ctl-label" for="sel-temp">Temporada</label><select id="sel-temp"></select></div>
+      <div class="ctl-row">
+        <button class="icon-btn" type="button" id="t-prev" aria-label="Temporada anterior">←</button>
+        <select id="sel-temp" aria-label="Temporada"></select>
+        <button class="icon-btn" type="button" id="t-next" aria-label="Temporada siguiente">→</button>
+        <button class="icon-btn" type="button" id="t-link">Copiar enlace</button>
+      </div>
+      <div class="season-stats" id="season-stats"></div>
     </div>
     <div class="panel"><div class="chart" id="daily" style="min-height:420px"></div></div>
     <div class="events-list" id="ev-list"></div>
+  </section>
+
+  <section id="calendario">
+    <div class="sec-head">
+      <div class="eyebrow">Calendario</div>
+      <h2>Cuándo ocurren dentro de la temporada</h2>
+      <p>Cada fila es una temporada y cada celda un día, del 1 de noviembre al 31 de marzo. Las celdas coloreadas son días dentro de un evento. Haz clic en una fila para abrir la temporada.</p>
+    </div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="cal-TX" style="min-height:620px"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="cal-TN" style="min-height:620px"></div></div>
+    </div>
   </section>
 
   <section id="umbrales">
     <div class="sec-head">
       <div class="eyebrow">Umbrales</div>
       <h2>Umbrales P90 mes a mes</h2>
-      <p>Temperatura que hay que superar para que un día cuente como cálido (TX, olas de calor) o una noche como cálida (TN, rachas de noches cálidas). El umbral cambia día a día; la tabla muestra el promedio de cada mes y el rango entre su día más bajo y el más alto. Las filas destacadas son los meses en que se buscan eventos (noviembre a marzo).</p>
+      <p>Temperatura que hay que superar para que un día cuente como cálido (TX, olas de calor) o una noche como cálida (TN, rachas de noches cálidas). El umbral cambia día a día; la tabla muestra el promedio de cada mes y el rango entre su día más bajo y el más alto. Las filas destacadas son los meses en que se buscan eventos.</p>
     </div>
     <div class="grid-2">
       <div class="panel"><div class="panel-title">Umbral diario a lo largo del año</div><div class="chart" id="umb-chart"></div></div>
@@ -218,18 +430,6 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
           <tbody></tbody>
         </table>
       </div>
-    </div>
-  </section>
-
-  <section id="calendario">
-    <div class="sec-head">
-      <div class="eyebrow">Calendario</div>
-      <h2>Cuándo ocurren dentro de la temporada</h2>
-      <p>Cada fila es una temporada y cada celda un día, del 1 de noviembre al 31 de marzo. Las celdas coloreadas son días dentro de un evento.</p>
-    </div>
-    <div class="grid-2">
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="cal-TX" style="min-height:620px"></div></div>
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="cal-TN" style="min-height:620px"></div></div>
     </div>
   </section>
 
@@ -245,33 +445,71 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     </div>
   </section>
 
-  <section id="eventos">
+  <section id="aprende">
     <div class="sec-head">
-      <div class="eyebrow">Catálogo</div>
-      <h2>Todos los eventos detectados</h2>
-      <p>Ordena por cualquier columna. Haz clic en una fila para abrir esa temporada en el explorador. Máximo y media se refieren a TX en las olas diurnas y a TN en las rachas de noches cálidas.</p>
+      <div class="eyebrow">Aprende</div>
+      <h2>Entender una ola de calor en cuatro ideas</h2>
+      <p>Un espacio para estudiantes, docentes y curiosos. Lee los conceptos, experimenta con el laboratorio y pon a prueba lo aprendido con datos reales de Quinta Normal.</p>
     </div>
-    <div class="explorer-top">
-      <div class="ctl"><label class="ctl-label" for="sel-tab-tipo">Tipo</label>
-        <select id="sel-tab-tipo"><option value="">Ambos</option><option value="TX">Olas de calor diurnas</option><option value="TN">Noches cálidas</option></select>
+    <div class="grid-2">
+      <div class="learn-card"><span class="n">01 · El umbral</span><h3>¿Qué significa "percentil 90"?</h3>
+        <p>Si ordenas de menor a mayor las temperaturas máximas de un mismo día del calendario durante 30 años, el percentil 90 (P90) es el valor que solo supera el 10 % más cálido. Por eso el umbral no es un número fijo: lo "muy caluroso" para noviembre es menos que para enero. <span id="ap-umb"></span></p></div>
+      <div class="learn-card"><span class="n">02 · La persistencia</span><h3>Un día caluroso no es una ola</h3>
+        <p>Para hablar de ola de calor diurna, la máxima debe superar su P90 durante <b>tres o más días seguidos</b>. La persistencia importa porque el calor se acumula en edificios, calles y personas: cada día sin alivio suma al anterior.</p></div>
+      <div class="learn-card"><span class="n">03 · La noche</span><h3>¿Por qué mirar las noches cálidas?</h3>
+        <p>La temperatura mínima suele darse al amanecer. Cuando la mínima se mantiene sobre su P90 varias noches seguidas, las viviendas no se enfrían y el cuerpo no logra recuperarse del calor del día. Por eso las noches cálidas se siguen por separado de las olas diurnas.</p></div>
+      <div class="learn-card"><span class="n">04 · La intensidad</span><h3>IS: cuánto calor "sobró"</h3>
+        <p>La intensidad IS suma, día a día, los grados por encima del umbral. Una ola de cinco días a 2 °C sobre el P90 tiene IS = 10 °C. Así se pueden comparar una ola corta y muy intensa con otra larga y moderada.</p>
+        <div class="formula">IS = Σ (T − P90<sub>día</sub>)</div></div>
+    </div>
+
+    <div class="subhead">Laboratorio: ¿es una ola de calor?</div>
+    <p class="muted" style="max-width:75ch">Mueve las temperaturas máximas de una semana de enero. La línea marca el umbral P90 real de cada día en Quinta Normal. Observa cuándo se cumple la definición y cómo cambia la intensidad.</p>
+    <div class="lab">
+      <div style="display:grid;gap:12px;align-content:start">
+        <svg id="lab-svg" viewBox="0 0 640 250" role="img" aria-label="Temperaturas máximas de la semana frente al umbral"></svg>
+        <div class="verdict" id="lab-verdict" aria-live="polite"></div>
       </div>
-      <div class="muted" id="tab-count"></div>
+      <div style="display:grid;gap:12px;align-content:start">
+        <div class="ctl-row"><span class="ctl-label">Ejemplos</span>
+          <button class="chip" type="button" data-preset="aislado">Días aislados</button>
+          <button class="chip" type="button" data-preset="justa">Ola justa</button>
+          <button class="chip" type="button" data-preset="intensa">Ola intensa</button>
+          <button class="chip" type="button" data-preset="cortada">Ola interrumpida</button>
+        </div>
+        <div class="lab-rows" id="lab-rows"></div>
+      </div>
     </div>
-    <div class="table-wrap">
-      <table id="tabla">
-        <thead><tr>
-          <th data-k="tipo">Tipo</th><th data-k="T">Temporada</th><th data-k="inicio">Inicio</th><th data-k="fin">Fin</th>
-          <th data-k="duracion">Días</th><th data-k="IS" aria-sort="descending">IS (°C)</th><th data-k="IS_dia">IS/día</th>
-          <th data-k="maximo">Máximo (°C)</th><th data-k="media">Media (°C)</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
+
+    <div class="subhead">Pon a prueba lo aprendido</div>
+    <div class="quiz" id="quiz"></div>
+    <div class="muted" id="quiz-score" aria-live="polite"></div>
+
+    <div class="subhead">Preguntas frecuentes</div>
+    <div>
+      <details><summary>¿Un día de 34 °C siempre es parte de una ola de calor?</summary><p>No. Depende de la fecha y de lo que ocurra antes y después. En noviembre, 34 °C supera con holgura el umbral; a mediados de enero puede quedar apenas sobre él. Y aun superándolo, tiene que haber al menos tres días seguidos sobre el umbral para que se cuente como ola.</p></details>
+      <details><summary>¿Por qué el período de referencia es 1991-2020?</summary><p>Los umbrales se calculan sobre un período fijo de 30 años, que es la convención climatológica para describir el clima "normal". Usar siempre el mismo período permite comparar temporadas antiguas y recientes con la misma vara.</p></details>
+      <details><summary>¿Por qué solo se buscan eventos entre noviembre y marzo?</summary><p>Porque es la temporada cálida de Chile central, cuando las temperaturas altas tienen mayor impacto. En invierno también hay días inusualmente cálidos para la época, pero no se consideran olas de calor en este visor.</p></details>
+      <details><summary>¿Una estación representa a toda la ciudad?</summary><p>No del todo. Quinta Normal es la estación de referencia histórica de Santiago por la longitud de su registro, pero la temperatura varía dentro de la ciudad según la vegetación, la densidad construida y la altitud. Este visor describe cómo ha cambiado el calor extremo en ese punto, no las diferencias entre barrios.</p></details>
+      <details><summary>¿Qué quiere decir que una tendencia sea "significativa"?</summary><p>Que el aumento observado es difícil de explicar solo por el azar entre temporadas. Aquí se evalúa con la prueba de Mann-Kendall: si el valor p es menor que 0,05, la tendencia se considera estadísticamente significativa.</p></details>
     </div>
+
+    <div class="subhead">Glosario</div>
+    <dl class="glos">
+      <dt>TX</dt><dd>Temperatura máxima del día.</dd>
+      <dt>TN</dt><dd>Temperatura mínima del día, que normalmente ocurre al amanecer.</dd>
+      <dt>P90</dt><dd>Percentil 90: valor que solo supera el 10 % de los días más cálidos de esa fecha en el período de referencia.</dd>
+      <dt>Ola de calor diurna</dt><dd>Tres o más días consecutivos con TX sobre su P90.</dd>
+      <dt>Racha de noches cálidas</dt><dd>Tres o más noches consecutivas con TN sobre su P90.</dd>
+      <dt>IS</dt><dd>Intensidad: suma de los grados por sobre el P90 en todos los días del evento.</dd>
+      <dt>Temporada</dt><dd>De noviembre a marzo. La temporada 2022-23 va de noviembre de 2022 a marzo de 2023.</dd>
+      <dt>ETCCDI</dt><dd>Grupo internacional de expertos que definió un conjunto estándar de índices de extremos climáticos.</dd>
+    </dl>
   </section>
 
   <section id="metodo">
     <div class="sec-head"><div class="eyebrow">Método</div><h2>Cómo se definen los eventos</h2></div>
-    <div class="method">
+    <div class="grid-3 method">
       <div class="panel"><h3>Umbral diario</h3>
         <p>Para cada día del calendario se calcula el percentil 90 de TX y de TN con una ventana móvil de 5 días (el día ±2) sobre el período de referencia <span class="num">1991-2020</span>, siguiendo el criterio ETCCDI sin remuestreo.</p></div>
       <div class="panel"><h3>Eventos</h3>
@@ -280,39 +518,44 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
         <p><b>IS</b> suma los grados por sobre el P90 de cada día del evento. Cinco días a +2 °C dan IS = 10 °C. La tendencia es la pendiente lineal de los días en evento por temporada y su significancia se evalúa con Mann-Kendall.</p>
         <div class="formula">IS = Σ (T − P90<sub>día</sub>)</div></div>
     </div>
+    <div class="cite">
+      <h3>Cómo citar este visor</h3>
+      <blockquote id="cita">Sarricolea, P. (2026). <i>Olas de calor y noches cálidas en Santiago (Quinta Normal)</i> [visor web]. Departamento de Geografía, Universidad de Chile. https://psarricolea.github.io/temperaturas-quinta-normal/</blockquote>
+      <div><button class="btn ghost small" type="button" id="btn-cita">Copiar cita</button></div>
+    </div>
   </section>
 
   <footer>
     <div>Gráfico de burbujas según Serrano-Notivoli et al. (2023), <i>Atmospheric Research</i> 293, 106931. Índices de extremos según el criterio ETCCDI.</div>
     <div>Datos diarios de temperatura de la estación Quinta Normal (Santiago). Elaboración: Pablo Sarricolea, Departamento de Geografía, Universidad de Chile. Último dato: <span class="num" id="gen"></span>.</div>
   </footer>
-</div>
+</main>
+<button class="to-top" id="to-top" type="button" aria-label="Volver arriba">↑</button>
 
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
 <script>
 (function () {
   "use strict";
-  var BASE = "salidas/tablas/";
   var TIPOS = ["TX", "TN"];
   var NOM = { TX: "Olas de calor diurnas", TN: "Rachas de noches cálidas" };
   var NOM1 = { TX: "Ola de calor", TN: "Noches cálidas" };
   var UNI = { TX: ["ola", "olas", "días"], TN: ["racha", "rachas", "noches"] };
   var HEAT = ["#fdf0c4", "#f9d27c", "#f4a54a", "#e5732f", "#c94427", "#9c2421", "#651520"];
   var REF = [1991, 2020];
+  var MSEASON = [11, 12, 1, 2, 3];
+  var MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  var MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   var state = { T: null, sortK: "IS", sortDir: -1 };
-  var EV = [], RES = {}, TEMPS = [], TEND = {}, DAILY = null, ACTUAL = null;
+  var F = { tipo: "", meses: {}, desde: null, hasta: null, dur: 3 };
+  var EV = [], RES = {}, TEMPS = [], TEND = {}, DAILY = null, ACTUAL = null, UMB = null, FIDX = null;
 
   // ---------- utilidades ----------
-  function csv(txt) {
-    var L = txt.trim().split(/\r?\n/), h = L[0].split(",");
-    return L.slice(1).map(function (l) { var v = l.split(","), r = {}; h.forEach(function (k, i) { r[k] = v[i]; }); return r; });
-  }
-  function num(v) { return v === undefined || v === "" || v === "NA" ? null : +v; }
+  function $(id) { return document.getElementById(id); }
   function seasonOf(f) { var y = +f.slice(0, 4), m = +f.slice(5, 7); return m >= 7 ? y + 1 : y; }
   function lab(T) { return (T - 1) + "-" + String(T % 100).padStart(2, "0"); }
   function fmt(n, d) { return Number(n).toLocaleString("es-CL", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
-  var MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   function fdate(s) { return +s.slice(8, 10) + " " + MES[+s.slice(5, 7) - 1] + " " + s.slice(0, 4); }
+  function fshort(s) { return +s.slice(8, 10) + " " + MES[+s.slice(5, 7) - 1]; }
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
   function heatColor(v, max) {
     if (v <= 0) return css("--surface-2");
@@ -320,14 +563,32 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     return HEAT[Math.min(i + (x - i > 0.5 ? 1 : 0), HEAT.length - 1)];
   }
   function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
+  function sum(a) { return a.reduce(function (s, x) { return s + x; }, 0); }
+  function addDays(s, n) { var dt = new Date(s + "T12:00:00Z"); dt.setUTCDate(dt.getUTCDate() + n); return dt.toISOString().slice(0, 10); }
+  function reduced() { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function copy(txt, btn, okLabel) {
+    var orig = btn.textContent;
+    function done() { btn.textContent = okLabel || "Copiado"; setTimeout(function () { btn.textContent = orig; }, 1600); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function () {});
+  }
+
+  // ---------- tema ----------
+  (function () {
+    var saved = null; try { saved = localStorage.getItem("tema"); } catch (e) {}
+    if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+  })();
+  function isDark() {
+    var t = document.documentElement.getAttribute("data-theme");
+    return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function paintThemeBtn() { $("btn-tema").textContent = isDark() ? "☀ Claro" : "☾ Oscuro"; }
 
   // ---------- carga ----------
   fetch("data.json", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error("data.json"); return r.json(); })
-    .then(function (J) { prepare(J); document.getElementById("carga").remove(); init(); })
-    .catch(function (e) { document.getElementById("carga").textContent = "No se pudieron cargar los datos (" + e.message + ")."; });
+    .then(function (J) { prepare(J); $("carga").remove(); init(); })
+    .catch(function (e) { var c = $("carga"); if (c) c.textContent = "No se pudieron cargar los datos (" + e.message + ")."; else console.error(e); });
 
   function cols(o) { var k = Object.keys(o), n = o[k[0]].length, out = []; for (var i = 0; i < n; i++) { var r = {}; k.forEach(function (c) { r[c] = o[c][i]; }); out.push(r); } return out; }
-  var UMB = null;
   function prepare(J) {
     var temp = cols(J.temporadas);
     TEMPS = temp.map(function (r) { return r.temporada; });
@@ -340,6 +601,8 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       rows.forEach(function (r) {
         var e = { tipo: tipo, T: seasonOf(r.inicio), inicio: r.inicio, fin: r.fin, duracion: r.duracion, maximo: r.maximo, media: r.media, IS: r.exceso_grados_dia };
         e.IS_dia = e.duracion ? e.IS / e.duracion : 0;
+        e.meses = {};
+        for (var f = e.inicio, g = 0; f <= e.fin && g < 400; f = addDays(f, 1), g++) e.meses[+f.slice(5, 7)] = true;
         EV.push(e);
         if (RES[tipo][e.T]) RES[tipo][e.T].ev.push(e);
       });
@@ -354,9 +617,11 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       });
     });
     TEND = J.tendencias;
+    if (J.meta && J.meta.periodo_base) REF = J.meta.periodo_base;
     var d = J.diario, idx = {};
+    FIDX = {};
     d.ola = d.ola.map(Boolean); d.noc = d.noc.map(Boolean);
-    d.fecha.forEach(function (f, i) { var T = seasonOf(f); (idx[T] = idx[T] || []).push(i); });
+    d.fecha.forEach(function (f, i) { var T = seasonOf(f); (idx[T] = idx[T] || []).push(i); FIDX[f] = i; });
     DAILY = { d: d, idx: idx, last: J.meta.ultimo_dato };
     var Tl = seasonOf(DAILY.last), ml = +DAILY.last.slice(5, 7);
     if (TEMPS.indexOf(Tl) < 0 && idx[Tl] && (ml >= 11 || ml <= 3)) ACTUAL = Tl;
@@ -380,17 +645,39 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     days: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
     shortDays: ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
     months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
-    shortMonths: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+    shortMonths: MES,
     date: "%d/%m/%Y", decimal: ",", thousands: "." } });
   var CFG = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"], locale: "es" };
+  var CFG_STATIC = { displayModeBar: false, responsive: true, locale: "es" };
+  function onClick(el, fn) { el.removeAllListeners && el.removeAllListeners("plotly_click"); el.on("plotly_click", fn); }
 
   function series(k) { return TEMPS.map(function (T) { return RES[k][T]; }); }
   function refMean(k) { return mean(series(k).filter(function (r) { return r.T >= REF[0] && r.T <= REF[1]; }).map(function (r) { return r.dias; })); }
   function diasMax() { var m = 0; TIPOS.forEach(function (k) { series(k).forEach(function (r) { m = Math.max(m, r.dias); }); }); return m; }
+  function allSeasons() { var s = TEMPS.slice(); if (ACTUAL) s.push(ACTUAL); return s; }
+
+  // ---------- estado de la temporada ----------
+  function doyOf(m, d) { var c = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]; return c[m - 1] + Math.min(d, m === 2 ? 28 : 31); }
+  function umbralDe(m, d) { var i = UMB.doy.indexOf(doyOf(m, d)); return i < 0 ? null : { tx: UMB.tx_p90[i], tn: UMB.tn_p90[i] }; }
+  function drawStatus() {
+    var T = ACTUAL || TEMPS[TEMPS.length - 1], d = DAILY.d, ii = DAILY.idx[T] || [];
+    var a = ii.filter(function (i) { return d.ola[i]; }).length, b = ii.filter(function (i) { return d.noc[i]; }).length;
+    var now = new Date(), u = umbralDe(now.getMonth() + 1, now.getDate());
+    var hoy = now.getDate() + " de " + MESES[now.getMonth()].toLowerCase();
+    $("status").innerHTML =
+      '<div class="status-head"><div class="panel-title">Temporada ' + lab(T) + '</div><span class="live">' + (ACTUAL ? "En curso" : "Última completa") + "</span></div>" +
+      '<div class="status-grid">' +
+      '<div><div class="v" style="color:var(--tx)">' + a + '</div><div class="k">días en ola de calor</div></div>' +
+      '<div><div class="v" style="color:var(--tn)">' + b + '</div><div class="k">noches en racha cálida</div></div></div>' +
+      '<div class="k">Datos hasta el ' + fdate(DAILY.last) + ". Promedio " + REF[0] + "-" + REF[1] + ": " + fmt(refMean("TX"), 1) + " días y " + fmt(refMean("TN"), 1) + " noches por temporada.</div>" +
+      (u ? '<div class="today"><b>Umbrales para hoy, ' + hoy + ':</b> la máxima debe superar <b class="num">' + fmt(u.tx, 1) + ' °C</b> y la mínima <b class="num">' + fmt(u.tn, 1) + " °C</b> para contar como día o noche cálidos.</div>" : "") +
+      '<div><button class="btn ghost small" type="button" id="ver-actual">Ver esta temporada día a día</button></div>';
+    $("ver-actual").addEventListener("click", function () { openSeason(T); });
+  }
 
   // ---------- franjas ----------
   function drawStripes() {
-    var box = document.getElementById("stripes"), MX = diasMax();
+    var box = $("stripes"), MX = diasMax();
     box.innerHTML = "";
     [["TX", "Días"], ["TN", "Noches"]].forEach(function (p) {
       var k = p[0], row = document.createElement("div"); row.className = "stripe-row";
@@ -406,20 +693,21 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       });
       row.appendChild(st); box.appendChild(row);
     });
-    document.getElementById("stripe-axis").innerHTML = [0, 0.25, 0.5, 0.75, 1].map(function (p) { return "<span>" + lab(TEMPS[Math.round(p * (TEMPS.length - 1))]) + "</span>"; }).join("");
-    document.getElementById("ramp").innerHTML = HEAT.map(function (h) { return '<span style="background:' + h + '"></span>'; }).join("");
-    document.getElementById("ramp-max").textContent = MX;
+    $("stripe-axis").innerHTML = [0, 0.25, 0.5, 0.75, 1].map(function (p) { return "<span>" + lab(TEMPS[Math.round(p * (TEMPS.length - 1))]) + "</span>"; }).join("");
+    $("ramp").innerHTML = HEAT.map(function (h) { return '<span style="background:' + h + '"></span>'; }).join("");
+    $("ramp-max").textContent = MX;
   }
 
   // ---------- KPI ----------
   function drawKpis() {
-    var box = document.getElementById("kpis"); box.innerHTML = "";
+    var box = $("kpis"); box.innerHTML = "";
     var key = { TX: "olas_calor_dias", TN: "rachas_noches_calidas_dias" };
     TIPOS.forEach(function (k) {
-      var r = series(k), nEv = r.reduce(function (a, x) { return a + x.n; }, 0), dias = r.reduce(function (a, x) { return a + x.dias; }, 0);
+      var r = series(k), nEv = sum(r.map(function (x) { return x.n; })), dias = sum(r.map(function (x) { return x.dias; }));
       var ref = refMean(k), mUlt = mean(r.slice(-5).map(function (x) { return x.dias; }));
       var t = TEND[key[k]], b = t ? t.ols_por_decada : null, p = t ? t.p_valor : null, sig = p !== null && p < 0.05;
       var top = r.slice().sort(function (a, c) { return c.dias - a.dias; })[0];
+      var pTxt = p === null ? "–" : (p < 0.001 ? "< 0,001" : "= " + fmt(p, 3));
       var html = '<div class="panel-title"><span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + NOM[k] + "</div>" +
         '<div class="kpi-grid">' +
         '<div class="kpi"><div class="v">' + nEv + '</div><div class="k">' + UNI[k][1] + " en " + TEMPS.length + " temporadas (" + fmt(dias) + " " + UNI[k][2] + ")</div></div>" +
@@ -427,8 +715,33 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
         '<div class="kpi"><div class="v">' + fmt(mUlt, 1) + '</div><div class="k">' + UNI[k][2] + ' por temporada, últimas 5 temporadas</div></div>' +
         '<div class="kpi"><div class="v">' + (b !== null ? (b > 0 ? "+" : "") + fmt(b, 1) : "–") + '</div><div class="k">' + UNI[k][2] + ' por década <span class="pill' + (sig ? " sig" : "") + '">' + (sig ? "significativa" : "no signif.") + "</span></div></div>" +
         "</div>" +
-        '<div class="muted">Temporada con más ' + UNI[k][2] + ': <b class="num">' + lab(top.T) + "</b> (" + top.dias + " " + UNI[k][2] + "). Tendencia: Mann-Kendall, p = " + (p !== null ? p.toExponential(1) : "–") + ".</div>";
+        '<div class="muted">Temporada con más ' + UNI[k][2] + ': <b class="num">' + lab(top.T) + "</b> (" + top.dias + " " + UNI[k][2] + "). Tendencia: Mann-Kendall, p " + pTxt + ".</div>";
       var div = document.createElement("div"); div.className = "kpi-city"; div.innerHTML = html; box.appendChild(div);
+    });
+  }
+
+  // ---------- récords ----------
+  function drawRecords() {
+    var d = DAILY.d;
+    function topEv(k, key) { return EV.filter(function (e) { return e.tipo === k; }).sort(function (a, b) { return b[key] - a[key] || b.IS - a.IS; })[0]; }
+    function topDay(arr) { var bi = -1; arr.forEach(function (v, i) { if (v !== null && (bi < 0 || v > arr[bi])) bi = i; }); return bi; }
+    var a = topEv("TX", "duracion"), b = topEv("TX", "IS"), c = topEv("TN", "duracion"), e2 = topEv("TN", "IS");
+    var ix = topDay(d.tx), in_ = topDay(d.tn);
+    function rng(e) { return fshort(e.inicio) + " al " + fdate(e.fin); }
+    var cards = [
+      ["tx", "Ola de calor más larga", a.duracion + " días", rng(a), a.T],
+      ["tx", "Ola de calor más intensa", "IS " + fmt(b.IS, 1) + " °C", rng(b) + " · " + b.duracion + " días", b.T],
+      ["tx", "Máxima más alta (nov-mar)", fmt(d.tx[ix], 1) + " °C", fdate(d.fecha[ix]), seasonOf(d.fecha[ix])],
+      ["tn", "Racha de noches cálidas más larga", c.duracion + " noches", rng(c), c.T],
+      ["tn", "Racha de noches más intensa", "IS " + fmt(e2.IS, 1) + " °C", rng(e2) + " · " + e2.duracion + " noches", e2.T],
+      ["tn", "Mínima más alta (nov-mar)", fmt(d.tn[in_], 1) + " °C", fdate(d.fecha[in_]), seasonOf(d.fecha[in_])]
+    ];
+    var box = $("records"); box.innerHTML = "";
+    cards.forEach(function (r) {
+      var el = document.createElement("button"); el.type = "button"; el.className = "rec " + r[0];
+      el.innerHTML = '<span class="k">' + r[1] + '</span><span class="v">' + r[2] + '</span><span class="d">' + r[3] + "</span>";
+      if (allSeasons().indexOf(r[4]) >= 0) el.addEventListener("click", function () { openSeason(r[4]); }); else el.style.cursor = "default";
+      box.appendChild(el);
     });
   }
 
@@ -463,24 +776,175 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       });
       lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [T0 - 1.5, T1 + 1.5] });
       lay.yaxis = Object.assign(lay.yaxis, { title: { text: k === "TX" ? "Días en ola de calor" : "Noches en racha cálida", font: { size: 12 } }, range: [-1, allMax * 1.15 + 1] });
-      var el = document.getElementById("bub-" + k);
+      var el = $("bub-" + k);
       Plotly.react(el, traces, lay, CFG);
-      el.removeAllListeners && el.removeAllListeners("plotly_click");
-      el.on("plotly_click", function (ev) { openSeason(ev.points[0].x); });
+      onClick(el, function (ev) { openSeason(ev.points[0].x); });
     });
   }
 
+  // ---------- décadas ----------
+  function decOf(T) { return Math.floor((T - 1) / 10) * 10; }
+  function decades() { var o = []; TEMPS.forEach(function (T) { var D = decOf(T); if (o.indexOf(D) < 0) o.push(D); }); return o; }
+  function drawDecades() {
+    var decs = decades(), nT = decs.map(function (D) { return TEMPS.filter(function (T) { return decOf(T) === D; }).length; });
+    var labs = decs.map(function (D, i) { return D + "s" + (nT[i] < 10 ? "<br>(" + nT[i] + " temp.)" : ""); });
+    var tr = TIPOS.map(function (k) {
+      var y = decs.map(function (D) { return mean(series(k).filter(function (r) { return decOf(r.T) === D; }).map(function (r) { return r.dias; })); });
+      return { x: labs, y: y, type: "bar", name: NOM[k], marker: { color: css("--" + k.toLowerCase()) },
+        text: y.map(function (v) { return fmt(v, 1); }), textposition: "outside", cliponaxis: false, textfont: { family: "IBM Plex Mono, monospace", size: 10, color: css("--ink-2") },
+        hovertemplate: "%{x}<br>" + NOM[k] + ": %{y:.1f} " + UNI[k][2] + " por temporada<extra></extra>" };
+    });
+    var lay = baseLayout({ barmode: "group", bargap: 0.25, bargroupgap: 0.08, showlegend: true, legend: { orientation: "h", y: 1.15, x: 0, font: { color: css("--ink-2") } }, margin: { l: 48, r: 12, t: 34, b: 48 } });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Días por temporada", font: { size: 12 } }, rangemode: "tozero" });
+    lay.xaxis = Object.assign(lay.xaxis, { tickfont: { family: "IBM Plex Mono, monospace", size: 11 } });
+    Plotly.react("dec-chart", tr, lay, CFG_STATIC);
+  }
+
+  // ---------- buscador ----------
+  function mesesSel() { return MSEASON.filter(function (m) { return F.meses[m]; }); }
+  function pasa(e, sinMes) {
+    if (F.tipo && e.tipo !== F.tipo) return false;
+    if (e.T < F.desde || e.T > F.hasta) return false;
+    if (e.duracion < F.dur) return false;
+    if (sinMes) return true;
+    var ms = mesesSel();
+    return !ms.length || ms.some(function (m) { return e.meses[m]; });
+  }
+  function fillFilters() {
+    var opts = TEMPS.map(function (T) { return '<option value="' + T + '">' + lab(T) + "</option>"; }).join("");
+    $("f-desde").innerHTML = opts; $("f-hasta").innerHTML = opts;
+    F.desde = TEMPS[0]; F.hasta = TEMPS[TEMPS.length - 1];
+    $("f-desde").value = F.desde; $("f-hasta").value = F.hasta;
+    var box = $("f-meses");
+    box.innerHTML = '<button class="chip" type="button" data-m="0">Todos</button>' + MSEASON.map(function (m) { return '<button class="chip" type="button" data-m="' + m + '">' + MESES[m - 1] + '<span class="n"></span></button>'; }).join("");
+    box.addEventListener("click", function (ev) {
+      var b = ev.target.closest("button"); if (!b) return;
+      var m = +b.dataset.m;
+      if (m === 0) F.meses = {}; else F.meses[m] = !F.meses[m];
+      drawSearch();
+    });
+    $("f-tipo").addEventListener("click", function (ev) { var b = ev.target.closest("button"); if (!b) return; F.tipo = b.dataset.v; drawSearch(); });
+    $("f-desde").addEventListener("change", function (e) { F.desde = +e.target.value; if (F.hasta < F.desde) { F.hasta = F.desde; $("f-hasta").value = F.hasta; } drawSearch(); });
+    $("f-hasta").addEventListener("change", function (e) { F.hasta = +e.target.value; if (F.desde > F.hasta) { F.desde = F.hasta; $("f-desde").value = F.desde; } drawSearch(); });
+    $("f-dur").addEventListener("change", function (e) { F.dur = +e.target.value; drawSearch(); });
+    $("f-reset").addEventListener("click", function () {
+      F = { tipo: "", meses: {}, desde: TEMPS[0], hasta: TEMPS[TEMPS.length - 1], dur: 3 };
+      $("f-desde").value = F.desde; $("f-hasta").value = F.hasta; $("f-dur").value = "3"; drawSearch();
+    });
+    $("btn-csv").addEventListener("click", downloadCsv);
+    var fi = $("f-fecha"); fi.min = DAILY.d.fecha[0]; fi.max = DAILY.last;
+    fi.addEventListener("change", lookupDate);
+  }
+  function resultRows() {
+    var r = EV.filter(function (e) { return pasa(e, false); }), k = state.sortK, dir = state.sortDir;
+    r.sort(function (a, b) { return (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir || (a.inicio < b.inicio ? -1 : 1); });
+    return r;
+  }
+  function drawSearchControls() {
+    var ms = mesesSel(), base = EV.filter(function (e) { return pasa(e, true); });
+    document.querySelectorAll("#f-meses .chip").forEach(function (b) {
+      var m = +b.dataset.m;
+      b.setAttribute("aria-pressed", m === 0 ? String(!ms.length) : String(!!F.meses[m]));
+      if (m) b.querySelector(".n").textContent = base.filter(function (e) { return e.meses[m]; }).length;
+    });
+    document.querySelectorAll("#f-tipo button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === F.tipo)); });
+  }
+  function drawTable() {
+    var r = resultRows(), k = state.sortK, dir = state.sortDir;
+    document.querySelectorAll("#tabla th").forEach(function (th) { th.setAttribute("aria-sort", th.dataset.k === k ? (dir > 0 ? "ascending" : "descending") : "none"); });
+    document.querySelector("#tabla tbody").innerHTML = r.length ? r.map(function (e) {
+      return '<tr data-t="' + e.T + '"><td><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + "</td><td>" + lab(e.T) + "</td><td>" + fdate(e.inicio) + "</td><td>" + fdate(e.fin) + "</td><td>" + e.duracion + "</td><td>" + fmt(e.IS, 1) + "</td><td>" + fmt(e.IS_dia, 2) + "</td><td>" + fmt(e.maximo, 1) + "</td><td>" + fmt(e.media, 1) + "</td></tr>";
+    }).join("") : '<tr><td colspan="9" class="empty" style="text-align:center;cursor:default">Ningún evento cumple estos filtros. Prueba con otro mes o una duración menor.</td></tr>';
+    var ms = mesesSel(), txt;
+    if (!r.length) txt = "Sin resultados";
+    else {
+      var dias = sum(r.map(function (e) { return e.duracion; })), top = r.slice().sort(function (a, b) { return b.IS - a.IS; })[0];
+      txt = "<b>" + r.length + "</b> " + (r.length === 1 ? "evento" : "eventos") + (ms.length ? " en " + ms.map(function (m) { return MESES[m - 1].toLowerCase(); }).join(", ") : "") +
+        " · <b>" + dias + "</b> días en total · duración media <b>" + fmt(dias / r.length, 1) + "</b> d · el más intenso: " + NOM1[top.tipo].toLowerCase() + " del " + fdate(top.inicio) + " (IS <b>" + fmt(top.IS, 1) + "</b> °C)";
+    }
+    $("tab-count").innerHTML = txt;
+  }
+  function drawMonthChart() {
+    var ms = mesesSel(), base = EV.filter(function (e) { return pasa(e, true); });
+    var x = MSEASON.map(function (m) { return MESES[m - 1]; });
+    var tr = TIPOS.filter(function (k) { return !F.tipo || F.tipo === k; }).map(function (k) {
+      var y = MSEASON.map(function (m) { return base.filter(function (e) { return e.tipo === k && e.meses[m]; }).length; });
+      return { x: x, y: y, type: "bar", name: NOM[k], customdata: MSEASON,
+        marker: { color: css("--" + k.toLowerCase()), opacity: MSEASON.map(function (m) { return !ms.length || F.meses[m] ? 1 : 0.3; }) },
+        text: y, textposition: "outside", cliponaxis: false, textfont: { family: "IBM Plex Mono, monospace", size: 11, color: css("--ink-2") },
+        hovertemplate: "%{x}<br>" + NOM[k] + ": %{y} eventos<extra></extra>" };
+    });
+    var lay = baseLayout({ barmode: "group", bargap: 0.25, bargroupgap: 0.08, showlegend: true, legend: { orientation: "h", y: 1.3, x: 0, font: { color: css("--ink-2") } }, margin: { l: 44, r: 12, t: 52, b: 36 } });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Número de eventos", font: { size: 12 } }, rangemode: "tozero" });
+    lay.xaxis = Object.assign(lay.xaxis, { tickfont: { family: "Public Sans, Arial, sans-serif", size: 12 } });
+    var el = $("mes-chart");
+    Plotly.react(el, tr, lay, CFG_STATIC);
+    onClick(el, function (ev) { var m = ev.points[0].customdata; F.meses[m] = !F.meses[m]; drawSearch(); });
+  }
+  function drawHeat() {
+    var k = F.tipo || "TX", d = DAILY.d, flag = k === "TX" ? d.ola : d.noc, decs = decades();
+    $("heat-title").innerHTML = '<span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + (k === "TX" ? "Días en ola de calor" : "Noches en racha cálida") + " por mes y década";
+    var z = decs.map(function (D) {
+      var Ts = TEMPS.filter(function (T) { return decOf(T) === D; }), cnt = {};
+      Ts.forEach(function (T) { (DAILY.idx[T] || []).forEach(function (i) { if (flag[i]) { var m = +d.fecha[i].slice(5, 7); cnt[m] = (cnt[m] || 0) + 1; } }); });
+      return MSEASON.map(function (m) { return (cnt[m] || 0) / Ts.length; });
+    });
+    var zmax = Math.max.apply(null, z.map(function (r) { return Math.max.apply(null, r); }).concat([0.1]));
+    var tr = [{ z: z, x: MSEASON.map(function (m) { return MESES[m - 1]; }), y: decs.map(function (D) { return D + "s"; }), type: "heatmap",
+      colorscale: [[0, css("--surface-2")], [0.004, css("--surface-2")]].concat(HEAT.map(function (h, i) { return [i === 0 ? 0.005 : i / (HEAT.length - 1), h]; })), zmin: 0, zmax: zmax, xgap: 3, ygap: 3, showscale: false,
+      text: z.map(function (r) { return r.map(function (v) { return v ? fmt(v, 1) : "·"; }); }), texttemplate: "%{text}",
+      textfont: { family: "IBM Plex Mono, monospace", size: 11 },
+      hovertemplate: "%{y} · %{x}<br>%{z:.2f} " + UNI[k][2] + " por temporada<extra></extra>" }];
+    var lay = baseLayout({ margin: { l: 56, r: 12, t: 8, b: 36 } });
+    lay.xaxis = Object.assign(lay.xaxis, { showgrid: false, tickfont: { family: "Public Sans, Arial, sans-serif", size: 12 } });
+    lay.yaxis = Object.assign(lay.yaxis, { showgrid: false, autorange: "reversed" });
+    Plotly.react("heat-chart", tr, lay, CFG_STATIC);
+  }
+  function drawSearch() { drawSearchControls(); drawTable(); if (window.Plotly) { drawMonthChart(); drawHeat(); } }
+  function downloadCsv() {
+    var r = resultRows();
+    var L = ["tipo,temporada,inicio,fin,dias,IS_C,IS_por_dia,maximo_C,media_C"].concat(r.map(function (e) {
+      return [NOM1[e.tipo], lab(e.T), e.inicio, e.fin, e.duracion, e.IS, e.IS_dia.toFixed(2), e.maximo, e.media].join(",");
+    }));
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + L.join("\n")], { type: "text/csv;charset=utf-8" }));
+    a.download = "eventos_calor_quinta_normal.csv"; document.body.appendChild(a); a.click(); a.remove();
+  }
+  function lookupDate() {
+    var f = $("f-fecha").value, out = $("fecha-out"), d = DAILY.d;
+    if (!f) return;
+    var i = FIDX[f];
+    if (i === undefined) {
+      var m = +f.slice(5, 7);
+      out.textContent = (m >= 4 && m <= 10) ? "Este visor solo cubre la temporada cálida (noviembre a marzo). Elige una fecha dentro de esos meses." : "No hay datos para esa fecha.";
+      return;
+    }
+    function part(nm, v, p, col) {
+      if (v === null) return nm + " sin dato";
+      var dif = v - p;
+      return nm + ' <b class="num" style="color:var(--' + col + ')">' + fmt(v, 1) + " °C</b> (umbral " + fmt(p, 1) + "; " + (dif > 0 ? "+" : "−") + fmt(Math.abs(dif), 1) + ")";
+    }
+    function evOf(k) { return EV.filter(function (e) { return e.tipo === k && e.inicio <= f && f <= e.fin; })[0]; }
+    var eo = evOf("TX"), en = evOf("TN"), msg = [];
+    if (eo) msg.push("Fue parte de una <b>ola de calor</b> de " + eo.duracion + " días (" + fshort(eo.inicio) + " al " + fdate(eo.fin) + ").");
+    if (en) msg.push("Fue parte de una <b>racha de noches cálidas</b> de " + en.duracion + " noches (" + fshort(en.inicio) + " al " + fdate(en.fin) + ").");
+    if (!eo && !en) msg.push((d.tx[i] !== null && d.tx[i] > d.p90_tx[i]) || (d.tn[i] !== null && d.tn[i] > d.p90_tn[i]) ? "Superó el umbral, pero no llegó a formar un evento de tres días seguidos." : "No superó los umbrales ni formó parte de un evento.");
+    var T = seasonOf(f);
+    out.innerHTML = "<b>" + fdate(f) + ".</b> " + part("TX", d.tx[i], d.p90_tx[i], "tx") + " · " + part("TN", d.tn[i], d.p90_tn[i], "tn") + ". " + msg.join(" ") +
+      (allSeasons().indexOf(T) >= 0 ? ' <button class="btn ghost small" type="button" id="fecha-abrir">Abrir temporada ' + lab(T) + "</button>" : "");
+    var b = $("fecha-abrir"); if (b) b.addEventListener("click", function () { openSeason(T); });
+  }
+
   // ---------- explorador ----------
-  function allSeasons() { var s = TEMPS.slice(); if (ACTUAL) s.push(ACTUAL); return s; }
   function fillSeasonSelect() {
-    var s = document.getElementById("sel-temp");
+    var s = $("sel-temp");
     s.innerHTML = allSeasons().reverse().map(function (T) { return '<option value="' + T + '">' + lab(T) + (T === ACTUAL ? " (en curso)" : "") + "</option>"; }).join("");
     if (!state.T) state.T = series("TX").slice().sort(function (a, b) { return b.dias - a.dias; })[0].T;
     s.value = state.T;
   }
   function shift(s, h) { var dt = new Date(s + "T12:00:00Z"); dt.setUTCHours(12 + h * 24); return dt.toISOString().slice(0, 19).replace("T", " "); }
   function bands(ii, f, flag, color, y0, y1) {
-    var out = [], run = null, d = DAILY.d;
+    var out = [], run = null;
     ii.forEach(function (i, k) {
       if (flag[i] && run === null) run = k;
       if ((!flag[i] || k === ii.length - 1) && run !== null) {
@@ -506,27 +970,37 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Temperatura (°C)", font: { size: 12 } } });
     lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%d %b", hoverformat: "%a %d %b %Y", range: [shift((T - 1) + "-11-01", -0.5), shift(T + "-03-31", 0.5)] });
     Plotly.react("daily", traces, lay, CFG);
-
+  }
+  function drawSeasonInfo() {
+    var T = state.T, d = DAILY.d, ii = DAILY.idx[T] || [];
+    var nO = ii.filter(function (i) { return d.ola[i]; }).length, nN = ii.filter(function (i) { return d.noc[i]; }).length;
+    var txs = ii.filter(function (i) { return d.tx[i] !== null; }), bi = txs.slice().sort(function (a, b) { return d.tx[b] - d.tx[a]; })[0];
+    var sob = txs.filter(function (i) { return d.tx[i] > d.p90_tx[i]; }).length;
+    $("season-stats").innerHTML = '<span><b style="color:var(--tx)">' + nO + '</b> días en ola</span><span><b style="color:var(--tn)">' + nN + "</b> noches en racha</span><span><b>" + sob + "</b> días con TX sobre el umbral</span>" +
+      (bi !== undefined ? "<span>máxima <b>" + fmt(d.tx[bi], 1) + " °C</b> (" + fshort(d.fecha[bi]) + ")</span>" : "");
     var ev = EV.filter(function (e) { return e.T === T; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : 1; });
-    document.getElementById("ev-list").innerHTML = ev.length ? ev.map(function (e) {
+    $("ev-list").innerHTML = ev.length ? ev.map(function (e) {
       return '<div class="ev-chip"><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + " · " + fdate(e.inicio) + " → " + fdate(e.fin) + " · <b>" + e.duracion + " d</b> · IS <b>" + fmt(e.IS, 1) + " °C</b> · máx <b>" + fmt(e.maximo, 1) + " °C</b></div>";
     }).join("") : '<div class="muted">Sin olas de calor ni rachas de noches cálidas en ' + lab(T) + ".</div>";
+    var S = allSeasons(), p = S.indexOf(T);
+    $("t-prev").disabled = p <= 0; $("t-next").disabled = p >= S.length - 1;
   }
-  function openSeason(T) {
+  function setSeason(T, scroll) {
     state.T = +T;
-    document.getElementById("sel-temp").value = state.T;
-    drawDaily();
-    document.getElementById("explorador").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    $("sel-temp").value = state.T;
+    drawSeasonInfo();
+    if (window.Plotly) drawDaily();
+    try { history.replaceState(null, "", "?temporada=" + lab(state.T) + (scroll ? "#explorador" : location.hash)); } catch (e) {}
+    if (scroll) $("explorador").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" });
   }
+  function openSeason(T) { setSeason(T, true); }
 
   // ---------- umbrales ----------
-  var MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   function drawUmbrales() {
     var u = UMB, by = {}, fechas = [];
     u.doy.forEach(function (doy, i) {
       var dt = new Date(Date.UTC(2001, 0, doy)), m = dt.getUTCMonth();
       (by[m] = by[m] || { tx: [], tn: [] }); by[m].tx.push(u.tx_p90[i]); by[m].tn.push(u.tn_p90[i]);
-      // eje de julio a junio para centrar la temporada cálida
       var y = m >= 6 ? 2000 : 2001; fechas.push(y + "-" + String(m + 1).padStart(2, "0") + "-" + String(dt.getUTCDate()).padStart(2, "0"));
     });
     var orden = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
@@ -535,6 +1009,8 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       var b = by[m], act = m >= 10 || m <= 2;
       return "<tr" + (act ? ' class="hl"' : "") + "><td>" + MESES[m] + "</td><td>" + fmt(mean(b.tx), 1) + "</td><td>" + fmt(mn(b.tx), 1) + "–" + fmt(mx(b.tx), 1) + "</td><td>" + fmt(mean(b.tn), 1) + "</td><td>" + fmt(mn(b.tn), 1) + "–" + fmt(mx(b.tn), 1) + "</td></tr>";
     }).join("");
+    $("ap-umb").innerHTML = "En Quinta Normal, el umbral medio de la máxima pasa de <b>" + fmt(mean(by[10].tx), 1) + " °C</b> en noviembre a <b>" + fmt(mean(by[0].tx), 1) + " °C</b> en enero.";
+    if (!window.Plotly) return;
     var ix = fechas.map(function (_, i) { return i; }).sort(function (a, b) { return fechas[a] < fechas[b] ? -1 : 1; });
     var x = ix.map(function (i) { return fechas[i]; });
     var tr = [
@@ -572,10 +1048,9 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
       var lay = baseLayout({ margin: { l: 60, r: 8, t: 6, b: 34 } });
       lay.xaxis = Object.assign(lay.xaxis, { tickvals: [0, 30, 61, 92, 120, 150], ticktext: ["1 nov", "1 dic", "1 ene", "1 feb", "1 mar", "31 mar"], showgrid: false });
       lay.yaxis = Object.assign(lay.yaxis, { type: "category", tickvals: Ts.filter(function (T) { return T % 10 === 1; }).map(lab), showgrid: false, autorange: "reversed" });
-      var el = document.getElementById("cal-" + k);
+      var el = $("cal-" + k);
       Plotly.react(el, tr, lay, CFG);
-      el.removeAllListeners && el.removeAllListeners("plotly_click");
-      el.on("plotly_click", function (ev) { openSeason(+ev.points[0].y.slice(0, 4) + 1); });
+      onClick(el, function (ev) { openSeason(+ev.points[0].y.slice(0, 4) + 1); });
     });
   }
 
@@ -596,21 +1071,110 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
     hist("hist-is", "IS", 2, 0, "IS (°C)");
   }
 
-  // ---------- tabla ----------
-  function drawTable() {
-    var ft = document.getElementById("sel-tab-tipo").value;
-    var r = EV.filter(function (e) { return !ft || e.tipo === ft; });
-    var k = state.sortK, dir = state.sortDir;
-    r.sort(function (a, b) { return (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir; });
-    document.querySelectorAll("#tabla th").forEach(function (th) { th.setAttribute("aria-sort", th.dataset.k === k ? (dir > 0 ? "ascending" : "descending") : "none"); });
-    document.querySelector("#tabla tbody").innerHTML = r.map(function (e) {
-      return '<tr data-t="' + e.T + '"><td><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + "</td><td>" + lab(e.T) + "</td><td>" + e.inicio + "</td><td>" + e.fin + "</td><td>" + e.duracion + "</td><td>" + fmt(e.IS, 1) + "</td><td>" + fmt(e.IS_dia, 2) + "</td><td>" + fmt(e.maximo, 1) + "</td><td>" + fmt(e.media, 1) + "</td></tr>";
+  // ---------- laboratorio ----------
+  var LAB = { dias: [10, 11, 12, 13, 14, 15, 16], p90: [], t: [] };
+  var PRESETS = { aislado: [1.2, -1.5, 0.8, -0.6, 1.9, -2.0, 0.4], justa: [-1.0, -0.4, 0.5, 0.9, 0.3, -1.2, -2.0], intensa: [-0.5, 1.4, 2.8, 3.6, 3.1, 1.2, -0.8], cortada: [0.8, 1.5, -0.2, 1.1, 2.0, -0.9, -1.5] };
+  function labPreset(name) { LAB.t = LAB.p90.map(function (p, i) { return Math.round((p + PRESETS[name][i]) * 10) / 10; }); drawLab(true); }
+  function initLab() {
+    LAB.p90 = LAB.dias.map(function (dd) { return umbralDe(1, dd).tx; });
+    $("lab-rows").innerHTML = LAB.dias.map(function (dd, i) {
+      return '<div class="lab-row"><label for="lab-' + i + '">' + dd + ' ene</label><input type="range" id="lab-' + i + '" data-i="' + i + '" min="26" max="40" step="0.1"><span class="num" id="lab-v' + i + '"></span><span class="ex" id="lab-x' + i + '"></span></div>';
     }).join("");
-    document.getElementById("tab-count").textContent = r.length + " eventos";
+    $("lab-rows").addEventListener("input", function (ev) { var i = ev.target.dataset.i; if (i === undefined) return; LAB.t[+i] = +ev.target.value; drawLab(false); });
+    document.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { labPreset(b.dataset.preset); }); });
+    labPreset("intensa");
+  }
+  function drawLab(setInputs) {
+    var W = 640, H = 250, L = 44, R = 12, Tp = 14, B = 34, y0 = 26, y1 = 40, n = 7, bw = (W - L - R) / n;
+    function Y(v) { return Tp + (H - Tp - B) * (1 - (Math.max(y0, Math.min(y1, v)) - y0) / (y1 - y0)); }
+    var above = LAB.t.map(function (v, i) { return v > LAB.p90[i]; });
+    // racha más larga
+    var best = { len: 0, s: -1 }, cur = 0;
+    above.forEach(function (a, i) { cur = a ? cur + 1 : 0; if (cur > best.len) best = { len: cur, s: i - cur + 1 }; });
+    var olas = [], run = 0;
+    above.concat([false]).forEach(function (a, i) { if (a) run++; else { if (run >= 3) olas.push([i - run, i - 1]); run = 0; } });
+    var inOla = above.map(function (_, i) { return olas.some(function (o) { return i >= o[0] && i <= o[1]; }); });
+    var s = "";
+    [28, 32, 36, 40].forEach(function (g) {
+      s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(g) + '" y2="' + Y(g) + '" stroke="' + css("--line") + '" stroke-width="1"/>' +
+        '<text x="' + (L - 6) + '" y="' + (Y(g) + 4) + '" text-anchor="end" font-size="11" font-family="IBM Plex Mono, monospace" fill="' + css("--ink-3") + '">' + g + "°</text>";
+    });
+    LAB.t.forEach(function (v, i) {
+      var x = L + i * bw + bw * 0.18, w = bw * 0.64, col = inOla[i] ? css("--tx") : (above[i] ? "#f4a54a" : css("--ink-3"));
+      s += '<rect x="' + x + '" y="' + Y(v) + '" width="' + w + '" height="' + Math.max(0, Y(y0) - Y(v)) + '" rx="3" fill="' + col + '" opacity="' + (above[i] ? 1 : 0.45) + '"/>' +
+        '<line x1="' + (x - 6) + '" x2="' + (x + w + 6) + '" y1="' + Y(LAB.p90[i]) + '" y2="' + Y(LAB.p90[i]) + '" stroke="' + css("--ink") + '" stroke-width="2" stroke-dasharray="4 3"/>' +
+        '<text x="' + (x + w / 2) + '" y="' + (Y(v) - 5) + '" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" fill="' + css("--ink") + '">' + fmt(v, 1) + "</text>" +
+        '<text x="' + (x + w / 2) + '" y="' + (H - 12) + '" text-anchor="middle" font-size="12" font-family="Public Sans, Arial" fill="' + css("--ink-2") + '">' + LAB.dias[i] + " ene</text>";
+      $("lab-v" + i).textContent = fmt(v, 1) + " °C";
+      var dif = v - LAB.p90[i], ex = $("lab-x" + i);
+      ex.textContent = (dif > 0 ? "+" : "−") + fmt(Math.abs(dif), 1); ex.className = "ex" + (dif > 0 ? " up" : "");
+      if (setInputs) $("lab-" + i).value = v;
+    });
+    s += '<text x="' + (W - R) + '" y="' + (Tp - 2) + '" text-anchor="end" font-size="11" font-family="Public Sans, Arial" fill="' + css("--ink-3") + '">- - umbral P90 de cada día</text>';
+    $("lab-svg").innerHTML = s;
+    var v = $("lab-verdict");
+    if (olas.length) {
+      var txt = olas.map(function (o) {
+        var IS = 0; for (var i = o[0]; i <= o[1]; i++) IS += LAB.t[i] - LAB.p90[i];
+        return "del " + LAB.dias[o[0]] + " al " + LAB.dias[o[1]] + " de enero (" + (o[1] - o[0] + 1) + " días, IS = " + fmt(IS, 1) + " °C)";
+      }).join(" y otra ");
+      v.className = "verdict yes"; v.innerHTML = "<b>Sí, es una ola de calor:</b> " + txt + ". Los días en rojo forman el evento.";
+    } else {
+      var nA = above.filter(Boolean).length;
+      v.className = "verdict";
+      v.innerHTML = "<b>No es una ola de calor.</b> " + (nA ? "Hay " + nA + (nA === 1 ? " día" : " días") + " sobre el umbral, pero la racha más larga es de " + best.len + (best.len === 1 ? " día" : " días") + ": se necesitan al menos 3 seguidos." : "Ningún día supera su umbral.");
+    }
+  }
+
+  // ---------- quiz ----------
+  function buildQuiz() {
+    var Q = [];
+    Q.push({ q: "¿Cuántos días seguidos sobre el umbral se necesitan, como mínimo, para hablar de una ola de calor?", o: ["1", "2", "3", "5"], a: "3",
+      e: "Tres o más días consecutivos con la máxima sobre su percentil 90." });
+    var top = series("TX").slice().sort(function (a, b) { return b.dias - a.dias; });
+    if (top.length > 3 && top[0].dias > top[1].dias) {
+      var op = [top[0], top[1], top[2]].map(function (r) { return lab(r.T); }), viejo = lab(TEMPS[Math.floor(TEMPS.length / 3)]);
+      if (op.indexOf(viejo) < 0) op.push(viejo);
+      Q.push({ q: "¿En qué temporada Quinta Normal acumuló más días dentro de una ola de calor?", o: op.slice().sort(), a: lab(top[0].T),
+        e: "La temporada " + lab(top[0].T) + " sumó " + top[0].dias + " días en ola de calor, el máximo del registro." });
+    }
+    function mesTop(k) {
+      var c = MSEASON.map(function (m) { return [m, EV.filter(function (e) { return e.tipo === k && +e.inicio.slice(5, 7) === m; }).length]; }).sort(function (a, b) { return b[1] - a[1]; });
+      return c[0][1] > c[1][1] ? c[0] : null;
+    }
+    var mn = mesTop("TN");
+    if (mn) Q.push({ q: "¿En qué mes han comenzado más rachas de noches cálidas?", o: MSEASON.map(function (m) { return MESES[m - 1]; }), a: MESES[mn[0] - 1],
+      e: MESES[mn[0] - 1] + " concentra " + mn[1] + " inicios de rachas de noches cálidas. Puedes comprobarlo en el buscador por mes." });
+    var t = TEND.olas_calor_dias;
+    if (t) {
+      var sig = t.p_valor < 0.05, ans = sig ? (t.ols_por_decada > 0 ? "Aumentan de forma significativa" : "Disminuyen de forma significativa") : "No hay un cambio significativo";
+      Q.push({ q: "¿Qué muestra la tendencia de los días en ola de calor por temporada?", o: ["Aumentan de forma significativa", "Disminuyen de forma significativa", "No hay un cambio significativo"], a: ans,
+        e: "La pendiente es de " + (t.ols_por_decada > 0 ? "+" : "") + fmt(t.ols_por_decada, 1) + " días por década" + (sig ? ", estadísticamente significativa según Mann-Kendall." : ", sin significancia estadística.") });
+    }
+    Q.push({ q: "Una ola dura 4 días, cada uno 1,5 °C sobre su umbral. ¿Cuál es su intensidad IS?", o: ["1,5 °C", "4 °C", "6 °C", "8 °C"], a: "6 °C",
+      e: "IS suma los grados sobre el umbral de cada día: 4 × 1,5 = 6 °C." });
+    Q.push({ q: "¿Por qué el umbral de una ola de calor es más bajo en noviembre que en enero?", o: ["Porque se calcula para cada día del calendario", "Porque en noviembre llueve más", "Porque el termómetro cambia"], a: "Porque se calcula para cada día del calendario",
+      e: "El P90 se calcula por separado para cada día del año, así que refleja lo que es inusualmente cálido para esa fecha." });
+    var done = 0, ok = 0, box = $("quiz"); box.innerHTML = "";
+    Q.forEach(function (q, qi) {
+      var el = document.createElement("div"); el.className = "q";
+      el.innerHTML = '<div class="qt"><span class="num" style="color:var(--heat)">' + (qi + 1) + ".</span> " + q.q + '</div><div class="opts">' + q.o.map(function (o) { return '<button type="button">' + o + "</button>"; }).join("") + '</div><div class="fb" hidden></div>';
+      el.querySelector(".opts").addEventListener("click", function (ev) {
+        var b = ev.target.closest("button"); if (!b || b.disabled) return;
+        var good = b.textContent === q.a;
+        el.querySelectorAll("button").forEach(function (x) { x.disabled = true; if (x.textContent === q.a) x.classList.add("right"); });
+        if (!good) b.classList.add("wrong");
+        var fb = el.querySelector(".fb"); fb.hidden = false; fb.innerHTML = "<b>" + (good ? "Correcto." : "No exactamente.") + "</b> " + q.e;
+        done++; if (good) ok++;
+        $("quiz-score").textContent = done === Q.length ? "Resultado: " + ok + " de " + Q.length + " respuestas correctas." : "";
+      });
+      box.appendChild(el);
+    });
   }
 
   // ---------- inicio ----------
-  function drawAll() { drawStripes(); drawKpis(); if (window.Plotly) { drawBubbles(); drawDaily(); drawUmbrales(); drawCalendar(); drawHists(); } drawTable(); }
+  function drawCharts() { if (!window.Plotly) return; drawBubbles(); drawDecades(); drawDaily(); drawCalendar(); drawHists(); }
+  function drawAll() { drawStripes(); drawKpis(); drawRecords(); drawSearch(); drawSeasonInfo(); drawUmbrales(); drawCharts(); drawLab(false); }
   function init() {
     document.querySelectorAll("#tabla th").forEach(function (th) {
       th.addEventListener("click", function () {
@@ -618,23 +1182,47 @@ footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
         drawTable();
       });
     });
-    document.querySelector("#tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr) openSeason(tr.dataset.t); });
-    document.getElementById("sel-tab-tipo").addEventListener("change", drawTable);
-    document.getElementById("sel-temp").addEventListener("change", function (e) { state.T = +e.target.value; drawDaily(); });
+    document.querySelector("#tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr && tr.dataset.t) openSeason(tr.dataset.t); });
+    $("sel-temp").addEventListener("change", function (e) { setSeason(+e.target.value, false); });
+    function step(n) { var S = allSeasons(), p = S.indexOf(state.T) + n; if (p >= 0 && p < S.length) setSeason(S[p], false); }
+    $("t-prev").addEventListener("click", function () { step(-1); });
+    $("t-next").addEventListener("click", function () { step(1); });
+    $("t-link").addEventListener("click", function () { copy(location.origin + location.pathname + "?temporada=" + lab(state.T) + "#explorador", $("t-link"), "Enlace copiado"); });
+    $("btn-cita").addEventListener("click", function () { copy($("cita").textContent, $("btn-cita")); });
 
-    document.getElementById("t-ini").textContent = lab(TEMPS[0]);
-    document.getElementById("t-fin").textContent = lab(TEMPS[TEMPS.length - 1]);
-    document.getElementById("gen").textContent = fdate(DAILY.last);
-    if (ACTUAL) {
-      var ii = DAILY.idx[ACTUAL], d = DAILY.d;
-      var a = ii.filter(function (i) { return d.ola[i]; }).length, b = ii.filter(function (i) { return d.noc[i]; }).length;
-      document.getElementById("en-curso").innerHTML = 'Temporada <b class="num">' + lab(ACTUAL) + "</b> en curso (no incluida en las franjas): " + a + " días en ola de calor y " + b + " noches en racha cálida hasta el " + fdate(DAILY.last) + '. <a href="#explorador" id="ver-actual">Ver en el explorador</a>.';
-      document.getElementById("ver-actual").addEventListener("click", function (e) { e.preventDefault(); openSeason(ACTUAL); });
-    }
+    $("t-n").textContent = TEMPS.length;
+    $("t-ini").textContent = lab(TEMPS[0]);
+    $("t-fin").textContent = lab(TEMPS[TEMPS.length - 1]);
+    $("gen").textContent = fdate(DAILY.last);
+
+    var q = /[?&]temporada=(\d{4})-\d{2}/.exec(location.search);
+    if (q && allSeasons().indexOf(+q[1] + 1) >= 0) state.T = +q[1] + 1;
+    drawStatus();
     fillSeasonSelect();
+    fillFilters();
+    initLab();
+    buildQuiz();
     drawAll();
-    var redraw = function () { drawAll(); };
-    try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw); } catch (e) {}
+
+    paintThemeBtn();
+    $("btn-tema").addEventListener("click", function () {
+      var t = isDark() ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+      try { localStorage.setItem("tema", t); } catch (e) {}
+      paintThemeBtn(); drawAll();
+    });
+    try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { paintThemeBtn(); drawAll(); }); } catch (e) {}
+
+    var top = $("to-top");
+    top.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); });
+    window.addEventListener("scroll", function () { top.classList.toggle("show", window.scrollY > 900); }, { passive: true });
+    if ("IntersectionObserver" in window) {
+      var links = {}; document.querySelectorAll(".nav a").forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) { if (e.isIntersecting) { Object.keys(links).forEach(function (k) { links[k].classList.toggle("on", k === e.target.id); }); } });
+      }, { rootMargin: "-45% 0px -50% 0px" });
+      Object.keys(links).forEach(function (k) { var s = $(k); if (s) io.observe(s); });
+    }
   }
 })();
 </script>
