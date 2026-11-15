@@ -29,6 +29,7 @@
   --tx: #c2452d;
   --tn: #2f63b0;
   --ok: #1f7a55;
+  --both: #7a4fb8;
   --band: rgba(194, 69, 45, 0.13);
   --band-tn: rgba(47, 99, 176, 0.12);
   --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
@@ -40,14 +41,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
-    --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f;
+    --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f; --both: #a98be6;
     --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
     --shadow: none; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
-  --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f;
+  --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f; --both: #a98be6;
   --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
   --shadow: none; color-scheme: dark;
 }
@@ -143,6 +144,10 @@ section { padding-block: 44px 6px; display: grid; gap: 18px; }
 .rec { text-align: left; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--tx); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 2px; cursor: pointer; }
 .rec.tn { border-left-color: var(--tn); }
 .rec:hover { border-color: var(--ink-3); border-left-color: var(--tx); }
+.insight { background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--both); border-radius: var(--radius); padding: 12px 16px; font-size: 0.95rem; color: var(--ink-2); }
+.insight b { color: var(--ink); }
+.insight .cav { display: block; margin-top: 6px; font-size: 0.82rem; color: var(--ink-3); }
+#comp-tabla th { cursor: default; }
 .rec.tn:hover { border-left-color: var(--tn); }
 .rec .k { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-3); }
 .rec .v { font-family: var(--font-data); font-size: 1.35rem; font-weight: 500; }
@@ -271,9 +276,11 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     <a class="brand" href="#inicio" aria-label="Inicio"><i aria-hidden="true"><b style="background:#f9d27c"></b><b style="background:#f4a54a"></b><b style="background:#e5732f"></b><b style="background:#9c2421"></b></i><span>Calor en Santiago</span></a>
     <nav class="nav" aria-label="Secciones">
       <a href="#resumen">Panorama</a>
+      <a href="#compuestos">Compuestos</a>
       <a href="#buscador">Buscador</a>
       <a href="#explorador">Explorador</a>
       <a href="#calendario">Calendario</a>
+      <a href="#estacionalidad">Estacionalidad</a>
       <a href="#umbrales">Umbrales</a>
       <a href="#aprende">Aprende</a>
       <a href="#metodo">Método</a>
@@ -307,6 +314,7 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     <div class="legend-row">
       <span class="tag"><span class="dot" style="background:var(--tx)"></span>Ola de calor diurna · TX &gt; P90</span>
       <span class="tag"><span class="dot" style="background:var(--tn)"></span>Racha de noches cálidas · TN &gt; P90</span>
+      <span class="tag"><span class="dot" style="background:var(--both)"></span>Día compuesto · ambos a la vez</span>
       <span>Tres o más días seguidos sobre el percentil 90 de ese día del calendario.</span>
     </div>
   </header>
@@ -334,6 +342,27 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       <div class="panel-title">Promedio por década</div>
       <div class="panel-note">Días (o noches) en evento por temporada, promediados en cada década. Las décadas incompletas se indican con el número de temporadas.</div>
       <div class="chart" id="dec-chart" style="min-height:280px"></div>
+    </div>
+  </section>
+
+  <section id="compuestos">
+    <div class="sec-head">
+      <div class="eyebrow">Eventos compuestos</div>
+      <h2>Cuando el calor no da tregua ni de día ni de noche</h2>
+      <p>Un <b>día compuesto</b> es una fecha que está a la vez dentro de una ola de calor diurna y dentro de una racha de noches cálidas: la máxima y la mínima de ese día superan sus umbrales como parte de eventos persistentes. Son los días de mayor carga térmica, porque al calor de la tarde se suma una madrugada que no permite recuperarse.</p>
+    </div>
+    <div class="kpi-city"><div class="kpi-grid" id="comp-kpis"></div><div class="muted" id="comp-nota"></div></div>
+    <div class="grid-2">
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--both)"></span>Días compuestos por temporada</div><div class="panel-note">Haz clic en una barra para abrir la temporada.</div><div class="chart" id="comp-chart"></div></div>
+      <div>
+        <div class="table-wrap" style="max-height:372px">
+          <table id="comp-tabla">
+            <thead><tr><th>Episodio compuesto</th><th>Temporada</th><th>Días</th><th>TX máx (°C)</th><th>TN máx (°C)</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted" style="margin-top:8px">Episodios ordenados por duración. Cada uno es una secuencia de días consecutivos en que coinciden ambos eventos.</p>
+      </div>
     </div>
   </section>
 
@@ -414,6 +443,22 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="cal-TX" style="min-height:620px"></div></div>
       <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="cal-TN" style="min-height:620px"></div></div>
     </div>
+  </section>
+
+  <section id="estacionalidad">
+    <div class="sec-head">
+      <div class="eyebrow">Estacionalidad</div>
+      <h2>¿Se está alargando la temporada de calor?</h2>
+      <p>Para cada temporada con eventos, el punto lleno marca el inicio del primer evento y el punto hueco el término del último; la barra entre ambos es el tramo de la temporada con actividad. Las líneas discontinuas son la tendencia (pendiente de Sen) de cada fecha.</p>
+    </div>
+    <div class="explorer-top">
+      <div class="seg" id="est-tipo" role="group" aria-label="Tipo de evento">
+        <button type="button" data-v="TX" aria-pressed="true">Olas de calor</button>
+        <button type="button" data-v="TN" aria-pressed="false">Noches cálidas</button>
+      </div>
+    </div>
+    <div class="panel"><div class="chart" id="est-chart" style="min-height:380px"></div></div>
+    <div class="insight" id="est-sum" aria-live="polite"></div>
   </section>
 
   <section id="umbrales">
@@ -501,8 +546,10 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       <dt>P90</dt><dd>Percentil 90: valor que solo supera el 10 % de los días más cálidos de esa fecha en el período de referencia.</dd>
       <dt>Ola de calor diurna</dt><dd>Tres o más días consecutivos con TX sobre su P90.</dd>
       <dt>Racha de noches cálidas</dt><dd>Tres o más noches consecutivas con TN sobre su P90.</dd>
+      <dt>Día compuesto</dt><dd>Fecha que pertenece a la vez a una ola de calor diurna y a una racha de noches cálidas.</dd>
       <dt>IS</dt><dd>Intensidad: suma de los grados por sobre el P90 en todos los días del evento.</dd>
       <dt>Temporada</dt><dd>De noviembre a marzo. La temporada 2022-23 va de noviembre de 2022 a marzo de 2023.</dd>
+      <dt>Pendiente de Sen</dt><dd>Estimación robusta de una tendencia: la mediana de las pendientes entre todos los pares de años. Es poco sensible a temporadas excepcionales.</dd>
       <dt>ETCCDI</dt><dd>Grupo internacional de expertos que definió un conjunto estándar de índices de extremos climáticos.</dd>
     </dl>
   </section>
@@ -547,7 +594,7 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   var MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   var state = { T: null, sortK: "IS", sortDir: -1 };
   var F = { tipo: "", meses: {}, desde: null, hasta: null, dur: 3 };
-  var EV = [], RES = {}, TEMPS = [], TEND = {}, DAILY = null, ACTUAL = null, UMB = null, FIDX = null;
+  var EV = [], RES = {}, TEMPS = [], TEND = {}, DAILY = null, ACTUAL = null, UMB = null, FIDX = null, COMP = [], EST = { tipo: "TX" };
 
   // ---------- utilidades ----------
   function $(id) { return document.getElementById(id); }
@@ -571,6 +618,30 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     function done() { btn.textContent = okLabel || "Copiado"; setTimeout(function () { btn.textContent = orig; }, 1600); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, function () {});
   }
+
+  // ---------- estadística ----------
+  function median(a) { var b = a.slice().sort(function (x, y) { return x - y; }), n = b.length; return n ? (n % 2 ? b[(n - 1) / 2] : (b[n / 2 - 1] + b[n / 2]) / 2) : NaN; }
+  function pnorm(z) { // distribución normal acumulada (Abramowitz-Stegun 26.2.17)
+    var t = 1 / (1 + 0.2316419 * Math.abs(z)), dd = 0.3989423 * Math.exp(-z * z / 2);
+    var q = dd * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+    return z > 0 ? 1 - q : q;
+  }
+  // Pendiente de Sen y prueba de Mann-Kendall (con corrección por empates)
+  function senMK(x, y) {
+    var n = x.length, sl = [], S = 0, i, j;
+    for (i = 0; i < n - 1; i++) for (j = i + 1; j < n; j++) {
+      if (x[j] !== x[i]) sl.push((y[j] - y[i]) / (x[j] - x[i]));
+      S += y[j] > y[i] ? 1 : y[j] < y[i] ? -1 : 0;
+    }
+    var ties = {}, tc = 0; y.forEach(function (v) { ties[v] = (ties[v] || 0) + 1; });
+    Object.keys(ties).forEach(function (k) { var t = ties[k]; if (t > 1) tc += t * (t - 1) * (2 * t + 5); });
+    var V = (n * (n - 1) * (2 * n + 5) - tc) / 18, z = V > 0 ? (S > 0 ? (S - 1) / Math.sqrt(V) : S < 0 ? (S + 1) / Math.sqrt(V) : 0) : 0;
+    var slope = median(sl);
+    return { n: n, slope: slope, intercept: median(y.map(function (v, k) { return v - slope * x[k]; })), p: 2 * (1 - pnorm(Math.abs(z))) };
+  }
+  function pTxt(p) { return p < 0.001 ? "p < 0,001" : "p = " + fmt(p, 3); }
+  function offOf(f, T) { return Math.round((Date.parse(f + "T00:00:00Z") - Date.UTC(T - 1, 10, 1)) / 864e5); }
+  function offLabel(o) { return fshort(addDays("2022-11-01", Math.round(o))); }
 
   // ---------- tema ----------
   (function () {
@@ -623,6 +694,19 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     d.ola = d.ola.map(Boolean); d.noc = d.noc.map(Boolean);
     d.fecha.forEach(function (f, i) { var T = seasonOf(f); (idx[T] = idx[T] || []).push(i); FIDX[f] = i; });
     DAILY = { d: d, idx: idx, last: J.meta.ultimo_dato };
+    d.comp = d.ola.map(function (o, i) { return o && d.noc[i]; });
+    Object.keys(idx).forEach(function (T) {
+      var run = null, ii = idx[T];
+      function close() { if (run) { COMP.push(run); run = null; } }
+      ii.forEach(function (i, k) {
+        if (d.comp[i]) {
+          if (run && addDays(run.fin, 1) !== d.fecha[i]) close();
+          if (!run) run = { T: +T, inicio: d.fecha[i], fin: d.fecha[i], duracion: 0, tx: -99, tn: -99 };
+          run.fin = d.fecha[i]; run.duracion++; run.tx = Math.max(run.tx, d.tx[i]); run.tn = Math.max(run.tn, d.tn[i]);
+        } else close();
+      });
+      close();
+    });
     var Tl = seasonOf(DAILY.last), ml = +DAILY.last.slice(5, 7);
     if (TEMPS.indexOf(Tl) < 0 && idx[Tl] && (ml >= 11 || ml <= 3)) ACTUAL = Tl;
     UMB = J.umbrales;
@@ -800,6 +884,77 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     Plotly.react("dec-chart", tr, lay, CFG_STATIC);
   }
 
+  // ---------- compuestos ----------
+  function compDias(T) { var d = DAILY.d; return (DAILY.idx[T] || []).filter(function (i) { return d.comp[i]; }).length; }
+  function drawCompound() {
+    var y = TEMPS.map(compDias), tot = sum(y), con = y.filter(function (v) { return v > 0; }).length;
+    var olaTot = sum(series("TX").map(function (r) { return r.dias; }));
+    var ult = mean(y.slice(-10)), ant = mean(y.slice(0, -10)), tr = senMK(TEMPS, y);
+    var top = TEMPS[y.indexOf(Math.max.apply(null, y))];
+    function kpi(v, k) { return '<div class="kpi"><div class="v">' + v + '</div><div class="k">' + k + "</div></div>"; }
+    $("comp-kpis").innerHTML =
+      kpi('<span style="color:var(--both)">' + tot + "</span>", "días compuestos en " + TEMPS.length + " temporadas (" + COMP.filter(function (c) { return TEMPS.indexOf(c.T) >= 0; }).length + " episodios)") +
+      kpi(con, "temporadas con al menos un día compuesto") +
+      kpi(olaTot ? fmt(100 * tot / olaTot, 0) + " %" : "–", "de los días en ola de calor fueron además noche cálida") +
+      kpi(fmt(ult, 1), "días por temporada en las últimas 10 temporadas (antes: " + fmt(ant, 1) + ")");
+    $("comp-nota").innerHTML = "Temporada con más días compuestos: <b class=\"num\">" + lab(top) + "</b> (" + Math.max.apply(null, y) + " días). Tendencia: Mann-Kendall, " + pTxt(tr.p) + (tr.p < 0.05 ? " (significativa)" : " (no significativa)") + ". Con tantas temporadas en cero, la tendencia debe leerse con cautela.";
+    var rows = COMP.filter(function (c) { return allSeasons().indexOf(c.T) >= 0; }).sort(function (a, b) { return b.duracion - a.duracion || b.tx - a.tx; });
+    document.querySelector("#comp-tabla tbody").innerHTML = rows.length ? rows.map(function (c) {
+      return '<tr data-t="' + c.T + '"><td><span class="dot" style="background:var(--both)"></span> ' + (c.inicio === c.fin ? fdate(c.inicio) : fshort(c.inicio) + " al " + fdate(c.fin)) + "</td><td>" + lab(c.T) + "</td><td>" + c.duracion + "</td><td>" + fmt(c.tx, 1) + "</td><td>" + fmt(c.tn, 1) + "</td></tr>";
+    }).join("") : '<tr><td colspan="5" class="empty">Sin días compuestos en el registro.</td></tr>';
+    if (!window.Plotly) return;
+    var col = css("--both"), ticks = TEMPS.filter(function (T) { return T % 10 === 1; });
+    var trc = [{ x: TEMPS, y: y, type: "bar", marker: { color: col }, customdata: TEMPS.map(lab), hovertemplate: "<b>%{customdata}</b><br>%{y} días compuestos<extra></extra>" }];
+    var lay = baseLayout({ margin: { l: 44, r: 12, t: 10, b: 44 }, bargap: 0.15 });
+    lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [TEMPS[0] - 1, TEMPS[TEMPS.length - 1] + 1] });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Días compuestos", font: { size: 12 } }, rangemode: "tozero", dtick: 2 });
+    var el = $("comp-chart");
+    Plotly.react(el, trc, lay, CFG_STATIC);
+    onClick(el, function (ev) { openSeason(ev.points[0].x); });
+  }
+
+  // ---------- estacionalidad ----------
+  function drawSeasonality() {
+    var k = EST.tipo, col = css("--" + k.toLowerCase());
+    document.querySelectorAll("#est-tipo button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === k)); });
+    var R = series(k).filter(function (r) { return r.ev.length; }).map(function (r) {
+      var ini = r.ev.map(function (e) { return e.inicio; }).sort()[0], fin = r.ev.map(function (e) { return e.fin; }).sort().pop();
+      return { T: r.T, ini: ini, fin: fin, a: offOf(ini, r.T), b: offOf(fin, r.T), n: r.ev.length };
+    });
+    var x = R.map(function (r) { return r.T; }), ok = R.length >= 8;
+    var sa = ok ? senMK(x, R.map(function (r) { return r.a; })) : null, sb = ok ? senMK(x, R.map(function (r) { return r.b; })) : null;
+    var uni = k === "TX" ? "olas de calor" : "rachas de noches cálidas", un1 = k === "TX" ? "ola" : "racha";
+    function frase(s, que) {
+      var v = s.slope * 10, sig = s.p < 0.05;
+      if (Math.abs(v) < 0.05) return que + " no muestra cambio (" + pTxt(s.p) + ")";
+      return que + " se " + (v < 0 ? "adelanta" : "retrasa") + " <b>" + fmt(Math.abs(v), 1) + " días por década</b> (" + pTxt(s.p) + ", " + (sig ? "significativo" : "no significativo") + ")";
+    }
+    $("est-sum").innerHTML = R.length ? "En las <b>" + R.length + "</b> temporadas con " + uni + ", la primera " + un1 + " comienza en mediana el <b>" + offLabel(median(R.map(function (r) { return r.a; }))) + "</b> y la última termina el <b>" + offLabel(median(R.map(function (r) { return r.b; }))) + "</b>. " +
+      (ok ? "Tendencia: " + frase(sa, "el inicio") + "; " + frase(sb, "el término") + "." : "Hay muy pocas temporadas para estimar una tendencia.") +
+      '<span class="cav">Cautela: solo entran las temporadas con eventos, que son escasas en las primeras décadas, y la búsqueda está acotada entre el 1 de noviembre y el 31 de marzo, por lo que las fechas no pueden salir de ese rango. Tendencia calculada en el navegador con la pendiente de Sen y la prueba de Mann-Kendall.</span>' : "Sin eventos de este tipo.";
+    if (!window.Plotly) return;
+    var lx = [], ly = [];
+    R.forEach(function (r) { lx.push(r.T, r.T, null); ly.push(r.a, r.b, null); });
+    var cd = R.map(function (r) { return [lab(r.T), fdate(r.ini), fdate(r.fin), r.n]; });
+    var ht = "<b>%{customdata[0]}</b><br>Primer inicio: %{customdata[1]}<br>Último término: %{customdata[2]}<br>%{customdata[3]} evento(s)<extra></extra>";
+    var tr = [
+      { x: lx, y: ly, mode: "lines", line: { color: col, width: 3 }, opacity: 0.35, hoverinfo: "skip", showlegend: false },
+      { x: x, y: R.map(function (r) { return r.a; }), mode: "markers", name: "Inicio del primer evento", marker: { color: col, size: 9 }, customdata: cd, hovertemplate: ht },
+      { x: x, y: R.map(function (r) { return r.b; }), mode: "markers", name: "Término del último evento", marker: { color: css("--surface"), size: 9, line: { color: col, width: 2 } }, customdata: cd, hovertemplate: ht }
+    ];
+    if (ok) [sa, sb].forEach(function (s, i) {
+      var x0 = TEMPS[0], x1 = TEMPS[TEMPS.length - 1];
+      tr.push({ x: [x0, x1], y: [s.intercept + s.slope * x0, s.intercept + s.slope * x1], mode: "lines", name: "Tendencia " + (i ? "del término" : "del inicio"), line: { color: css("--ink-2"), width: 1.5, dash: i ? "dot" : "dash" }, hoverinfo: "skip" });
+    });
+    var ticks = TEMPS.filter(function (T) { return T % 10 === 1; });
+    var lay = baseLayout({ showlegend: true, legend: { orientation: "h", y: -0.14, yanchor: "top", x: 0, font: { color: css("--ink-2") } }, margin: { l: 56, r: 12, t: 12, b: 96 } });
+    lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [TEMPS[0] - 1.5, TEMPS[TEMPS.length - 1] + 1.5] });
+    lay.yaxis = Object.assign(lay.yaxis, { tickvals: [0, 30, 61, 92, 120, 150], ticktext: ["1 nov", "1 dic", "1 ene", "1 feb", "1 mar", "31 mar"], range: [-6, 157] });
+    var el = $("est-chart");
+    Plotly.react(el, tr, lay, CFG_STATIC);
+    onClick(el, function (ev) { if (ev.points[0].x) openSeason(ev.points[0].x); });
+  }
+
   // ---------- buscador ----------
   function mesesSel() { return MSEASON.filter(function (m) { return F.meses[m]; }); }
   function pasa(e, sinMes) {
@@ -965,6 +1120,9 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       { x: f, y: ii.map(function (i) { return d.p90_tn[i]; }), name: "P90 TN", mode: "lines", line: { color: css("--tn"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TN %{y:.1f} °C<extra></extra>" },
       { x: f, y: ii.map(function (i) { return d.tn[i]; }), name: "TN", mode: "lines+markers", line: { color: css("--tn"), width: 2 }, marker: { size: 4 }, hovertemplate: "TN %{y:.1f} °C<extra></extra>" }
     ];
+    var ic = ii.filter(function (i) { return d.comp[i]; });
+    if (ic.length) traces.push({ x: ic.map(function (i) { return d.fecha[i]; }), y: ic.map(function (i) { return d.tx[i]; }), name: "Día compuesto", mode: "markers",
+      marker: { symbol: "diamond", size: 10, color: css("--both"), line: { color: css("--surface"), width: 1.5 } }, hovertemplate: "Día compuesto (ola + noche cálida)<extra></extra>" });
     var lay = baseLayout({ shapes: shapes, hovermode: "x unified", showlegend: true,
       legend: { orientation: "h", y: 1.08, x: 0, font: { size: 12, color: css("--ink-2") } }, margin: { l: 48, r: 12, t: 30, b: 40 } });
     lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Temperatura (°C)", font: { size: 12 } } });
@@ -976,7 +1134,7 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     var nO = ii.filter(function (i) { return d.ola[i]; }).length, nN = ii.filter(function (i) { return d.noc[i]; }).length;
     var txs = ii.filter(function (i) { return d.tx[i] !== null; }), bi = txs.slice().sort(function (a, b) { return d.tx[b] - d.tx[a]; })[0];
     var sob = txs.filter(function (i) { return d.tx[i] > d.p90_tx[i]; }).length;
-    $("season-stats").innerHTML = '<span><b style="color:var(--tx)">' + nO + '</b> días en ola</span><span><b style="color:var(--tn)">' + nN + "</b> noches en racha</span><span><b>" + sob + "</b> días con TX sobre el umbral</span>" +
+    $("season-stats").innerHTML = '<span><b style="color:var(--tx)">' + nO + '</b> días en ola</span><span><b style="color:var(--tn)">' + nN + "</b> noches en racha</span><span><b style=\"color:var(--both)\">" + compDias(T) + "</b> días compuestos</span><span><b>" + sob + "</b> días con TX sobre el umbral</span>" +
       (bi !== undefined ? "<span>máxima <b>" + fmt(d.tx[bi], 1) + " °C</b> (" + fshort(d.fecha[bi]) + ")</span>" : "");
     var ev = EV.filter(function (e) { return e.T === T; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : 1; });
     $("ev-list").innerHTML = ev.length ? ev.map(function (e) {
@@ -1174,7 +1332,7 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 
   // ---------- inicio ----------
   function drawCharts() { if (!window.Plotly) return; drawBubbles(); drawDecades(); drawDaily(); drawCalendar(); drawHists(); }
-  function drawAll() { drawStripes(); drawKpis(); drawRecords(); drawSearch(); drawSeasonInfo(); drawUmbrales(); drawCharts(); drawLab(false); }
+  function drawAll() { drawStripes(); drawKpis(); drawRecords(); drawCompound(); drawSeasonality(); drawSearch(); drawSeasonInfo(); drawUmbrales(); drawCharts(); drawLab(false); }
   function init() {
     document.querySelectorAll("#tabla th").forEach(function (th) {
       th.addEventListener("click", function () {
@@ -1183,6 +1341,8 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       });
     });
     document.querySelector("#tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr && tr.dataset.t) openSeason(tr.dataset.t); });
+    document.querySelector("#comp-tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr && tr.dataset.t) openSeason(tr.dataset.t); });
+    $("est-tipo").addEventListener("click", function (ev) { var b = ev.target.closest("button"); if (!b) return; EST.tipo = b.dataset.v; drawSeasonality(); });
     $("sel-temp").addEventListener("change", function (e) { setSeason(+e.target.value, false); });
     function step(n) { var S = allSeasons(), p = S.indexOf(state.T) + n; if (p >= 0 && p < S.length) setSeason(S[p], false); }
     $("t-prev").addEventListener("click", function () { step(-1); });
