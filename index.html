@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Olas de calor y noches cálidas en Santiago (Quinta Normal)</title>
-<meta name="description" content="Visor interactivo de olas de calor diurnas y rachas de noches cálidas en Santiago, estación Quinta Normal, temporadas cálidas (noviembre a marzo) desde 1951-52. Incluye buscador por mes, explorador diario y una sección para aprender.">
+<title>Olas de calor y de frío en Santiago (Quinta Normal)</title>
+<meta name="description" content="Visor interactivo de olas de calor diurnas, nocturnas y compuestas y de olas de frío en Santiago, estación Quinta Normal, desde 1950. Umbrales oficiales de la DMC, año climático de octubre a septiembre con semestre cálido y frío, buscador por mes, explorador diario y una sección para aprender.">
 <meta name="author" content="Pablo Sarricolea">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Olas de calor y noches cálidas en Santiago (Quinta Normal)">
-<meta property="og:description" content="Explora 75 temporadas cálidas de Santiago: busca olas de calor por mes, revisa cada temporada día a día y aprende cómo se definen los eventos.">
+<meta property="og:title" content="Olas de calor y de frío en Santiago (Quinta Normal)">
+<meta property="og:description" content="Explora más de 75 años de olas de calor diurnas, nocturnas y compuestas y de olas de frío en Santiago: por semestre, por mes y día a día.">
 <meta property="og:url" content="https://psarricolea.github.io/temperaturas-quinta-normal/">
 <meta property="og:locale" content="es_CL">
 <meta name="theme-color" content="#131716">
@@ -27,11 +27,18 @@
   --line: #d9ddd8;
   --heat: #c2452d;
   --tx: #c2452d;
-  --tn: #2f63b0;
+  --tn: #55708c;
+  --hd: #c2452d;
+  --hn: #7a4fb8;
+  --co: #8a1740;
+  --fr: #1d6fd1;
   --ok: #1f7a55;
   --both: #7a4fb8;
   --band: rgba(194, 69, 45, 0.13);
   --band-tn: rgba(47, 99, 176, 0.12);
+  --band-hd: rgba(194, 69, 45, 0.15);
+  --band-hn: rgba(122, 79, 184, 0.17);
+  --band-fr: rgba(29, 111, 209, 0.15);
   --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --font-body: "Public Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -42,14 +49,16 @@
   :root:not([data-theme="light"]) {
     --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
     --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f; --both: #a98be6;
-    --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
+    --tx: #ec7457; --tn: #9fb3c8; --hd: #ec7457; --hn: #a98be6; --co: #f06f9b; --fr: #5aa2f5; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
+    --band-hd: rgba(236, 116, 87, 0.18); --band-hn: rgba(169, 139, 230, 0.2); --band-fr: rgba(90, 162, 245, 0.18);
     --shadow: none; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #131716; --surface: #1b201f; --surface-2: #262c2a; --ink: #e9eeec; --ink-2: #b4bdb9;
   --ink-3: #8a9591; --line: #333b38; --heat: #ec7457; --ok: #4fbf8f; --both: #a98be6;
-  --tx: #ec7457; --tn: #6d9be0; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
+  --tx: #ec7457; --tn: #9fb3c8; --hd: #ec7457; --hn: #a98be6; --co: #f06f9b; --fr: #5aa2f5; --band: rgba(236, 116, 87, 0.16); --band-tn: rgba(109, 155, 224, 0.16);
+    --band-hd: rgba(236, 116, 87, 0.18); --band-hn: rgba(169, 139, 230, 0.2); --band-fr: rgba(90, 162, 245, 0.18);
   --shadow: none; color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -266,6 +275,45 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 @media (max-width: 520px) { .records { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
 @media print { .topbar, .to-top, .cta { display: none; } }
+
+/* Ajustes: período global, cuatro tipos de evento */
+.g-sem { display: flex; align-items: center; gap: 6px; font-size: 0.74rem; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+.g-sem select { height: 32px; padding: 0 8px; font-size: 0.82rem; text-transform: none; letter-spacing: 0; max-width: 46vw; }
+.stripe-row, .stripe-axis { grid-template-columns: 108px 1fr; }
+.stripe { height: 40px; }
+#scope-tag { display: inline-block; border-radius: 8px; }
+.scope-line { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 0.82rem; color: var(--ink-3); }
+.status-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.status-grid.four .v { font-size: 1.45rem; }
+.kpis .kpi .v { font-size: 1.4rem; }
+.chip.alt { border-style: dashed; }
+.chip.alt[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); border-style: solid; }
+table.plain th, table.plain td { text-align: right; }
+table.plain th:first-child, table.plain td:first-child { text-align: left; }
+table.plain th { cursor: default; position: static; }
+table.plain tbody tr { cursor: default; }
+table.plain tr.hl td { background: var(--band); }
+th.grp { text-align: center !important; border-left: 1px solid var(--line); }
+#sem-tabla td:nth-child(2), #sem-tabla td:nth-child(6) { border-left: 1px solid var(--line); text-align: right; }
+#sem-tabla td:first-child { white-space: nowrap; }
+td .muted, th .muted { font-size: 0.78rem; font-family: var(--font-body); }
+.cite.doc p { font-size: 0.92rem; color: var(--ink-2); max-width: 90ch; }
+.cite + .cite { margin-top: 0; }
+.seg { flex-wrap: wrap; }
+@media (max-width: 860px) {
+  .g-sem span { display: none; }
+  .topbar .wrap { flex-wrap: wrap; height: auto; padding-block: 8px 0; row-gap: 2px; }
+  .brand { flex: 1; }
+  .nav { order: 3; flex-basis: 100%; padding-bottom: 4px; }
+  html { scroll-padding-top: 100px; }
+  .status-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stripe-row, .stripe-axis { grid-template-columns: 92px 1fr; }
+}
+@media (max-width: 620px) {
+  #stripe-axis span:nth-child(even) { display: none; }
+  .topbar .wrap { gap: 8px; }
+  .nav a { padding: 6px 7px; }
+}
 </style>
 </head>
 <body>
@@ -273,10 +321,11 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 
 <div class="topbar">
   <div class="wrap">
-    <a class="brand" href="#inicio" aria-label="Inicio"><i aria-hidden="true"><b style="background:#f9d27c"></b><b style="background:#f4a54a"></b><b style="background:#e5732f"></b><b style="background:#9c2421"></b></i><span>Calor en Santiago</span></a>
+    <a class="brand" href="#inicio" aria-label="Inicio"><i aria-hidden="true"><b style="background:#f9d27c"></b><b style="background:#e5732f"></b><b style="background:#9c2421"></b><b style="background:#2f63b0"></b></i><span>Calor y frío en Santiago</span></a>
     <nav class="nav" aria-label="Secciones">
       <a href="#resumen">Panorama</a>
-      <a href="#compuestos">Compuestos</a>
+      <a href="#semestres">Semestres</a>
+      <a href="#compuestas">Compuestas</a>
       <a href="#buscador">Buscador</a>
       <a href="#explorador">Explorador</a>
       <a href="#calendario">Calendario</a>
@@ -285,6 +334,13 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       <a href="#aprende">Aprende</a>
       <a href="#metodo">Método</a>
     </nav>
+    <label class="g-sem"><span>Período</span>
+      <select id="g-sem" aria-label="Período del año que se resume">
+        <option value="a">Año completo (oct-sep)</option>
+        <option value="c">Semestre cálido (ONDEFM)</option>
+        <option value="f">Semestre frío (AMJJAS)</option>
+      </select>
+    </label>
     <button class="icon-btn" id="btn-tema" type="button" aria-label="Cambiar entre tema claro y oscuro">Tema</button>
   </div>
 </div>
@@ -293,36 +349,39 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   <header class="hero" id="inicio">
     <div class="hero-top">
       <div class="hero-text">
-        <div class="eyebrow">Santiago de Chile · Estación Quinta Normal · Temporada cálida (noviembre a marzo)</div>
-        <h1>Olas de calor y <em>noches cálidas</em> en Santiago</h1>
-        <p class="lede">Un registro de <span class="num" id="t-n">–</span> temporadas cálidas, de la <span class="num" id="t-ini">–</span> a la <span class="num" id="t-fin">–</span>, para ver cuándo ocurrieron los episodios de calor extremo, cuánto duraron y cómo han cambiado.</p>
+        <div class="eyebrow">Santiago de Chile · Estación Quinta Normal (330020) · Año climático de octubre a septiembre</div>
+        <h1>Olas de calor <em>diurnas, nocturnas y compuestas</em> en Santiago</h1>
+        <p class="lede">Un registro diario desde <span class="num" id="t-ini">–</span> para ver cuándo ocurrieron las olas de calor y las olas de frío, cuánto duraron y cómo han cambiado, tanto en el semestre cálido (octubre a marzo) como en el frío (abril a septiembre). Umbrales y definiciones de la Dirección Meteorológica de Chile.</p>
         <div class="cta">
-          <a class="btn" href="#buscador">Buscar olas por mes</a>
-          <a class="btn ghost" href="#explorador">Explorar una temporada</a>
+          <a class="btn" href="#buscador">Buscar eventos por mes</a>
+          <a class="btn ghost" href="#explorador">Explorar un año día a día</a>
           <a class="btn ghost" href="#aprende">Aprender</a>
         </div>
         <p class="byline">Creado por Pablo Sarricolea, Departamento de Geografía, Universidad de Chile · <a href="mailto:psarricolea@uchilefau.cl">psarricolea@uchilefau.cl</a></p>
       </div>
-      <aside class="status" id="status" aria-label="Estado de la temporada"></aside>
+      <aside class="status" id="status" aria-label="Estado del año en curso"></aside>
     </div>
+    <div class="scope-line"><span class="tag" id="scope-tag"></span><span>Cambia el período con el selector de la barra superior: afecta al panorama, las franjas y los gráficos de evolución.</span></div>
     <div class="stripes" id="stripes" aria-label="Franjas de días en evento por temporada"></div>
     <div class="stripe-axis"><div></div><div id="stripe-axis"></div></div>
     <div class="legend-row">
-      <div class="legend-ramp"><span>Días en evento por temporada:</span><span class="num">0</span><span class="ramp" id="ramp"></span><span class="num" id="ramp-max">–</span></div>
+      <div class="legend-ramp"><span>Días en ola de calor:</span><span class="num">0</span><span class="ramp" id="ramp"></span><span class="num" id="ramp-max">–</span></div>
+      <div class="legend-ramp"><span>Días en ola de frío:</span><span class="num">0</span><span class="ramp" id="ramp-fr"></span><span class="num" id="ramp-fr-max">–</span></div>
       <span>Cada franja es una temporada. Haz clic para abrirla en el explorador.</span>
     </div>
     <div class="legend-row">
-      <span class="tag"><span class="dot" style="background:var(--tx)"></span>Ola de calor diurna · TX &gt; P90</span>
-      <span class="tag"><span class="dot" style="background:var(--tn)"></span>Racha de noches cálidas · TN &gt; P90</span>
-      <span class="tag"><span class="dot" style="background:var(--both)"></span>Día compuesto · ambos a la vez</span>
-      <span>Tres o más días seguidos sobre el percentil 90 de ese día del calendario.</span>
+      <span class="tag"><span class="dot" style="background:var(--hd)"></span>Ola de calor diurna · TX ≥ P90</span>
+      <span class="tag"><span class="dot" style="background:var(--hn)"></span>Ola de calor nocturna · TN ≥ P90</span>
+      <span class="tag"><span class="dot" style="background:var(--co)"></span>Ola de calor compuesta · ambas a la vez</span>
+      <span class="tag"><span class="dot" style="background:var(--fr)"></span>Ola de frío · TN ≤ P10</span>
+      <span>Siempre tres o más días seguidos.</span>
     </div>
   </header>
 
   <div id="carga" class="muted" style="padding-top:24px">Cargando datos…</div>
 
   <section id="resumen">
-    <div class="sec-head"><div class="eyebrow">Panorama</div><h2>Cuántos eventos y cómo han cambiado</h2></div>
+    <div class="sec-head"><div class="eyebrow">Panorama · <span class="scope-txt"></span></div><h2>Cuántos eventos y cómo han cambiado</h2></div>
     <div class="kpis" id="kpis"></div>
     <div class="subhead">Récords del registro</div>
     <div class="records" id="records"></div>
@@ -330,38 +389,63 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="burbujas">
     <div class="sec-head">
-      <div class="eyebrow">Evolución por temporada</div>
-      <h2>Días en evento por temporada cálida</h2>
-      <p>Cada círculo es una temporada con al menos un evento. El tamaño indica la duración media de sus eventos y el color su intensidad media (IS, grados acumulados por sobre el umbral). La línea discontinua es el promedio del período de referencia. Haz clic en un círculo para abrir la temporada.</p>
+      <div class="eyebrow">Evolución por temporada · <span class="scope-txt"></span></div>
+      <h2>Días en evento por temporada</h2>
+      <p>Cada círculo es una temporada con al menos un evento. El tamaño indica la duración media de sus eventos y el color su intensidad media (IS, grados acumulados más allá del umbral). La línea discontinua es el promedio del período de referencia. Haz clic en un círculo para abrir la temporada.</p>
     </div>
     <div class="grid-2">
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="bub-TX"></div></div>
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="bub-TN"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--hd)"></span>Olas de calor diurnas</div><div class="chart" id="bub-HD"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--hn)"></span>Olas de calor nocturnas</div><div class="chart" id="bub-HN"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--co)"></span>Olas de calor compuestas</div><div class="chart" id="bub-CO"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--fr)"></span>Olas de frío</div><div class="chart" id="bub-FR"></div></div>
     </div>
     <div class="panel">
       <div class="panel-title">Promedio por década</div>
-      <div class="panel-note">Días (o noches) en evento por temporada, promediados en cada década. Las décadas incompletas se indican con el número de temporadas.</div>
-      <div class="chart" id="dec-chart" style="min-height:280px"></div>
+      <div class="panel-note">Días en evento por temporada, promediados en cada década. Las décadas incompletas se indican con el número de temporadas.</div>
+      <div class="chart" id="dec-chart" style="min-height:300px"></div>
     </div>
   </section>
 
-  <section id="compuestos">
+  <section id="semestres">
     <div class="sec-head">
-      <div class="eyebrow">Eventos compuestos</div>
+      <div class="eyebrow">Semestres</div>
+      <h2>Semestre cálido y semestre frío, lado a lado</h2>
+      <p>El año climático parte el 1 de octubre. El <b>semestre cálido</b> reúne octubre a marzo (ONDEFM) y el <b>semestre frío</b>, abril a septiembre (AMJJAS). Como los umbrales cambian día a día, hay olas de calor en pleno invierno (días inusualmente cálidos para la fecha) y olas de frío en verano. La tabla compara ambos semestres para cada tipo de evento.</p>
+    </div>
+    <div class="table-wrap umb-wrap">
+      <table id="sem-tabla" class="plain">
+        <thead>
+          <tr><th rowspan="2">Tipo de evento</th><th colspan="4" class="grp">Semestre cálido · ONDEFM</th><th colspan="4" class="grp">Semestre frío · AMJJAS</th></tr>
+          <tr><th>Eventos</th><th>Días</th><th>Días/temp. <span class="ref-txt"></span></th><th>Tendencia por década</th><th>Eventos</th><th>Días</th><th>Días/temp. <span class="ref-txt"></span></th><th>Tendencia por década</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="muted">Los eventos se asignan al semestre en que comienzan y los días, al semestre en que caen. Tendencia: pendiente lineal de los días en evento por temporada; en negrita si es significativa (Mann-Kendall, p &lt; 0,05).</p>
+    <div class="panel">
+      <div class="panel-title">Días en evento según el mes</div>
+      <div class="panel-note">Promedio de días por año en cada mes del calendario, período <span class="ref-txt"></span>. La línea vertical separa el semestre cálido del frío.</div>
+      <div class="chart" id="sem-chart" style="min-height:300px"></div>
+    </div>
+  </section>
+
+  <section id="compuestas">
+    <div class="sec-head">
+      <div class="eyebrow">Olas de calor compuestas</div>
       <h2>Cuando el calor no da tregua ni de día ni de noche</h2>
-      <p>Un <b>día compuesto</b> es una fecha que está a la vez dentro de una ola de calor diurna y dentro de una racha de noches cálidas: la máxima y la mínima de ese día superan sus umbrales como parte de eventos persistentes. Son los días de mayor carga térmica, porque al calor de la tarde se suma una madrugada que no permite recuperarse.</p>
+      <p>Una <b>ola de calor compuesta</b> es una secuencia de tres o más días en que la máxima y la mínima alcanzan a la vez su percentil 90. Son los episodios de mayor carga térmica: al calor de la tarde se suma una madrugada que no permite recuperarse. La DMC define las olas diurnas y las nocturnas; la categoría compuesta es propia de este visor y sigue el uso habitual en la literatura sobre eventos compuestos día-noche.</p>
     </div>
     <div class="kpi-city"><div class="kpi-grid" id="comp-kpis"></div><div class="muted" id="comp-nota"></div></div>
     <div class="grid-2">
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--both)"></span>Días compuestos por temporada</div><div class="panel-note">Haz clic en una barra para abrir la temporada.</div><div class="chart" id="comp-chart"></div></div>
+      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--co)"></span>Días con calor diurno y nocturno a la vez</div><div class="panel-note">Oscuro: días dentro de una ola compuesta. Claro: otros días en que coinciden una ola diurna y una nocturna. Haz clic en una barra para abrir la temporada.</div><div class="chart" id="comp-chart"></div></div>
       <div>
         <div class="table-wrap" style="max-height:372px">
           <table id="comp-tabla">
-            <thead><tr><th>Episodio compuesto</th><th>Temporada</th><th>Días</th><th>TX máx (°C)</th><th>TN máx (°C)</th></tr></thead>
+            <thead><tr><th>Ola compuesta</th><th>Temporada</th><th>Días</th><th>TX máx (°C)</th><th>TN máx (°C)</th><th>IS (°C)</th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
-        <p class="muted" style="margin-top:8px">Episodios ordenados por duración. Cada uno es una secuencia de días consecutivos en que coinciden ambos eventos.</p>
+        <p class="muted" style="margin-top:8px">Todas las olas compuestas del registro, de la más reciente a la más antigua. En las compuestas, IS suma los excesos de la máxima y de la mínima.</p>
       </div>
     </div>
   </section>
@@ -369,16 +453,18 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   <section id="buscador">
     <div class="sec-head">
       <div class="eyebrow">Buscador</div>
-      <h2>Busca olas de calor por mes</h2>
+      <h2>Busca olas de calor y de frío por mes</h2>
       <p>Elige uno o varios meses, el tipo de evento, el período y la duración mínima. Un evento aparece en un mes si al menos uno de sus días cae en él. Haz clic en una fila para abrir esa temporada en el explorador.</p>
     </div>
     <div class="filters">
-      <div class="ctl"><span class="ctl-label">Mes</span><div class="chips" id="f-meses" role="group" aria-label="Meses"></div></div>
+      <div class="ctl" style="flex-basis:100%"><span class="ctl-label">Mes</span><div class="chips" id="f-meses" role="group" aria-label="Meses"></div></div>
       <div class="ctl"><span class="ctl-label">Tipo de evento</span>
         <div class="seg" id="f-tipo" role="group" aria-label="Tipo de evento">
-          <button type="button" data-v="" aria-pressed="true">Ambos</button>
-          <button type="button" data-v="TX" aria-pressed="false">Olas de calor</button>
-          <button type="button" data-v="TN" aria-pressed="false">Noches cálidas</button>
+          <button type="button" data-v="" aria-pressed="true">Todos</button>
+          <button type="button" data-v="HD" aria-pressed="false">Diurnas</button>
+          <button type="button" data-v="HN" aria-pressed="false">Nocturnas</button>
+          <button type="button" data-v="CO" aria-pressed="false">Compuestas</button>
+          <button type="button" data-v="FR" aria-pressed="false">Frío</button>
         </div>
       </div>
       <div class="ctl"><span class="ctl-label">Período</span>
@@ -390,8 +476,8 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
       <div class="ctl" style="align-content:end"><button class="btn ghost small" type="button" id="f-reset">Limpiar filtros</button></div>
     </div>
     <div class="grid-2">
-      <div class="panel"><div class="panel-title">Eventos por mes</div><div class="panel-note">Según el tipo, período y duración elegidos. Haz clic en una barra para filtrar por ese mes.</div><div class="chart" id="mes-chart" style="min-height:270px"></div></div>
-      <div class="panel"><div class="panel-title" id="heat-title">Días en ola por mes y década</div><div class="panel-note">Promedio por temporada en cada década. Muestra en qué meses se concentra el calor y cómo se ha desplazado.</div><div class="chart" id="heat-chart" style="min-height:270px"></div></div>
+      <div class="panel"><div class="panel-title">Eventos por mes</div><div class="panel-note">Según el tipo, período y duración elegidos. Haz clic en una barra para filtrar por ese mes.</div><div class="chart" id="mes-chart" style="min-height:290px"></div></div>
+      <div class="panel"><div class="panel-title" id="heat-title">Días en ola por mes y década</div><div class="panel-note">Promedio por temporada en cada década. Muestra en qué meses se concentran los eventos y cómo se han desplazado.</div><div class="chart" id="heat-chart" style="min-height:290px"></div></div>
     </div>
     <div class="result-bar">
       <div class="result-sum" id="tab-count" aria-live="polite"></div>
@@ -400,61 +486,72 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     <div class="table-wrap">
       <table id="tabla">
         <thead><tr>
-          <th data-k="tipo">Tipo</th><th data-k="T">Temporada</th><th data-k="inicio">Inicio</th><th data-k="fin">Fin</th>
-          <th data-k="duracion">Días</th><th data-k="IS" aria-sort="descending">IS (°C)</th><th data-k="IS_dia">IS/día</th>
-          <th data-k="maximo">Máximo (°C)</th><th data-k="media">Media (°C)</th>
+          <th data-k="tipo">Tipo</th><th data-k="T">Temporada</th><th data-k="sem">Semestre</th><th data-k="inicio" aria-sort="descending">Inicio</th><th data-k="fin">Fin</th>
+          <th data-k="duracion">Días</th><th data-k="IS">IS (°C)</th><th data-k="IS_dia">IS/día</th>
+          <th data-k="ext">Extremo (°C)</th><th data-k="media">Media (°C)</th>
         </tr></thead>
         <tbody></tbody>
       </table>
     </div>
-    <p class="muted">Máximo y media se refieren a TX en las olas diurnas y a TN en las rachas de noches cálidas.</p>
+    <p class="muted">Extremo y media se refieren a la máxima (TX) en las olas diurnas y compuestas y a la mínima (TN) en las nocturnas y en las de frío; en las de frío el extremo es la mínima más baja.</p>
     <div class="lookup">
       <div class="ctl"><label class="ctl-label" for="f-fecha">¿Qué pasó un día concreto?</label><input type="date" id="f-fecha"></div>
-      <div class="lookup-out" id="fecha-out" aria-live="polite">Elige una fecha entre noviembre y marzo para ver sus temperaturas, el umbral de ese día y si formó parte de un evento.</div>
+      <div class="lookup-out" id="fecha-out" aria-live="polite">Elige cualquier fecha del registro para ver sus temperaturas, los umbrales de ese día y si formó parte de un evento.</div>
     </div>
   </section>
 
   <section id="explorador">
     <div class="sec-head">
       <div class="eyebrow">Explorador diario</div>
-      <h2>Una temporada, día a día</h2>
-      <p>Temperaturas máxima (TX) y mínima (TN) diarias junto a sus umbrales P90. Las bandas rojas son días en ola de calor diurna y las azules, noches dentro de una racha de noches cálidas.</p>
+      <h2>Un año climático, día a día</h2>
+      <p>Temperaturas máxima (TX) y mínima (TN) diarias junto a sus umbrales. Las bandas de la mitad superior marcan las olas de calor diurnas; las de la mitad inferior, las olas de calor nocturnas (violeta) y las de frío (azul). Los rombos señalan los días de ola compuesta.</p>
     </div>
     <div class="explorer-top">
       <div class="ctl-row">
         <button class="icon-btn" type="button" id="t-prev" aria-label="Temporada anterior">←</button>
         <select id="sel-temp" aria-label="Temporada"></select>
         <button class="icon-btn" type="button" id="t-next" aria-label="Temporada siguiente">→</button>
+        <div class="seg" id="exp-sem" role="group" aria-label="Tramo del año">
+          <button type="button" data-v="a" aria-pressed="true">Año completo</button>
+          <button type="button" data-v="c" aria-pressed="false">Semestre cálido</button>
+          <button type="button" data-v="f" aria-pressed="false">Semestre frío</button>
+        </div>
         <button class="icon-btn" type="button" id="t-link">Copiar enlace</button>
       </div>
       <div class="season-stats" id="season-stats"></div>
     </div>
-    <div class="panel"><div class="chart" id="daily" style="min-height:420px"></div></div>
+    <div class="panel"><div class="chart" id="daily" style="min-height:440px"></div></div>
     <div class="events-list" id="ev-list"></div>
   </section>
 
   <section id="calendario">
     <div class="sec-head">
       <div class="eyebrow">Calendario</div>
-      <h2>Cuándo ocurren dentro de la temporada</h2>
-      <p>Cada fila es una temporada y cada celda un día, del 1 de noviembre al 31 de marzo. Las celdas coloreadas son días dentro de un evento. Haz clic en una fila para abrir la temporada.</p>
+      <h2>Cuándo ocurren dentro del año</h2>
+      <p>Cada fila es un año climático y cada celda un día, del 1 de octubre al 30 de septiembre. Las celdas coloreadas son días dentro de un evento; la línea vertical separa el semestre cálido del frío. Haz clic en una fila para abrir la temporada.</p>
     </div>
-    <div class="grid-2">
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tx)"></span>Olas de calor diurnas</div><div class="chart" id="cal-TX" style="min-height:620px"></div></div>
-      <div class="panel"><div class="panel-title"><span class="dot" style="background:var(--tn)"></span>Rachas de noches cálidas</div><div class="chart" id="cal-TN" style="min-height:620px"></div></div>
+    <div class="legend-row">
+      <span class="tag"><span class="dot" style="background:var(--hd)"></span>Ola de calor diurna</span>
+      <span class="tag"><span class="dot" style="background:var(--hn)"></span>Ola de calor nocturna</span>
+      <span class="tag"><span class="dot" style="background:var(--co)"></span>Ola de calor compuesta</span>
+      <span class="tag"><span class="dot" style="background:var(--fr)"></span>Ola de frío</span>
+      <span>Si un día pertenece a una ola diurna y a una nocturna sin ser compuesta, se pinta como diurna.</span>
     </div>
+    <div class="panel"><div class="chart" id="cal" style="min-height:760px"></div></div>
   </section>
 
   <section id="estacionalidad">
     <div class="sec-head">
       <div class="eyebrow">Estacionalidad</div>
-      <h2>¿Se está alargando la temporada de calor?</h2>
-      <p>Para cada temporada con eventos, el punto lleno marca el inicio del primer evento y el punto hueco el término del último; la barra entre ambos es el tramo de la temporada con actividad. Las líneas discontinuas son la tendencia (pendiente de Sen) de cada fecha.</p>
+      <h2>¿Se está alargando la temporada de eventos?</h2>
+      <p>Para cada temporada con eventos, el punto lleno marca el inicio del primero y el punto hueco el término del último; la barra entre ambos es el tramo con actividad. Las olas de calor se miran dentro del semestre cálido y las de frío dentro del semestre frío. Las líneas discontinuas son la tendencia (pendiente de Sen) de cada fecha.</p>
     </div>
     <div class="explorer-top">
       <div class="seg" id="est-tipo" role="group" aria-label="Tipo de evento">
-        <button type="button" data-v="TX" aria-pressed="true">Olas de calor</button>
-        <button type="button" data-v="TN" aria-pressed="false">Noches cálidas</button>
+        <button type="button" data-v="HD" aria-pressed="true">Diurnas</button>
+        <button type="button" data-v="HN" aria-pressed="false">Nocturnas</button>
+        <button type="button" data-v="CO" aria-pressed="false">Compuestas</button>
+        <button type="button" data-v="FR" aria-pressed="false">Frío</button>
       </div>
     </div>
     <div class="panel"><div class="chart" id="est-chart" style="min-height:380px"></div></div>
@@ -464,25 +561,26 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   <section id="umbrales">
     <div class="sec-head">
       <div class="eyebrow">Umbrales</div>
-      <h2>Umbrales P90 mes a mes</h2>
-      <p>Temperatura que hay que superar para que un día cuente como cálido (TX, olas de calor) o una noche como cálida (TN, rachas de noches cálidas). El umbral cambia día a día; la tabla muestra el promedio de cada mes y el rango entre su día más bajo y el más alto. Las filas destacadas son los meses en que se buscan eventos.</p>
+      <h2>Umbrales oficiales de la DMC, día a día</h2>
+      <p>Temperatura que hay que igualar o superar para que un día cuente como cálido (P90 de TX), una noche como cálida (P90 de TN), o bajo la cual una noche cuenta como fría (P10 de TN). El umbral cambia cada día del año; la tabla muestra el promedio de cada mes y, entre paréntesis, su rango.</p>
     </div>
     <div class="grid-2">
-      <div class="panel"><div class="panel-title">Umbral diario a lo largo del año</div><div class="chart" id="umb-chart"></div></div>
+      <div class="panel"><div class="panel-title">Umbral diario a lo largo del año climático</div><div class="chart" id="umb-chart" style="min-height:360px"></div></div>
       <div class="table-wrap umb-wrap">
-        <table id="umb-tabla">
-          <thead><tr><th>Mes</th><th><span class="dot" style="background:var(--tx)"></span> P90 TX (°C)</th><th>Rango TX</th><th><span class="dot" style="background:var(--tn)"></span> P90 TN (°C)</th><th>Rango TN</th></tr></thead>
+        <table id="umb-tabla" class="plain">
+          <thead><tr><th>Mes</th><th><span class="dot" style="background:var(--tx)"></span> P90 TX (°C)</th><th><span class="dot" style="background:var(--hn)"></span> P90 TN (°C)</th><th><span class="dot" style="background:var(--fr)"></span> P10 TN (°C)</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
     </div>
+    <div class="insight" id="umb-verif"></div>
   </section>
 
   <section id="distribucion">
     <div class="sec-head">
       <div class="eyebrow">Comparación</div>
       <h2>Duración e intensidad de cada evento</h2>
-      <p>Número de eventos según su duración y su intensidad (IS), comparando olas de calor diurnas y rachas de noches cálidas en todo el período.</p>
+      <p>Número de eventos según su duración y su intensidad (IS), para los cuatro tipos y todo el registro.</p>
     </div>
     <div class="grid-2">
       <div class="panel"><div class="panel-title">Duración (días)</div><div class="chart" id="hist-dur"></div></div>
@@ -493,23 +591,27 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   <section id="aprende">
     <div class="sec-head">
       <div class="eyebrow">Aprende</div>
-      <h2>Entender una ola de calor en cuatro ideas</h2>
+      <h2>Entender las olas de calor y de frío en seis ideas</h2>
       <p>Un espacio para estudiantes, docentes y curiosos. Lee los conceptos, experimenta con el laboratorio y pon a prueba lo aprendido con datos reales de Quinta Normal.</p>
     </div>
-    <div class="grid-2">
+    <div class="grid-3">
       <div class="learn-card"><span class="n">01 · El umbral</span><h3>¿Qué significa "percentil 90"?</h3>
-        <p>Si ordenas de menor a mayor las temperaturas máximas de un mismo día del calendario durante 30 años, el percentil 90 (P90) es el valor que solo supera el 10 % más cálido. Por eso el umbral no es un número fijo: lo "muy caluroso" para noviembre es menos que para enero. <span id="ap-umb"></span></p></div>
+        <p>Si ordenas de menor a mayor las temperaturas máximas de una misma fecha durante 30 años, el percentil 90 (P90) es el valor que solo alcanza el 10 % más cálido. Por eso el umbral no es un número fijo: lo "muy caluroso" para julio es mucho menos que para enero. <span id="ap-umb"></span></p></div>
       <div class="learn-card"><span class="n">02 · La persistencia</span><h3>Un día caluroso no es una ola</h3>
-        <p>Para hablar de ola de calor diurna, la máxima debe superar su P90 durante <b>tres o más días seguidos</b>. La persistencia importa porque el calor se acumula en edificios, calles y personas: cada día sin alivio suma al anterior.</p></div>
-      <div class="learn-card"><span class="n">03 · La noche</span><h3>¿Por qué mirar las noches cálidas?</h3>
-        <p>La temperatura mínima suele darse al amanecer. Cuando la mínima se mantiene sobre su P90 varias noches seguidas, las viviendas no se enfrían y el cuerpo no logra recuperarse del calor del día. Por eso las noches cálidas se siguen por separado de las olas diurnas.</p></div>
-      <div class="learn-card"><span class="n">04 · La intensidad</span><h3>IS: cuánto calor "sobró"</h3>
-        <p>La intensidad IS suma, día a día, los grados por encima del umbral. Una ola de cinco días a 2 °C sobre el P90 tiene IS = 10 °C. Así se pueden comparar una ola corta y muy intensa con otra larga y moderada.</p>
-        <div class="formula">IS = Σ (T − P90<sub>día</sub>)</div></div>
+        <p>Para hablar de ola, la temperatura debe alcanzar su umbral durante <b>tres o más días seguidos</b>. La persistencia importa porque el calor se acumula en edificios, calles y personas: cada día sin alivio suma al anterior.</p></div>
+      <div class="learn-card"><span class="n">03 · Día y noche</span><h3>Diurnas y nocturnas</h3>
+        <p>La <b>ola de calor diurna</b> se mide con la máxima del día; la <b>nocturna</b>, con la mínima, que suele darse al amanecer. Cuando la mínima se mantiene alta varias noches, las viviendas no se enfrían y el cuerpo no logra recuperarse.</p></div>
+      <div class="learn-card"><span class="n">04 · Compuestas</span><h3>Calor sin tregua</h3>
+        <p>Si la máxima y la mínima alcanzan su P90 a la vez durante tres días o más, la ola es <b>compuesta</b>. Son poco frecuentes en Santiago, donde las noches de verano suelen refrescar, y por lo mismo son las más exigentes para la salud.</p></div>
+      <div class="learn-card"><span class="n">05 · El otro extremo</span><h3>Olas de frío</h3>
+        <p>La misma lógica al revés: tres o más días con la mínima igual o inferior a su <b>percentil 10</b>. Las de invierno traen heladas; las de verano son noches inusualmente frescas para la época. <span id="ap-frio"></span></p></div>
+      <div class="learn-card"><span class="n">06 · La intensidad</span><h3>IS: cuánto calor "sobró"</h3>
+        <p>La intensidad IS suma, día a día, los grados más allá del umbral. Una ola de cinco días a 2 °C sobre el P90 tiene IS = 10 °C. En las olas de frío se suman los grados bajo el P10.</p>
+        <div class="formula">IS = Σ (T − P90<sub>día</sub>) · frío: Σ (P10<sub>día</sub> − T)</div></div>
     </div>
 
     <div class="subhead">Laboratorio: ¿es una ola de calor?</div>
-    <p class="muted" style="max-width:75ch">Mueve las temperaturas máximas de una semana de enero. La línea marca el umbral P90 real de cada día en Quinta Normal. Observa cuándo se cumple la definición y cómo cambia la intensidad.</p>
+    <p class="muted" style="max-width:75ch">Mueve las temperaturas máximas de una semana de enero. La línea marca el umbral P90 oficial de cada día en Quinta Normal. Observa cuándo se cumple la definición de ola de calor diurna y cómo cambia la intensidad.</p>
     <div class="lab">
       <div style="display:grid;gap:12px;align-content:start">
         <svg id="lab-svg" viewBox="0 0 640 250" role="img" aria-label="Temperaturas máximas de la semana frente al umbral"></svg>
@@ -532,49 +634,64 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 
     <div class="subhead">Preguntas frecuentes</div>
     <div>
-      <details><summary>¿Un día de 34 °C siempre es parte de una ola de calor?</summary><p>No. Depende de la fecha y de lo que ocurra antes y después. En noviembre, 34 °C supera con holgura el umbral; a mediados de enero puede quedar apenas sobre él. Y aun superándolo, tiene que haber al menos tres días seguidos sobre el umbral para que se cuente como ola.</p></details>
+      <details><summary>¿Un día de 34 °C siempre es parte de una ola de calor?</summary><p>No. Depende de la fecha y de lo que ocurra antes y después. En noviembre, 34 °C supera con holgura el umbral; a mediados de enero queda apenas sobre él. Y aun superándolo, tiene que haber al menos tres días seguidos sobre el umbral para que se cuente como ola.</p></details>
+      <details><summary>¿Puede haber una ola de calor en invierno?</summary><p>Sí. La definición de la DMC rige en cualquier época del año: basta con que la temperatura alcance el percentil 90 de esa fecha tres días seguidos. Una ola de calor de julio no es un episodio de 35 °C, sino varios días con máximas cercanas a 25 °C, muy altas para la época. Por eso el visor separa el semestre cálido del frío.</p></details>
+      <details><summary>¿Por qué el año parte el 1 de octubre?</summary><p>Para que el verano quede entero dentro de un mismo año. Con el año calendario, la temporada de calor se parte en dos el 31 de diciembre. Con el año climático de octubre a septiembre, primero viene el semestre cálido (ONDEFM) y luego el frío (AMJJAS).</p></details>
       <details><summary>¿Por qué el período de referencia es 1991-2020?</summary><p>Los umbrales se calculan sobre un período fijo de 30 años, que es la convención climatológica para describir el clima "normal". Usar siempre el mismo período permite comparar temporadas antiguas y recientes con la misma vara.</p></details>
-      <details><summary>¿Por qué solo se buscan eventos entre noviembre y marzo?</summary><p>Porque es la temporada cálida de Chile central, cuando las temperaturas altas tienen mayor impacto. En invierno también hay días inusualmente cálidos para la época, pero no se consideran olas de calor en este visor.</p></details>
-      <details><summary>¿Una estación representa a toda la ciudad?</summary><p>No del todo. Quinta Normal es la estación de referencia histórica de Santiago por la longitud de su registro, pero la temperatura varía dentro de la ciudad según la vegetación, la densidad construida y la altitud. Este visor describe cómo ha cambiado el calor extremo en ese punto, no las diferencias entre barrios.</p></details>
-      <details><summary>¿Qué quiere decir que una tendencia sea "significativa"?</summary><p>Que el aumento observado es difícil de explicar solo por el azar entre temporadas. Aquí se evalúa con la prueba de Mann-Kendall: si el valor p es menor que 0,05, la tendencia se considera estadísticamente significativa.</p></details>
+      <details><summary>¿Una estación representa a toda la ciudad?</summary><p>No del todo. Quinta Normal es la estación de referencia histórica de Santiago por la longitud de su registro, pero la temperatura varía dentro de la ciudad según la vegetación, la densidad construida y la altitud. Este visor describe cómo han cambiado los extremos en ese punto, no las diferencias entre barrios.</p></details>
+      <details><summary>¿Qué quiere decir que una tendencia sea "significativa"?</summary><p>Que el cambio observado es difícil de explicar solo por el azar entre temporadas. Aquí se evalúa con la prueba de Mann-Kendall: si el valor p es menor que 0,05, la tendencia se considera estadísticamente significativa.</p></details>
     </div>
 
     <div class="subhead">Glosario</div>
     <dl class="glos">
       <dt>TX</dt><dd>Temperatura máxima del día.</dd>
       <dt>TN</dt><dd>Temperatura mínima del día, que normalmente ocurre al amanecer.</dd>
-      <dt>P90</dt><dd>Percentil 90: valor que solo supera el 10 % de los días más cálidos de esa fecha en el período de referencia.</dd>
-      <dt>Ola de calor diurna</dt><dd>Tres o más días consecutivos con TX sobre su P90.</dd>
-      <dt>Racha de noches cálidas</dt><dd>Tres o más noches consecutivas con TN sobre su P90.</dd>
-      <dt>Día compuesto</dt><dd>Fecha que pertenece a la vez a una ola de calor diurna y a una racha de noches cálidas.</dd>
-      <dt>IS</dt><dd>Intensidad: suma de los grados por sobre el P90 en todos los días del evento.</dd>
-      <dt>Temporada</dt><dd>De noviembre a marzo. La temporada 2022-23 va de noviembre de 2022 a marzo de 2023.</dd>
+      <dt>P90 / P10</dt><dd>Percentiles 90 y 10 de la distribución histórica de esa fecha: valores que solo alcanza el 10 % de los días más cálidos (P90) o más fríos (P10).</dd>
+      <dt>Ola de calor diurna</dt><dd>Tres o más días consecutivos con TX igual o superior a su P90.</dd>
+      <dt>Ola de calor nocturna</dt><dd>Tres o más días consecutivos con TN igual o superior a su P90.</dd>
+      <dt>Ola de calor compuesta</dt><dd>Tres o más días consecutivos en que TX y TN alcanzan a la vez su P90.</dd>
+      <dt>Ola de frío</dt><dd>Tres o más días consecutivos con TN igual o inferior a su P10.</dd>
+      <dt>IS</dt><dd>Intensidad: suma de los grados más allá del umbral en todos los días del evento.</dd>
+      <dt>Temporada</dt><dd>Año climático, del 1 de octubre al 30 de septiembre. La temporada 2022-23 va de octubre de 2022 a septiembre de 2023.</dd>
+      <dt>ONDEFM / AMJJAS</dt><dd>Iniciales de los meses del semestre cálido (octubre a marzo) y del semestre frío (abril a septiembre).</dd>
       <dt>Pendiente de Sen</dt><dd>Estimación robusta de una tendencia: la mediana de las pendientes entre todos los pares de años. Es poco sensible a temporadas excepcionales.</dd>
-      <dt>ETCCDI</dt><dd>Grupo internacional de expertos que definió un conjunto estándar de índices de extremos climáticos.</dd>
+      <dt>DMC</dt><dd>Dirección Meteorológica de Chile, que opera la estación y publica los umbrales y el monitoreo oficial de olas de calor y de frío.</dd>
     </dl>
   </section>
 
   <section id="metodo">
     <div class="sec-head"><div class="eyebrow">Método</div><h2>Cómo se definen los eventos</h2></div>
-    <div class="grid-3 method">
-      <div class="panel"><h3>Umbral diario</h3>
-        <p>Para cada día del calendario se calcula el percentil 90 de TX y de TN con una ventana móvil de 5 días (el día ±2) sobre el período de referencia <span class="num">1991-2020</span>, siguiendo el criterio ETCCDI sin remuestreo.</p></div>
+    <div class="grid-2 method">
+      <div class="panel"><h3>Umbrales diarios</h3>
+        <p>Se usan los umbrales oficiales de la DMC para Quinta Normal (330020): percentil 90 diario de TX y de TN y percentil 10 diario de TN, período <span class="num ref-txt"></span>. La DMC los obtiene con un análisis armónico, que entrega una curva suave para todo el año en vez de un valor por mes.</p></div>
       <div class="panel"><h3>Eventos</h3>
-        <p><b>Ola de calor diurna:</b> tres o más días consecutivos con TX sobre su P90. <b>Racha de noches cálidas:</b> tres o más noches consecutivas con TN sobre su P90. Solo se buscan entre noviembre y marzo, y cada temporada se rotula por los años que abarca (2022-23 va de nov. 2022 a mar. 2023). Solo se resumen temporadas con al menos 140 días con datos.</p></div>
+        <p><b>Ola de calor diurna:</b> tres o más días seguidos con TX ≥ P90. <b>Nocturna:</b> lo mismo con TN ≥ P90. <b>Ola de frío:</b> tres o más días con TN ≤ P10. Son las definiciones de la DMC y rigen todo el año. <b>Compuesta</b> (categoría de este visor): tres o más días en que TX y TN alcanzan a la vez su P90.</p></div>
+      <div class="panel"><h3>Temporadas y semestres</h3>
+        <p>El año climático va del 1 de octubre al 30 de septiembre y se rotula por los años que abarca. Semestre cálido: octubre a marzo (ONDEFM). Semestre frío: abril a septiembre (AMJJAS). Cada evento se asigna al semestre en que comienza. Solo se resumen los semestres con al menos 90 % de días con datos.</p></div>
       <div class="panel"><h3>Intensidad y tendencia</h3>
-        <p><b>IS</b> suma los grados por sobre el P90 de cada día del evento. Cinco días a +2 °C dan IS = 10 °C. La tendencia es la pendiente lineal de los días en evento por temporada y su significancia se evalúa con Mann-Kendall.</p>
+        <p><b>IS</b> suma los grados más allá del umbral en cada día del evento (en las compuestas, los de TX y los de TN). La tendencia es la pendiente lineal de los días en evento por temporada y su significancia se evalúa con Mann-Kendall.</p>
         <div class="formula">IS = Σ (T − P90<sub>día</sub>)</div></div>
+    </div>
+    <div class="cite doc">
+      <h3>Documento de referencia</h3>
+      <p>Dirección Meteorológica de Chile, Oficina de Servicios Climáticos. <i>Informe Técnico. Olas de Calor en Chile: una nueva metodología para el estudio y monitoreo de los eventos de altas temperaturas</i>. Actualizado el 30 de enero de 2026. Explica el paso del umbral mensual al percentil 90 diario, el análisis armónico y el monitoreo en línea.</p>
+      <div class="cta">
+        <a class="btn small" href="docs/DMC_Informe_Tecnico_Olas_de_Calor_Metodologia.pdf" target="_blank" rel="noopener">Abrir el informe (PDF)</a>
+        <a class="btn ghost small" href="https://climatologia.meteochile.gob.cl/application/historico/umbralesOlasDeCalorEstacion/330020" target="_blank" rel="noopener">Umbrales diurnos DMC</a>
+        <a class="btn ghost small" href="https://climatologia.meteochile.gob.cl/application/historicob/umbralesOlasDeCalorNocturnaEstacion/330020" target="_blank" rel="noopener">Umbrales nocturnos DMC</a>
+        <a class="btn ghost small" href="https://climatologia.meteochile.gob.cl/application/historico/umbralesOlasDeFrioEstacion/330020" target="_blank" rel="noopener">Umbrales de frío DMC</a>
+      </div>
     </div>
     <div class="cite">
       <h3>Cómo citar este visor</h3>
-      <blockquote id="cita">Sarricolea, P. (2026). <i>Olas de calor y noches cálidas en Santiago (Quinta Normal)</i> [visor web]. Departamento de Geografía, Universidad de Chile. https://psarricolea.github.io/temperaturas-quinta-normal/</blockquote>
+      <blockquote id="cita">Sarricolea, P. (2026). <i>Olas de calor diurnas, nocturnas y compuestas y olas de frío en Santiago (Quinta Normal)</i> [visor web]. Departamento de Geografía, Universidad de Chile. https://psarricolea.github.io/temperaturas-quinta-normal/</blockquote>
       <div><button class="btn ghost small" type="button" id="btn-cita">Copiar cita</button></div>
     </div>
   </section>
 
   <footer>
-    <div>Gráfico de burbujas según Serrano-Notivoli et al. (2023), <i>Atmospheric Research</i> 293, 106931. Índices de extremos según el criterio ETCCDI.</div>
-    <div>Datos diarios de temperatura de la estación Quinta Normal (Santiago). Elaboración: Pablo Sarricolea, Departamento de Geografía, Universidad de Chile. Último dato: <span class="num" id="gen"></span>.</div>
+    <div>Definiciones y umbrales: Dirección Meteorológica de Chile, Servicios Climáticos. Gráfico de burbujas según Serrano-Notivoli et al. (2023), <i>Atmospheric Research</i> 293, 106931.</div>
+    <div>Datos diarios de temperatura de la estación Quinta Normal (Santiago), DMC. Elaboración: Pablo Sarricolea, Departamento de Geografía, Universidad de Chile. Último dato: <span class="num" id="gen"></span>.</div>
   </footer>
 </main>
 <button class="to-top" id="to-top" type="button" aria-label="Volver arriba">↑</button>
@@ -583,35 +700,56 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 <script>
 (function () {
   "use strict";
-  var TIPOS = ["TX", "TN"];
-  var NOM = { TX: "Olas de calor diurnas", TN: "Rachas de noches cálidas" };
-  var NOM1 = { TX: "Ola de calor", TN: "Noches cálidas" };
-  var UNI = { TX: ["ola", "olas", "días"], TN: ["racha", "rachas", "noches"] };
+  var TIPOS = ["HD", "HN", "CO", "FR"];
+  var INFO = {
+    HD: { nom: "Olas de calor diurnas", uno: "Ola de calor diurna", corto: "Diurna", col: "--hd", v: "TX", y: "Días en ola diurna" },
+    HN: { nom: "Olas de calor nocturnas", uno: "Ola de calor nocturna", corto: "Nocturna", col: "--hn", v: "TN", y: "Días en ola nocturna" },
+    CO: { nom: "Olas de calor compuestas", uno: "Ola de calor compuesta", corto: "Compuesta", col: "--co", v: "TX", y: "Días en ola compuesta" },
+    FR: { nom: "Olas de frío", uno: "Ola de frío", corto: "Frío", col: "--fr", v: "TN", y: "Días en ola de frío" }
+  };
+  var SEMN = { a: "Año completo (octubre a septiembre)", c: "Semestre cálido (ONDEFM)", f: "Semestre frío (AMJJAS)" };
+  var SEM1 = { c: "Cálido", f: "Frío" };
   var HEAT = ["#fdf0c4", "#f9d27c", "#f4a54a", "#e5732f", "#c94427", "#9c2421", "#651520"];
+  var COLD = ["#e4eefa", "#bfd7f2", "#93b9e6", "#6396d4", "#3c74ba", "#235394", "#143463"];
   var REF = [1991, 2020];
-  var MSEASON = [11, 12, 1, 2, 3];
+  var MORD = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  var CUMY = { 10: 0, 11: 31, 12: 61, 1: 92, 2: 123, 3: 152, 4: 183, 5: 213, 6: 244, 7: 274, 8: 305, 9: 336 };
+  var CUM366 = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
   var MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   var MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-  var state = { T: null, sortK: "IS", sortDir: -1 };
+  var state = { T: null, view: "a", sortK: "inicio", sortDir: -1 };
+  var G = { sem: "a" };
   var F = { tipo: "", meses: {}, desde: null, hasta: null, dur: 3 };
-  var EV = [], RES = {}, TEMPS = [], TEND = {}, DAILY = null, ACTUAL = null, UMB = null, FIDX = null, COMP = [], EST = { tipo: "TX" };
+  var EV = [], RES = {}, SEAS = {}, ALLT = [], TEMPS = [], D = null, U = null, META = {}, ACTUAL = null, LAST = "", T0 = 0, N = 0, EST = { tipo: "HD" };
 
   // ---------- utilidades ----------
   function $(id) { return document.getElementById(id); }
-  function seasonOf(f) { var y = +f.slice(0, 4), m = +f.slice(5, 7); return m >= 7 ? y + 1 : y; }
+  function seasonOf(f) { var y = +f.slice(0, 4), m = +f.slice(5, 7); return m >= 10 ? y + 1 : y; }
+  function semOfM(m) { return m >= 10 || m <= 3 ? "c" : "f"; }
   function lab(T) { return (T - 1) + "-" + String(T % 100).padStart(2, "0"); }
-  function fmt(n, d) { return Number(n).toLocaleString("es-CL", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
+  function fmt(n, d) { n = +Number(n).toFixed(d || 0) || 0; return n.toLocaleString("es-CL", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 }); }
   function fdate(s) { return +s.slice(8, 10) + " " + MES[+s.slice(5, 7) - 1] + " " + s.slice(0, 4); }
   function fshort(s) { return +s.slice(8, 10) + " " + MES[+s.slice(5, 7) - 1]; }
+  function rng(e) { return fshort(e.inicio) + " al " + fdate(e.fin); }
   function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-  function heatColor(v, max) {
+  function col(k) { return css(INFO[k].col); }
+  function dot(k) { return '<span class="dot" style="background:var(' + INFO[k].col + ')"></span>'; }
+  function ramp(k) { return k === "FR" ? COLD : HEAT; }
+  function rampColor(R, v, max) {
     if (v <= 0) return css("--surface-2");
-    var x = Math.min(1, v / max) * (HEAT.length - 1), i = Math.floor(x);
-    return HEAT[Math.min(i + (x - i > 0.5 ? 1 : 0), HEAT.length - 1)];
+    var x = Math.min(1, v / max) * (R.length - 1), i = Math.floor(x);
+    return R[Math.min(i + (x - i > 0.5 ? 1 : 0), R.length - 1)];
   }
+  function hexA(h, a) { h = h.replace("#", ""); if (h.length === 3) h = h.replace(/(.)/g, "$1$1"); var v = parseInt(h, 16); return "rgba(" + (v >> 16) + "," + ((v >> 8) & 255) + "," + (v & 255) + "," + a + ")"; }
+  function scale(R) { return R.map(function (h, i) { return [i / (R.length - 1), h]; }); }
   function mean(a) { return a.length ? a.reduce(function (s, x) { return s + x; }, 0) / a.length : 0; }
   function sum(a) { return a.reduce(function (s, x) { return s + x; }, 0); }
+  function iOf(f) { return Math.round((Date.parse(f + "T00:00:00Z") - T0) / 864e5); }
+  function fOf(i) { return new Date(T0 + i * 864e5).toISOString().slice(0, 10); }
   function addDays(s, n) { var dt = new Date(s + "T12:00:00Z"); dt.setUTCDate(dt.getUTCDate() + n); return dt.toISOString().slice(0, 10); }
+  function u366(m, d) { return CUM366[m - 1] + d - 1; }
+  function colOf(f) { return CUMY[+f.slice(5, 7)] + (+f.slice(8, 10)) - 1; }
+  function colLabel(o) { return fshort(addDays("1999-10-01", Math.round(o))); }
   function reduced() { return matchMedia("(prefers-reduced-motion: reduce)").matches; }
   function copy(txt, btn, okLabel) {
     var orig = btn.textContent;
@@ -639,9 +777,9 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     var slope = median(sl);
     return { n: n, slope: slope, intercept: median(y.map(function (v, k) { return v - slope * x[k]; })), p: 2 * (1 - pnorm(Math.abs(z))) };
   }
+  function ols(x, y) { var mx = mean(x), my = mean(y), a = 0, b = 0; x.forEach(function (v, i) { a += (v - mx) * (y[i] - my); b += (v - mx) * (v - mx); }); return b ? a / b : 0; }
   function pTxt(p) { return p < 0.001 ? "p < 0,001" : "p = " + fmt(p, 3); }
-  function offOf(f, T) { return Math.round((Date.parse(f + "T00:00:00Z") - Date.UTC(T - 1, 10, 1)) / 864e5); }
-  function offLabel(o) { return fshort(addDays("2022-11-01", Math.round(o))); }
+  function signed(v, d) { return (v > 0 ? "+" : v < 0 ? "−" : "") + fmt(Math.abs(v), d); }
 
   // ---------- tema ----------
   (function () {
@@ -655,62 +793,66 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   function paintThemeBtn() { $("btn-tema").textContent = isDark() ? "☀ Claro" : "☾ Oscuro"; }
 
   // ---------- carga ----------
-  fetch("data.json", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error("data.json"); return r.json(); })
-    .then(function (J) { prepare(J); $("carga").remove(); init(); })
-    .catch(function (e) { var c = $("carga"); if (c) c.textContent = "No se pudieron cargar los datos (" + e.message + ")."; else console.error(e); });
+  function start(J) { prepare(J); $("carga").remove(); init(); }
+  if (window.__DATA__) setTimeout(function () { start(window.__DATA__); }, 0);
+  else fetch("data.json", { cache: "no-cache" }).then(function (r) { if (!r.ok) throw new Error("data.json"); return r.json(); })
+    .then(start)
+    .catch(function (e) { var c = $("carga"); if (c) c.textContent = "No se pudieron cargar los datos (" + e.message + ")."; console.error(e); });
 
   function cols(o) { var k = Object.keys(o), n = o[k[0]].length, out = []; for (var i = 0; i < n; i++) { var r = {}; k.forEach(function (c) { r[c] = o[c][i]; }); out.push(r); } return out; }
   function prepare(J) {
-    var temp = cols(J.temporadas);
-    TEMPS = temp.map(function (r) { return r.temporada; });
-    TIPOS.forEach(function (k) { RES[k] = {}; });
-    temp.forEach(function (r) {
-      RES.TX[r.temporada] = { T: r.temporada, n: r.olas_calor_n, dias: r.olas_calor_dias, ev: [] };
-      RES.TN[r.temporada] = { T: r.temporada, n: r.rachas_noches_calidas_n, dias: r.rachas_noches_calidas_dias, ev: [] };
-    });
-    function addEv(rows, tipo) {
-      rows.forEach(function (r) {
-        var e = { tipo: tipo, T: seasonOf(r.inicio), inicio: r.inicio, fin: r.fin, duracion: r.duracion, maximo: r.maximo, media: r.media, IS: r.exceso_grados_dia };
-        e.IS_dia = e.duracion ? e.IS / e.duracion : 0;
-        e.meses = {};
-        for (var f = e.inicio, g = 0; f <= e.fin && g < 400; f = addDays(f, 1), g++) e.meses[+f.slice(5, 7)] = true;
-        EV.push(e);
-        if (RES[tipo][e.T]) RES[tipo][e.T].ev.push(e);
-      });
+    META = J.meta || {}; U = J.umbrales; LAST = META.ultimo_dato;
+    if (META.periodo_base) REF = META.periodo_base;
+    var d = J.diario, i;
+    T0 = Date.parse(d.inicio + "T00:00:00Z"); N = d.tx.length;
+    D = { tx: d.tx, tn: d.tn, fecha: new Array(N), m: new Uint8Array(N), ptx: new Array(N), ptn: new Array(N), p10: new Array(N), fl: {}, both: new Uint8Array(N) };
+    for (i = 0; i < N; i++) {
+      var f = fOf(i), m = +f.slice(5, 7), u = u366(m, +f.slice(8, 10));
+      D.fecha[i] = f; D.m[i] = m; D.ptx[i] = U.tx_p90[u]; D.ptn[i] = U.tn_p90[u]; D.p10[i] = U.tn_p10[u];
     }
-    addEv(cols(J.olas), "TX"); addEv(cols(J.rachas), "TN");
-    TIPOS.forEach(function (k) {
-      TEMPS.forEach(function (T) {
-        var r = RES[k][T];
+    TIPOS.forEach(function (k) { D.fl[k] = new Uint8Array(N); RES[k] = { a: {}, c: {}, f: {} }; });
+    var t = J.temporadas; ALLT = t.T.slice();
+    ALLT.forEach(function (T, j) {
+      SEAS[T] = { vc: !!t.vc[j], vf: !!t.vf[j], i0: Math.max(0, iOf((T - 1) + "-10-01")), i1: Math.min(N - 1, iOf(T + "-09-30")) };
+      TIPOS.forEach(function (k) { ["a", "c", "f"].forEach(function (s) { RES[k][s][T] = { T: T, n: 0, dias: 0, ev: [] }; }); });
+    });
+    EV = cols(J.eventos).map(function (r) {
+      var e = { tipo: r.tipo, inicio: r.inicio, fin: r.fin, duracion: r.dur, ext: r.ext, ext2: r.ext2, media: r.media, IS: r.IS,
+        IS_dia: r.dur ? r.IS / r.dur : 0, T: seasonOf(r.inicio), sem: semOfM(+r.inicio.slice(5, 7)), meses: {}, i0: iOf(r.inicio), i1: iOf(r.fin) };
+      for (var q = e.i0; q <= e.i1; q++) { D.fl[e.tipo][q] = 1; e.meses[D.m[q]] = true; }
+      [e.sem, "a"].forEach(function (s) { var x = RES[e.tipo][s][e.T]; if (x) { x.n++; x.ev.push(e); } });
+      return e;
+    });
+    for (i = 0; i < N; i++) D.both[i] = D.fl.HD[i] && D.fl.HN[i] ? 1 : 0;
+    ALLT.forEach(function (T) {
+      var S = SEAS[T];
+      for (var q = S.i0; q <= S.i1; q++) {
+        var s = semOfM(D.m[q]);
+        for (var j = 0; j < 4; j++) { var k = TIPOS[j]; if (D.fl[k][q]) { RES[k][s][T].dias++; RES[k].a[T].dias++; } }
+      }
+      TIPOS.forEach(function (k) { ["a", "c", "f"].forEach(function (s) {
+        var r = RES[k][s][T];
         r.dur_media = mean(r.ev.map(function (e) { return e.duracion; }));
         r.dur_max = Math.max.apply(null, r.ev.map(function (e) { return e.duracion; }).concat([0]));
         r.IS_media = mean(r.ev.map(function (e) { return e.IS; }));
-      });
+      }); });
     });
-    TEND = J.tendencias;
-    if (J.meta && J.meta.periodo_base) REF = J.meta.periodo_base;
-    var d = J.diario, idx = {};
-    FIDX = {};
-    d.ola = d.ola.map(Boolean); d.noc = d.noc.map(Boolean);
-    d.fecha.forEach(function (f, i) { var T = seasonOf(f); (idx[T] = idx[T] || []).push(i); FIDX[f] = i; });
-    DAILY = { d: d, idx: idx, last: J.meta.ultimo_dato };
-    d.comp = d.ola.map(function (o, i) { return o && d.noc[i]; });
-    Object.keys(idx).forEach(function (T) {
-      var run = null, ii = idx[T];
-      function close() { if (run) { COMP.push(run); run = null; } }
-      ii.forEach(function (i, k) {
-        if (d.comp[i]) {
-          if (run && addDays(run.fin, 1) !== d.fecha[i]) close();
-          if (!run) run = { T: +T, inicio: d.fecha[i], fin: d.fecha[i], duracion: 0, tx: -99, tn: -99 };
-          run.fin = d.fecha[i]; run.duracion++; run.tx = Math.max(run.tx, d.tx[i]); run.tn = Math.max(run.tn, d.tn[i]);
-        } else close();
-      });
-      close();
-    });
-    var Tl = seasonOf(DAILY.last), ml = +DAILY.last.slice(5, 7);
-    if (TEMPS.indexOf(Tl) < 0 && idx[Tl] && (ml >= 11 || ml <= 3)) ACTUAL = Tl;
-    UMB = J.umbrales;
+    var Tl = seasonOf(LAST);
+    if (SEAS[Tl] && !(SEAS[Tl].vc && SEAS[Tl].vf)) ACTUAL = Tl;
+    TEMPS = validT(G.sem);
   }
+  function validT(s) { return ALLT.filter(function (T) { var x = SEAS[T]; return s === "a" ? x.vc && x.vf : s === "c" ? x.vc : x.vf; }); }
+  function inScope(e) { return G.sem === "a" || e.sem === G.sem; }
+  function dayIdx(T, s) { var S = SEAS[T], out = []; if (!S) return out; for (var q = S.i0; q <= S.i1; q++) if (!s || s === "a" || semOfM(D.m[q]) === s) out.push(q); return out; }
+  function series(k, s) { s = s || G.sem; return validT(s).map(function (T) { return RES[k][s][T]; }); }
+  function inRef(r) { return r.T >= REF[0] && r.T <= REF[1]; }
+  function refMean(k, s) { return mean(series(k, s).filter(inRef).map(function (r) { return r.dias; })); }
+  function tend(k, s) {
+    var r = series(k, s); if (r.length < 10) return null;
+    var x = r.map(function (v) { return v.T; }), y = r.map(function (v) { return v.dias; });
+    return { b: ols(x, y) * 10, p: senMK(x, y).p };
+  }
+  function tickT() { return TEMPS.filter(function (T) { return T % 10 === 1; }); }
 
   // ---------- plotly ----------
   function baseLayout(extra) {
@@ -734,44 +876,39 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   var CFG = { displaylogo: false, responsive: true, modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"], locale: "es" };
   var CFG_STATIC = { displayModeBar: false, responsive: true, locale: "es" };
   function onClick(el, fn) { el.removeAllListeners && el.removeAllListeners("plotly_click"); el.on("plotly_click", fn); }
+  function legendH(y) { return { orientation: "h", y: y, x: 0, font: { color: css("--ink-2") } }; }
 
-  function series(k) { return TEMPS.map(function (T) { return RES[k][T]; }); }
-  function refMean(k) { return mean(series(k).filter(function (r) { return r.T >= REF[0] && r.T <= REF[1]; }).map(function (r) { return r.dias; })); }
-  function diasMax() { var m = 0; TIPOS.forEach(function (k) { series(k).forEach(function (r) { m = Math.max(m, r.dias); }); }); return m; }
-  function allSeasons() { var s = TEMPS.slice(); if (ACTUAL) s.push(ACTUAL); return s; }
-
-  // ---------- estado de la temporada ----------
-  function doyOf(m, d) { var c = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]; return c[m - 1] + Math.min(d, m === 2 ? 28 : 31); }
-  function umbralDe(m, d) { var i = UMB.doy.indexOf(doyOf(m, d)); return i < 0 ? null : { tx: UMB.tx_p90[i], tn: UMB.tn_p90[i] }; }
+  // ---------- estado del año en curso ----------
+  function umbralDe(m, d) { var i = u366(m, d); return { tx: U.tx_p90[i], tn: U.tn_p90[i], p10: U.tn_p10[i] }; }
   function drawStatus() {
-    var T = ACTUAL || TEMPS[TEMPS.length - 1], d = DAILY.d, ii = DAILY.idx[T] || [];
-    var a = ii.filter(function (i) { return d.ola[i]; }).length, b = ii.filter(function (i) { return d.noc[i]; }).length;
+    var T = ACTUAL || ALLT[ALLT.length - 1];
     var now = new Date(), u = umbralDe(now.getMonth() + 1, now.getDate());
     var hoy = now.getDate() + " de " + MESES[now.getMonth()].toLowerCase();
     $("status").innerHTML =
       '<div class="status-head"><div class="panel-title">Temporada ' + lab(T) + '</div><span class="live">' + (ACTUAL ? "En curso" : "Última completa") + "</span></div>" +
-      '<div class="status-grid">' +
-      '<div><div class="v" style="color:var(--tx)">' + a + '</div><div class="k">días en ola de calor</div></div>' +
-      '<div><div class="v" style="color:var(--tn)">' + b + '</div><div class="k">noches en racha cálida</div></div></div>' +
-      '<div class="k">Datos hasta el ' + fdate(DAILY.last) + ". Promedio " + REF[0] + "-" + REF[1] + ": " + fmt(refMean("TX"), 1) + " días y " + fmt(refMean("TN"), 1) + " noches por temporada.</div>" +
-      (u ? '<div class="today"><b>Umbrales para hoy, ' + hoy + ':</b> la máxima debe superar <b class="num">' + fmt(u.tx, 1) + ' °C</b> y la mínima <b class="num">' + fmt(u.tn, 1) + " °C</b> para contar como día o noche cálidos.</div>" : "") +
+      '<div class="status-grid four">' + TIPOS.map(function (k) {
+        return '<div><div class="v" style="color:var(' + INFO[k].col + ')">' + RES[k].a[T].dias + '</div><div class="k">días en ' + INFO[k].uno.toLowerCase().replace("ola de calor ", "ola ") + "</div></div>";
+      }).join("") + "</div>" +
+      '<div class="k">Datos hasta el ' + fdate(LAST) + ". Promedio " + REF[0] + "-" + REF[1] + " por año: " + fmt(refMean("HD", "a"), 1) + " días en olas diurnas, " + fmt(refMean("HN", "a"), 1) + " en nocturnas y " + fmt(refMean("FR", "a"), 1) + " en olas de frío.</div>" +
+      '<div class="today"><b>Umbrales para hoy, ' + hoy + ':</b> día cálido si la máxima llega a <b class="num">' + fmt(u.tx, 1) + ' °C</b>, noche cálida si la mínima llega a <b class="num">' + fmt(u.tn, 1) + ' °C</b> y noche fría si baja a <b class="num">' + fmt(u.p10, 1) + " °C</b> o menos.</div>" +
       '<div><button class="btn ghost small" type="button" id="ver-actual">Ver esta temporada día a día</button></div>';
     $("ver-actual").addEventListener("click", function () { openSeason(T); });
   }
 
   // ---------- franjas ----------
+  function maxDias(keys) { var m = 0; keys.forEach(function (k) { series(k).forEach(function (r) { m = Math.max(m, r.dias); }); }); return m || 1; }
   function drawStripes() {
-    var box = $("stripes"), MX = diasMax();
+    var box = $("stripes"), MH = maxDias(["HD", "HN", "CO"]), MF = maxDias(["FR"]);
     box.innerHTML = "";
-    [["TX", "Días"], ["TN", "Noches"]].forEach(function (p) {
-      var k = p[0], row = document.createElement("div"); row.className = "stripe-row";
-      row.innerHTML = '<div class="lbl"><span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + p[1] + "</div>";
+    TIPOS.forEach(function (k) {
+      var row = document.createElement("div"); row.className = "stripe-row";
+      row.innerHTML = '<div class="lbl">' + dot(k) + INFO[k].corto + "</div>";
       var st = document.createElement("div"); st.className = "stripe";
       st.style.gridTemplateColumns = "repeat(" + TEMPS.length + ", 1fr)";
       series(k).forEach(function (x) {
         var s = document.createElement("span");
-        s.style.background = heatColor(x.dias, MX);
-        s.title = lab(x.T) + ": " + x.dias + " " + UNI[k][2] + " en " + x.n + " " + (x.n === 1 ? UNI[k][0] : UNI[k][1]);
+        s.style.background = rampColor(ramp(k), x.dias, k === "FR" ? MF : MH);
+        s.title = lab(x.T) + ": " + x.dias + " días en " + x.n + " " + (x.n === 1 ? "evento" : "eventos");
         s.addEventListener("click", function () { openSeason(x.T); });
         st.appendChild(s);
       });
@@ -779,87 +916,87 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     });
     $("stripe-axis").innerHTML = [0, 0.25, 0.5, 0.75, 1].map(function (p) { return "<span>" + lab(TEMPS[Math.round(p * (TEMPS.length - 1))]) + "</span>"; }).join("");
     $("ramp").innerHTML = HEAT.map(function (h) { return '<span style="background:' + h + '"></span>'; }).join("");
-    $("ramp-max").textContent = MX;
+    $("ramp-fr").innerHTML = COLD.map(function (h) { return '<span style="background:' + h + '"></span>'; }).join("");
+    $("ramp-max").textContent = MH; $("ramp-fr-max").textContent = MF;
   }
 
   // ---------- KPI ----------
   function drawKpis() {
     var box = $("kpis"); box.innerHTML = "";
-    var key = { TX: "olas_calor_dias", TN: "rachas_noches_calidas_dias" };
     TIPOS.forEach(function (k) {
       var r = series(k), nEv = sum(r.map(function (x) { return x.n; })), dias = sum(r.map(function (x) { return x.dias; }));
-      var ref = refMean(k), mUlt = mean(r.slice(-5).map(function (x) { return x.dias; }));
-      var t = TEND[key[k]], b = t ? t.ols_por_decada : null, p = t ? t.p_valor : null, sig = p !== null && p < 0.05;
+      var ref = refMean(k), mUlt = mean(r.slice(-5).map(function (x) { return x.dias; })), t = tend(k), sig = t && t.p < 0.05;
       var top = r.slice().sort(function (a, c) { return c.dias - a.dias; })[0];
-      var pTxt = p === null ? "–" : (p < 0.001 ? "< 0,001" : "= " + fmt(p, 3));
-      var html = '<div class="panel-title"><span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + NOM[k] + "</div>" +
+      var html = '<div class="panel-title">' + dot(k) + INFO[k].nom + "</div>" +
         '<div class="kpi-grid">' +
-        '<div class="kpi"><div class="v">' + nEv + '</div><div class="k">' + UNI[k][1] + " en " + TEMPS.length + " temporadas (" + fmt(dias) + " " + UNI[k][2] + ")</div></div>" +
-        '<div class="kpi"><div class="v">' + fmt(ref, 1) + '</div><div class="k">' + UNI[k][2] + " por temporada, promedio " + REF[0] + "-" + REF[1] + "</div></div>" +
-        '<div class="kpi"><div class="v">' + fmt(mUlt, 1) + '</div><div class="k">' + UNI[k][2] + ' por temporada, últimas 5 temporadas</div></div>' +
-        '<div class="kpi"><div class="v">' + (b !== null ? (b > 0 ? "+" : "") + fmt(b, 1) : "–") + '</div><div class="k">' + UNI[k][2] + ' por década <span class="pill' + (sig ? " sig" : "") + '">' + (sig ? "significativa" : "no signif.") + "</span></div></div>" +
+        '<div class="kpi"><div class="v">' + nEv + '</div><div class="k">eventos en ' + TEMPS.length + " temporadas (" + fmt(dias) + " días)</div></div>" +
+        '<div class="kpi"><div class="v">' + fmt(ref, 1) + '</div><div class="k">días por temporada, promedio ' + REF[0] + "-" + REF[1] + "</div></div>" +
+        '<div class="kpi"><div class="v">' + fmt(mUlt, 1) + '</div><div class="k">días por temporada, últimas 5 temporadas</div></div>' +
+        '<div class="kpi"><div class="v">' + (t ? signed(t.b, 1) : "–") + '</div><div class="k">días por década <span class="pill' + (sig ? " sig" : "") + '">' + (sig ? "significativa" : "no signif.") + "</span></div></div>" +
         "</div>" +
-        '<div class="muted">Temporada con más ' + UNI[k][2] + ': <b class="num">' + lab(top.T) + "</b> (" + top.dias + " " + UNI[k][2] + "). Tendencia: Mann-Kendall, p " + pTxt + ".</div>";
+        '<div class="muted">' + (top && top.dias ? 'Temporada con más días: <b class="num">' + lab(top.T) + "</b> (" + top.dias + " días). " : "") + (t ? "Tendencia: Mann-Kendall, " + pTxt(t.p) + "." : "") + "</div>";
       var div = document.createElement("div"); div.className = "kpi-city"; div.innerHTML = html; box.appendChild(div);
     });
   }
 
   // ---------- récords ----------
   function drawRecords() {
-    var d = DAILY.d;
-    function topEv(k, key) { return EV.filter(function (e) { return e.tipo === k; }).sort(function (a, b) { return b[key] - a[key] || b.IS - a.IS; })[0]; }
-    function topDay(arr) { var bi = -1; arr.forEach(function (v, i) { if (v !== null && (bi < 0 || v > arr[bi])) bi = i; }); return bi; }
-    var a = topEv("TX", "duracion"), b = topEv("TX", "IS"), c = topEv("TN", "duracion"), e2 = topEv("TN", "IS");
-    var ix = topDay(d.tx), in_ = topDay(d.tn);
-    function rng(e) { return fshort(e.inicio) + " al " + fdate(e.fin); }
-    var cards = [
-      ["tx", "Ola de calor más larga", a.duracion + " días", rng(a), a.T],
-      ["tx", "Ola de calor más intensa", "IS " + fmt(b.IS, 1) + " °C", rng(b) + " · " + b.duracion + " días", b.T],
-      ["tx", "Máxima más alta (nov-mar)", fmt(d.tx[ix], 1) + " °C", fdate(d.fecha[ix]), seasonOf(d.fecha[ix])],
-      ["tn", "Racha de noches cálidas más larga", c.duracion + " noches", rng(c), c.T],
-      ["tn", "Racha de noches más intensa", "IS " + fmt(e2.IS, 1) + " °C", rng(e2) + " · " + e2.duracion + " noches", e2.T],
-      ["tn", "Mínima más alta (nov-mar)", fmt(d.tn[in_], 1) + " °C", fdate(d.fecha[in_]), seasonOf(d.fecha[in_])]
-    ];
+    function topEv(k, key) { return EV.filter(function (e) { return e.tipo === k && inScope(e); }).sort(function (a, b) { return b[key] - a[key] || b.IS - a.IS; })[0]; }
+    function topDay(arr, sign) {
+      var bi = -1;
+      for (var i = 0; i < N; i++) { var v = arr[i]; if (v === null || (G.sem !== "a" && semOfM(D.m[i]) !== G.sem)) continue; if (bi < 0 || sign * v > sign * arr[bi]) bi = i; }
+      return bi;
+    }
+    var cards = [], suf = G.sem === "a" ? "" : G.sem === "c" ? " (oct-mar)" : " (abr-sep)";
+    [["HD", "duracion", "Ola diurna más larga"], ["HD", "IS", "Ola diurna más intensa"], ["HN", "duracion", "Ola nocturna más larga"], ["HN", "IS", "Ola nocturna más intensa"],
+     ["CO", "duracion", "Ola compuesta más larga"], ["FR", "duracion", "Ola de frío más larga"], ["FR", "IS", "Ola de frío más intensa"]].forEach(function (c) {
+      var e = topEv(c[0], c[1]); if (!e) return;
+      cards.push([INFO[c[0]].col, c[2], c[1] === "IS" ? "IS " + fmt(e.IS, 1) + " °C" : e.duracion + " días", rng(e) + (c[1] === "IS" ? " · " + e.duracion + " días" : ""), e.T]);
+    });
+    var ix = topDay(D.tx, 1), im = topDay(D.tn, 1), in_ = topDay(D.tn, -1);
+    cards.push(["--tx", "Máxima más alta" + suf, fmt(D.tx[ix], 1) + " °C", fdate(D.fecha[ix]), seasonOf(D.fecha[ix])]);
+    cards.push(["--hn", "Mínima más alta" + suf, fmt(D.tn[im], 1) + " °C", fdate(D.fecha[im]), seasonOf(D.fecha[im])]);
+    cards.push(["--fr", "Mínima más baja" + suf, fmt(D.tn[in_], 1) + " °C", fdate(D.fecha[in_]), seasonOf(D.fecha[in_])]);
     var box = $("records"); box.innerHTML = "";
     cards.forEach(function (r) {
-      var el = document.createElement("button"); el.type = "button"; el.className = "rec " + r[0];
+      var el = document.createElement("button"); el.type = "button"; el.className = "rec"; el.style.borderLeftColor = "var(" + r[0] + ")";
       el.innerHTML = '<span class="k">' + r[1] + '</span><span class="v">' + r[2] + '</span><span class="d">' + r[3] + "</span>";
-      if (allSeasons().indexOf(r[4]) >= 0) el.addEventListener("click", function () { openSeason(r[4]); }); else el.style.cursor = "default";
+      el.addEventListener("click", function () { openSeason(r[4]); });
       box.appendChild(el);
     });
   }
 
   // ---------- burbujas ----------
   function drawBubbles() {
-    var allMax = diasMax(), T0 = TEMPS[0], T1 = TEMPS[TEMPS.length - 1];
-    var ticks = TEMPS.filter(function (T) { return T % 10 === 1; });
+    var T0s = TEMPS[0], T1s = TEMPS[TEMPS.length - 1], ticks = tickT();
     TIPOS.forEach(function (k) {
       var r = series(k), con = r.filter(function (x) { return x.n > 0; }), sin = r.filter(function (x) { return x.n === 0; });
       var ref = refMean(k), ISMAX = Math.max.apply(null, con.map(function (x) { return x.IS_media; }).concat([1]));
-      var top = con.slice().sort(function (a, b) { return b.dias - a.dias || b.IS_media - a.IS_media; }).slice(0, 3);
+      var yMax = Math.max.apply(null, r.map(function (x) { return x.dias; }).concat([3]));
+      var seen = {}, top = con.slice().sort(function (a, b) { return b.dias - a.dias || b.IS_media - a.IS_media; }).filter(function (x) { if (seen[x.dias]) return false; seen[x.dias] = 1; return true; }).slice(0, k === "CO" ? 1 : 3);
       var traces = [
         { x: sin.map(function (x) { return x.T; }), y: sin.map(function () { return 0; }), mode: "markers", type: "scatter",
           marker: { size: 4, color: css("--line") }, hovertemplate: "%{customdata}<br>sin eventos<extra></extra>", customdata: sin.map(function (x) { return lab(x.T); }) },
         { x: con.map(function (x) { return x.T; }), y: con.map(function (x) { return x.dias; }), mode: "markers", type: "scatter",
           customdata: con.map(function (x) { return [lab(x.T), x.n, x.dur_media, x.IS_media, x.dur_max]; }),
           marker: { size: con.map(function (x) { return 7 + (x.dur_media - 3) * 3.6; }), color: con.map(function (x) { return x.IS_media; }),
-            cmin: 0, cmax: ISMAX, colorscale: HEAT.map(function (h, i) { return [i / (HEAT.length - 1), h]; }),
+            cmin: 0, cmax: ISMAX, colorscale: scale(ramp(k)),
             line: { color: css("--surface"), width: 1.5 }, opacity: 0.92, showscale: true,
             colorbar: { title: { text: "IS media<br>por evento (°C)", side: "top", font: { size: 11, family: "Public Sans, Arial, sans-serif", color: css("--ink-2") } }, thickness: 10, len: 0.6, outlinewidth: 0, tickfont: { family: "IBM Plex Mono, monospace", size: 10, color: css("--ink-2") } } },
-          hovertemplate: "<b>%{customdata[0]}</b><br>%{y} " + UNI[k][2] + " en %{customdata[1]} evento(s)<br>Duración media %{customdata[2]:.1f} d (máx %{customdata[4]})<br>IS media %{customdata[3]:.1f} °C<extra></extra>" }
+          hovertemplate: "<b>%{customdata[0]}</b><br>%{y} días en %{customdata[1]} evento(s)<br>Duración media %{customdata[2]:.1f} d (máx %{customdata[4]})<br>IS media %{customdata[3]:.1f} °C<extra></extra>" }
       ];
       var ann = top.map(function (x, i) {
         return { x: x.T, y: x.dias, text: lab(x.T) + " (" + x.dias + ")", showarrow: true, arrowhead: 0, arrowwidth: 1, arrowcolor: css("--ink-3"),
-          ax: -46, ay: 0, xanchor: "right", font: { size: 11, color: i === 0 ? css("--heat") : css("--ink"), family: "Public Sans, Arial" } };
+          ax: i === 1 ? 46 : -46, ay: 0, xanchor: i === 1 ? "left" : "right", font: { size: 11, color: i === 0 ? col(k) : css("--ink"), family: "Public Sans, Arial" } };
       });
-      ann.push({ x: T0 + 1, y: ref, xanchor: "left", yanchor: "bottom", showarrow: false, text: REF[0] + "-" + REF[1] + " (" + fmt(ref, 1) + ")", font: { size: 11, color: css("--ink-3") } });
+      ann.push({ x: T0s + 1, y: ref, xanchor: "left", yanchor: "bottom", showarrow: false, text: REF[0] + "-" + REF[1] + " (" + fmt(ref, 1) + ")", font: { size: 11, color: css("--ink-3") } });
       var lay = baseLayout({
         margin: { l: 44, r: 70, t: 10, b: 44 },
         shapes: [{ type: "line", xref: "paper", x0: 0, x1: 1, y0: ref, y1: ref, line: { color: css("--ink-3"), width: 1, dash: "dash" } }],
         annotations: ann
       });
-      lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [T0 - 1.5, T1 + 1.5] });
-      lay.yaxis = Object.assign(lay.yaxis, { title: { text: k === "TX" ? "Días en ola de calor" : "Noches en racha cálida", font: { size: 12 } }, range: [-1, allMax * 1.15 + 1] });
+      lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [T0s - 1.5, T1s + 1.5] });
+      lay.yaxis = Object.assign(lay.yaxis, { title: { text: INFO[k].y, font: { size: 12 } }, range: [-yMax * 0.06 - 0.5, yMax * 1.15 + 1] });
       var el = $("bub-" + k);
       Plotly.react(el, traces, lay, CFG);
       onClick(el, function (ev) { openSeason(ev.points[0].x); });
@@ -868,46 +1005,73 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 
   // ---------- décadas ----------
   function decOf(T) { return Math.floor((T - 1) / 10) * 10; }
-  function decades() { var o = []; TEMPS.forEach(function (T) { var D = decOf(T); if (o.indexOf(D) < 0) o.push(D); }); return o; }
+  function decades(Ts) { var o = []; Ts.forEach(function (T) { var Dc = decOf(T); if (o.indexOf(Dc) < 0) o.push(Dc); }); return o; }
   function drawDecades() {
-    var decs = decades(), nT = decs.map(function (D) { return TEMPS.filter(function (T) { return decOf(T) === D; }).length; });
-    var labs = decs.map(function (D, i) { return D + "s" + (nT[i] < 10 ? "<br>(" + nT[i] + " temp.)" : ""); });
+    var decs = decades(TEMPS), nT = decs.map(function (Dc) { return TEMPS.filter(function (T) { return decOf(T) === Dc; }).length; });
+    var labs = decs.map(function (Dc, i) { return Dc + "s" + (nT[i] < 10 ? "<br>(" + nT[i] + " temp.)" : ""); });
     var tr = TIPOS.map(function (k) {
-      var y = decs.map(function (D) { return mean(series(k).filter(function (r) { return decOf(r.T) === D; }).map(function (r) { return r.dias; })); });
-      return { x: labs, y: y, type: "bar", name: NOM[k], marker: { color: css("--" + k.toLowerCase()) },
-        text: y.map(function (v) { return fmt(v, 1); }), textposition: "outside", cliponaxis: false, textfont: { family: "IBM Plex Mono, monospace", size: 10, color: css("--ink-2") },
-        hovertemplate: "%{x}<br>" + NOM[k] + ": %{y:.1f} " + UNI[k][2] + " por temporada<extra></extra>" };
+      var y = decs.map(function (Dc) { return mean(series(k).filter(function (r) { return decOf(r.T) === Dc; }).map(function (r) { return r.dias; })); });
+      return { x: labs, y: y, type: "bar", name: INFO[k].nom, marker: { color: col(k) },
+        text: y.map(function (v) { return fmt(v, 1); }), textposition: "outside", cliponaxis: false, textfont: { family: "IBM Plex Mono, monospace", size: 9, color: css("--ink-2") },
+        hovertemplate: "%{x}<br>" + INFO[k].nom + ": %{y:.1f} días por temporada<extra></extra>" };
     });
-    var lay = baseLayout({ barmode: "group", bargap: 0.25, bargroupgap: 0.08, showlegend: true, legend: { orientation: "h", y: 1.15, x: 0, font: { color: css("--ink-2") } }, margin: { l: 48, r: 12, t: 34, b: 48 } });
+    var lay = baseLayout({ barmode: "group", bargap: 0.2, bargroupgap: 0.06, showlegend: true, legend: legendH(1.18), margin: { l: 48, r: 12, t: 40, b: 48 } });
     lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Días por temporada", font: { size: 12 } }, rangemode: "tozero" });
-    lay.xaxis = Object.assign(lay.xaxis, { tickfont: { family: "IBM Plex Mono, monospace", size: 11 } });
     Plotly.react("dec-chart", tr, lay, CFG_STATIC);
   }
 
-  // ---------- compuestos ----------
-  function compDias(T) { var d = DAILY.d; return (DAILY.idx[T] || []).filter(function (i) { return d.comp[i]; }).length; }
+  // ---------- semestres ----------
+  function drawSemesters() {
+    document.querySelector("#sem-tabla tbody").innerHTML = TIPOS.map(function (k) {
+      return "<tr><td>" + dot(k) + " " + INFO[k].nom + "</td>" + ["c", "f"].map(function (s) {
+        var r = series(k, s), t = tend(k, s), sig = t && t.p < 0.05;
+        return "<td>" + sum(r.map(function (x) { return x.n; })) + "</td><td>" + fmt(sum(r.map(function (x) { return x.dias; }))) + "</td><td>" + fmt(refMean(k, s), 1) + "</td><td>" +
+          (t ? (sig ? "<b>" : "") + signed(t.b, 2) + (sig ? "</b>" : "") + ' <span class="muted">(' + pTxt(t.p) + ")</span>" : "–") + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+    if (!window.Plotly) return;
+    var ny = REF[1] - REF[0] + 1, x = MORD.map(function (m) { return MESES[m - 1].slice(0, 3); });
+    var tr = TIPOS.map(function (k) {
+      var c = {}; for (var i = 0; i < N; i++) if (D.fl[k][i]) { var y = +D.fecha[i].slice(0, 4); if (y >= REF[0] && y <= REF[1]) c[D.m[i]] = (c[D.m[i]] || 0) + 1; }
+      return { x: x, y: MORD.map(function (m) { return (c[m] || 0) / ny; }), type: "bar", name: INFO[k].nom, marker: { color: col(k) },
+        hovertemplate: "%{x}<br>" + INFO[k].nom + ": %{y:.2f} días por año<extra></extra>" };
+    });
+    var lay = baseLayout({ barmode: "group", bargap: 0.2, bargroupgap: 0.05, showlegend: true, legend: legendH(1.3), margin: { l: 48, r: 12, t: 64, b: 36 },
+      shapes: [{ type: "line", x0: 5.5, x1: 5.5, yref: "paper", y0: 0, y1: 1, line: { color: css("--ink-3"), width: 1, dash: "dot" } }],
+      annotations: [{ x: 2.5, y: 1, yref: "paper", yanchor: "bottom", showarrow: false, text: "Semestre cálido · ONDEFM", font: { size: 11, color: css("--ink-3") } },
+        { x: 8.5, y: 1, yref: "paper", yanchor: "bottom", showarrow: false, text: "Semestre frío · AMJJAS", font: { size: 11, color: css("--ink-3") } }] });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Días por año", font: { size: 12 } }, rangemode: "tozero" });
+    lay.xaxis = Object.assign(lay.xaxis, { tickfont: { family: "Public Sans, Arial, sans-serif", size: 12 } });
+    Plotly.react("sem-chart", tr, lay, CFG_STATIC);
+  }
+
+  // ---------- compuestas ----------
   function drawCompound() {
-    var y = TEMPS.map(compDias), tot = sum(y), con = y.filter(function (v) { return v > 0; }).length;
-    var olaTot = sum(series("TX").map(function (r) { return r.dias; }));
-    var ult = mean(y.slice(-10)), ant = mean(y.slice(0, -10)), tr = senMK(TEMPS, y);
-    var top = TEMPS[y.indexOf(Math.max.apply(null, y))];
+    function cnt(T, arr) { return dayIdx(T, G.sem).filter(function (i) { return arr[i]; }).length; }
+    var yCo = TEMPS.map(function (T) { return RES.CO[G.sem][T].dias; }), yBoth = TEMPS.map(function (T) { return cnt(T, D.both); });
+    var evs = EV.filter(function (e) { return e.tipo === "CO" && inScope(e); });
+    var totB = sum(yBoth), olaTot = sum(series("HD").map(function (r) { return r.dias; }));
+    var ult = mean(yBoth.slice(-10)), ant = mean(yBoth.slice(0, -10)), tr = senMK(TEMPS, yBoth);
     function kpi(v, k) { return '<div class="kpi"><div class="v">' + v + '</div><div class="k">' + k + "</div></div>"; }
     $("comp-kpis").innerHTML =
-      kpi('<span style="color:var(--both)">' + tot + "</span>", "días compuestos en " + TEMPS.length + " temporadas (" + COMP.filter(function (c) { return TEMPS.indexOf(c.T) >= 0; }).length + " episodios)") +
-      kpi(con, "temporadas con al menos un día compuesto") +
-      kpi(olaTot ? fmt(100 * tot / olaTot, 0) + " %" : "–", "de los días en ola de calor fueron además noche cálida") +
-      kpi(fmt(ult, 1), "días por temporada en las últimas 10 temporadas (antes: " + fmt(ant, 1) + ")");
-    $("comp-nota").innerHTML = "Temporada con más días compuestos: <b class=\"num\">" + lab(top) + "</b> (" + Math.max.apply(null, y) + " días). Tendencia: Mann-Kendall, " + pTxt(tr.p) + (tr.p < 0.05 ? " (significativa)" : " (no significativa)") + ". Con tantas temporadas en cero, la tendencia debe leerse con cautela.";
-    var rows = COMP.filter(function (c) { return allSeasons().indexOf(c.T) >= 0; }).sort(function (a, b) { return b.duracion - a.duracion || b.tx - a.tx; });
+      kpi('<span style="color:var(--co)">' + evs.length + "</span>", "olas de calor compuestas en el registro (" + sum(evs.map(function (e) { return e.duracion; })) + " días)") +
+      kpi(totB, "días en que coinciden una ola diurna y una nocturna, en " + TEMPS.length + " temporadas") +
+      kpi(olaTot ? fmt(100 * totB / olaTot, 0) + " %" : "–", "de los días en ola diurna caen también dentro de una ola nocturna") +
+      kpi(fmt(ult, 1), "días coincidentes por temporada en las últimas 10 (antes: " + fmt(ant, 1) + ")");
+    $("comp-nota").innerHTML = "Tendencia de los días coincidentes: Mann-Kendall, " + pTxt(tr.p) + (tr.p < 0.05 ? " (significativa)" : " (no significativa)") + ". Con tantas temporadas en cero, debe leerse con cautela. Período: " + SEMN[G.sem].toLowerCase() + ".";
+    var rows = evs.slice().sort(function (a, b) { return a.inicio < b.inicio ? 1 : -1; });
     document.querySelector("#comp-tabla tbody").innerHTML = rows.length ? rows.map(function (c) {
-      return '<tr data-t="' + c.T + '"><td><span class="dot" style="background:var(--both)"></span> ' + (c.inicio === c.fin ? fdate(c.inicio) : fshort(c.inicio) + " al " + fdate(c.fin)) + "</td><td>" + lab(c.T) + "</td><td>" + c.duracion + "</td><td>" + fmt(c.tx, 1) + "</td><td>" + fmt(c.tn, 1) + "</td></tr>";
-    }).join("") : '<tr><td colspan="5" class="empty">Sin días compuestos en el registro.</td></tr>';
+      return '<tr data-t="' + c.T + '"><td>' + dot("CO") + " " + rng(c) + "</td><td>" + lab(c.T) + "</td><td>" + c.duracion + "</td><td>" + fmt(c.ext, 1) + "</td><td>" + fmt(c.ext2, 1) + "</td><td>" + fmt(c.IS, 1) + "</td></tr>";
+    }).join("") : '<tr><td colspan="6" class="empty">Sin olas de calor compuestas en este período.</td></tr>';
     if (!window.Plotly) return;
-    var col = css("--both"), ticks = TEMPS.filter(function (T) { return T % 10 === 1; });
-    var trc = [{ x: TEMPS, y: y, type: "bar", marker: { color: col }, customdata: TEMPS.map(lab), hovertemplate: "<b>%{customdata}</b><br>%{y} días compuestos<extra></extra>" }];
-    var lay = baseLayout({ margin: { l: 44, r: 12, t: 10, b: 44 }, bargap: 0.15 });
+    var ticks = tickT(), cd = TEMPS.map(lab);
+    var trc = [
+      { x: TEMPS, y: yCo, type: "bar", name: "En ola compuesta", marker: { color: col("CO") }, customdata: cd, hovertemplate: "<b>%{customdata}</b><br>%{y} días en ola compuesta<extra></extra>" },
+      { x: TEMPS, y: yBoth.map(function (v, i) { return Math.max(0, v - yCo[i]); }), type: "bar", name: "Otros días coincidentes", marker: { color: hexA(col("CO"), 0.38) }, customdata: cd, hovertemplate: "<b>%{customdata}</b><br>%{y} días coincidentes fuera de olas compuestas<extra></extra>" }
+    ];
+    var lay = baseLayout({ barmode: "stack", margin: { l: 44, r: 12, t: 30, b: 44 }, bargap: 0.15, showlegend: true, legend: legendH(1.12) });
     lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [TEMPS[0] - 1, TEMPS[TEMPS.length - 1] + 1] });
-    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Días compuestos", font: { size: 12 } }, rangemode: "tozero", dtick: 2 });
+    lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Días", font: { size: 12 } }, rangemode: "tozero" });
     var el = $("comp-chart");
     Plotly.react(el, trc, lay, CFG_STATIC);
     onClick(el, function (ev) { openSeason(ev.points[0].x); });
@@ -915,48 +1079,49 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
 
   // ---------- estacionalidad ----------
   function drawSeasonality() {
-    var k = EST.tipo, col = css("--" + k.toLowerCase());
+    var k = EST.tipo, s = k === "FR" ? "f" : "c", c = col(k), Ts = validT(s), lo = s === "c" ? 0 : 183, hi = s === "c" ? 182 : 365;
     document.querySelectorAll("#est-tipo button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === k)); });
-    var R = series(k).filter(function (r) { return r.ev.length; }).map(function (r) {
+    var R = Ts.map(function (T) { return RES[k][s][T]; }).filter(function (r) { return r.ev.length; }).map(function (r) {
       var ini = r.ev.map(function (e) { return e.inicio; }).sort()[0], fin = r.ev.map(function (e) { return e.fin; }).sort().pop();
-      return { T: r.T, ini: ini, fin: fin, a: offOf(ini, r.T), b: offOf(fin, r.T), n: r.ev.length };
+      var a = colOf(ini), b = seasonOf(fin) !== r.T ? 365 : colOf(fin);
+      return { T: r.T, ini: ini, fin: fin, a: a, b: b, n: r.ev.length };
     });
     var x = R.map(function (r) { return r.T; }), ok = R.length >= 8;
     var sa = ok ? senMK(x, R.map(function (r) { return r.a; })) : null, sb = ok ? senMK(x, R.map(function (r) { return r.b; })) : null;
-    var uni = k === "TX" ? "olas de calor" : "rachas de noches cálidas", un1 = k === "TX" ? "ola" : "racha";
-    function frase(s, que) {
-      var v = s.slope * 10, sig = s.p < 0.05;
-      if (Math.abs(v) < 0.05) return que + " no muestra cambio (" + pTxt(s.p) + ")";
-      return que + " se " + (v < 0 ? "adelanta" : "retrasa") + " <b>" + fmt(Math.abs(v), 1) + " días por década</b> (" + pTxt(s.p) + ", " + (sig ? "significativo" : "no significativo") + ")";
+    var uni = INFO[k].nom.toLowerCase(), semTxt = s === "c" ? "semestre cálido" : "semestre frío";
+    function frase(q, que) {
+      var v = q.slope * 10, sig = q.p < 0.05;
+      if (Math.abs(v) < 0.05) return que + " no muestra cambio (" + pTxt(q.p) + ")";
+      return que + " se " + (v < 0 ? "adelanta" : "retrasa") + " <b>" + fmt(Math.abs(v), 1) + " días por década</b> (" + pTxt(q.p) + ", " + (sig ? "significativo" : "no significativo") + ")";
     }
-    $("est-sum").innerHTML = R.length ? "En las <b>" + R.length + "</b> temporadas con " + uni + ", la primera " + un1 + " comienza en mediana el <b>" + offLabel(median(R.map(function (r) { return r.a; }))) + "</b> y la última termina el <b>" + offLabel(median(R.map(function (r) { return r.b; }))) + "</b>. " +
+    $("est-sum").innerHTML = R.length ? "En las <b>" + R.length + "</b> temporadas con " + uni + " en el " + semTxt + ", el primer evento comienza en mediana el <b>" + colLabel(median(R.map(function (r) { return r.a; }))) + "</b> y el último termina el <b>" + colLabel(median(R.map(function (r) { return r.b; }))) + "</b>. " +
       (ok ? "Tendencia: " + frase(sa, "el inicio") + "; " + frase(sb, "el término") + "." : "Hay muy pocas temporadas para estimar una tendencia.") +
-      '<span class="cav">Cautela: solo entran las temporadas con eventos, que son escasas en las primeras décadas, y la búsqueda está acotada entre el 1 de noviembre y el 31 de marzo, por lo que las fechas no pueden salir de ese rango. Tendencia calculada en el navegador con la pendiente de Sen y la prueba de Mann-Kendall.</span>' : "Sin eventos de este tipo.";
+      '<span class="cav">Cautela: solo entran las temporadas con eventos que comienzan en el ' + semTxt + ", por lo que las fechas quedan acotadas a ese tramo del año. Tendencia calculada en el navegador con la pendiente de Sen y la prueba de Mann-Kendall.</span>" : "Sin eventos de este tipo en el " + semTxt + ".";
     if (!window.Plotly) return;
     var lx = [], ly = [];
     R.forEach(function (r) { lx.push(r.T, r.T, null); ly.push(r.a, r.b, null); });
     var cd = R.map(function (r) { return [lab(r.T), fdate(r.ini), fdate(r.fin), r.n]; });
     var ht = "<b>%{customdata[0]}</b><br>Primer inicio: %{customdata[1]}<br>Último término: %{customdata[2]}<br>%{customdata[3]} evento(s)<extra></extra>";
     var tr = [
-      { x: lx, y: ly, mode: "lines", line: { color: col, width: 3 }, opacity: 0.35, hoverinfo: "skip", showlegend: false },
-      { x: x, y: R.map(function (r) { return r.a; }), mode: "markers", name: "Inicio del primer evento", marker: { color: col, size: 9 }, customdata: cd, hovertemplate: ht },
-      { x: x, y: R.map(function (r) { return r.b; }), mode: "markers", name: "Término del último evento", marker: { color: css("--surface"), size: 9, line: { color: col, width: 2 } }, customdata: cd, hovertemplate: ht }
+      { x: lx, y: ly, mode: "lines", line: { color: c, width: 3 }, opacity: 0.35, hoverinfo: "skip", showlegend: false },
+      { x: x, y: R.map(function (r) { return r.a; }), mode: "markers", name: "Inicio del primer evento", marker: { color: c, size: 9 }, customdata: cd, hovertemplate: ht },
+      { x: x, y: R.map(function (r) { return r.b; }), mode: "markers", name: "Término del último evento", marker: { color: css("--surface"), size: 9, line: { color: c, width: 2 } }, customdata: cd, hovertemplate: ht }
     ];
-    if (ok) [sa, sb].forEach(function (s, i) {
-      var x0 = TEMPS[0], x1 = TEMPS[TEMPS.length - 1];
-      tr.push({ x: [x0, x1], y: [s.intercept + s.slope * x0, s.intercept + s.slope * x1], mode: "lines", name: "Tendencia " + (i ? "del término" : "del inicio"), line: { color: css("--ink-2"), width: 1.5, dash: i ? "dot" : "dash" }, hoverinfo: "skip" });
+    if (ok) [sa, sb].forEach(function (q, i) {
+      var x0 = Ts[0], x1 = Ts[Ts.length - 1];
+      tr.push({ x: [x0, x1], y: [q.intercept + q.slope * x0, q.intercept + q.slope * x1], mode: "lines", name: "Tendencia " + (i ? "del término" : "del inicio"), line: { color: css("--ink-2"), width: 1.5, dash: i ? "dot" : "dash" }, hoverinfo: "skip" });
     });
-    var ticks = TEMPS.filter(function (T) { return T % 10 === 1; });
+    var ticks = Ts.filter(function (T) { return T % 10 === 1; }), ms = s === "c" ? [10, 11, 12, 1, 2, 3] : [4, 5, 6, 7, 8, 9];
     var lay = baseLayout({ showlegend: true, legend: { orientation: "h", y: -0.14, yanchor: "top", x: 0, font: { color: css("--ink-2") } }, margin: { l: 56, r: 12, t: 12, b: 96 } });
-    lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [TEMPS[0] - 1.5, TEMPS[TEMPS.length - 1] + 1.5] });
-    lay.yaxis = Object.assign(lay.yaxis, { tickvals: [0, 30, 61, 92, 120, 150], ticktext: ["1 nov", "1 dic", "1 ene", "1 feb", "1 mar", "31 mar"], range: [-6, 157] });
+    lay.xaxis = Object.assign(lay.xaxis, { tickvals: ticks, ticktext: ticks.map(lab), range: [Ts[0] - 1.5, Ts[Ts.length - 1] + 1.5] });
+    lay.yaxis = Object.assign(lay.yaxis, { tickvals: ms.map(function (m) { return CUMY[m]; }).concat([hi]), ticktext: ms.map(function (m) { return "1 " + MES[m - 1]; }).concat([colLabel(hi)]), range: [lo - 6, hi + 6] });
     var el = $("est-chart");
     Plotly.react(el, tr, lay, CFG_STATIC);
     onClick(el, function (ev) { if (ev.points[0].x) openSeason(ev.points[0].x); });
   }
 
   // ---------- buscador ----------
-  function mesesSel() { return MSEASON.filter(function (m) { return F.meses[m]; }); }
+  function mesesSel() { return MORD.filter(function (m) { return F.meses[m]; }); }
   function pasa(e, sinMes) {
     if (F.tipo && e.tipo !== F.tipo) return false;
     if (e.T < F.desde || e.T > F.hasta) return false;
@@ -966,16 +1131,19 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     return !ms.length || ms.some(function (m) { return e.meses[m]; });
   }
   function fillFilters() {
-    var opts = TEMPS.map(function (T) { return '<option value="' + T + '">' + lab(T) + "</option>"; }).join("");
+    var opts = ALLT.map(function (T) { return '<option value="' + T + '">' + lab(T) + "</option>"; }).join("");
     $("f-desde").innerHTML = opts; $("f-hasta").innerHTML = opts;
-    F.desde = TEMPS[0]; F.hasta = TEMPS[TEMPS.length - 1];
+    F.desde = ALLT[0]; F.hasta = ALLT[ALLT.length - 1];
     $("f-desde").value = F.desde; $("f-hasta").value = F.hasta;
     var box = $("f-meses");
-    box.innerHTML = '<button class="chip" type="button" data-m="0">Todos</button>' + MSEASON.map(function (m) { return '<button class="chip" type="button" data-m="' + m + '">' + MESES[m - 1] + '<span class="n"></span></button>'; }).join("");
+    box.innerHTML = '<button class="chip" type="button" data-m="0">Todos</button><button class="chip alt" type="button" data-m="c">Semestre cálido</button><button class="chip alt" type="button" data-m="f">Semestre frío</button>' +
+      MORD.map(function (m) { return '<button class="chip" type="button" data-m="' + m + '">' + MESES[m - 1] + '<span class="n"></span></button>'; }).join("");
     box.addEventListener("click", function (ev) {
       var b = ev.target.closest("button"); if (!b) return;
-      var m = +b.dataset.m;
-      if (m === 0) F.meses = {}; else F.meses[m] = !F.meses[m];
+      var m = b.dataset.m;
+      if (m === "0") F.meses = {};
+      else if (m === "c" || m === "f") { F.meses = {}; MORD.forEach(function (x) { if (semOfM(x) === m) F.meses[x] = true; }); }
+      else F.meses[+m] = !F.meses[+m];
       drawSearch();
     });
     $("f-tipo").addEventListener("click", function (ev) { var b = ev.target.closest("button"); if (!b) return; F.tipo = b.dataset.v; drawSearch(); });
@@ -983,24 +1151,26 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     $("f-hasta").addEventListener("change", function (e) { F.hasta = +e.target.value; if (F.desde > F.hasta) { F.desde = F.hasta; $("f-desde").value = F.desde; } drawSearch(); });
     $("f-dur").addEventListener("change", function (e) { F.dur = +e.target.value; drawSearch(); });
     $("f-reset").addEventListener("click", function () {
-      F = { tipo: "", meses: {}, desde: TEMPS[0], hasta: TEMPS[TEMPS.length - 1], dur: 3 };
+      F = { tipo: "", meses: {}, desde: ALLT[0], hasta: ALLT[ALLT.length - 1], dur: 3 };
       $("f-desde").value = F.desde; $("f-hasta").value = F.hasta; $("f-dur").value = "3"; drawSearch();
     });
     $("btn-csv").addEventListener("click", downloadCsv);
-    var fi = $("f-fecha"); fi.min = DAILY.d.fecha[0]; fi.max = DAILY.last;
+    var fi = $("f-fecha"); fi.min = D.fecha[0]; fi.max = LAST;
     fi.addEventListener("change", lookupDate);
   }
   function resultRows() {
     var r = EV.filter(function (e) { return pasa(e, false); }), k = state.sortK, dir = state.sortDir;
-    r.sort(function (a, b) { return (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir || (a.inicio < b.inicio ? -1 : 1); });
+    r.sort(function (a, b) { return (a[k] > b[k] ? 1 : a[k] < b[k] ? -1 : 0) * dir || (a.inicio < b.inicio ? 1 : -1); });
     return r;
   }
   function drawSearchControls() {
     var ms = mesesSel(), base = EV.filter(function (e) { return pasa(e, true); });
+    function isSem(s) { return ms.length === 6 && ms.every(function (m) { return semOfM(m) === s; }); }
     document.querySelectorAll("#f-meses .chip").forEach(function (b) {
-      var m = +b.dataset.m;
-      b.setAttribute("aria-pressed", m === 0 ? String(!ms.length) : String(!!F.meses[m]));
-      if (m) b.querySelector(".n").textContent = base.filter(function (e) { return e.meses[m]; }).length;
+      var m = b.dataset.m;
+      if (m === "0") b.setAttribute("aria-pressed", String(!ms.length));
+      else if (m === "c" || m === "f") b.setAttribute("aria-pressed", String(isSem(m)));
+      else { b.setAttribute("aria-pressed", String(!!F.meses[+m])); b.querySelector(".n").textContent = base.filter(function (e) { return e.meses[+m]; }).length; }
     });
     document.querySelectorAll("#f-tipo button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === F.tipo)); });
   }
@@ -1008,28 +1178,29 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     var r = resultRows(), k = state.sortK, dir = state.sortDir;
     document.querySelectorAll("#tabla th").forEach(function (th) { th.setAttribute("aria-sort", th.dataset.k === k ? (dir > 0 ? "ascending" : "descending") : "none"); });
     document.querySelector("#tabla tbody").innerHTML = r.length ? r.map(function (e) {
-      return '<tr data-t="' + e.T + '"><td><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + "</td><td>" + lab(e.T) + "</td><td>" + fdate(e.inicio) + "</td><td>" + fdate(e.fin) + "</td><td>" + e.duracion + "</td><td>" + fmt(e.IS, 1) + "</td><td>" + fmt(e.IS_dia, 2) + "</td><td>" + fmt(e.maximo, 1) + "</td><td>" + fmt(e.media, 1) + "</td></tr>";
-    }).join("") : '<tr><td colspan="9" class="empty" style="text-align:center;cursor:default">Ningún evento cumple estos filtros. Prueba con otro mes o una duración menor.</td></tr>';
+      return '<tr data-t="' + e.T + '"><td>' + dot(e.tipo) + " " + INFO[e.tipo].corto + "</td><td>" + lab(e.T) + "</td><td>" + SEM1[e.sem] + "</td><td>" + fdate(e.inicio) + "</td><td>" + fdate(e.fin) + "</td><td>" + e.duracion + "</td><td>" + fmt(e.IS, 1) + "</td><td>" + fmt(e.IS_dia, 2) + "</td><td>" + fmt(e.ext, 1) + "</td><td>" + fmt(e.media, 1) + "</td></tr>";
+    }).join("") : '<tr><td colspan="10" class="empty" style="text-align:center;cursor:default">Ningún evento cumple estos filtros. Prueba con otro mes o una duración menor.</td></tr>';
     var ms = mesesSel(), txt;
     if (!r.length) txt = "Sin resultados";
     else {
       var dias = sum(r.map(function (e) { return e.duracion; })), top = r.slice().sort(function (a, b) { return b.IS - a.IS; })[0];
-      txt = "<b>" + r.length + "</b> " + (r.length === 1 ? "evento" : "eventos") + (ms.length ? " en " + ms.map(function (m) { return MESES[m - 1].toLowerCase(); }).join(", ") : "") +
-        " · <b>" + dias + "</b> días en total · duración media <b>" + fmt(dias / r.length, 1) + "</b> d · el más intenso: " + NOM1[top.tipo].toLowerCase() + " del " + fdate(top.inicio) + " (IS <b>" + fmt(top.IS, 1) + "</b> °C)";
+      txt = "<b>" + r.length + "</b> " + (r.length === 1 ? "evento" : "eventos") + (ms.length && ms.length < 12 ? " en " + ms.map(function (m) { return MES[m - 1]; }).join(", ") : "") +
+        " · <b>" + fmt(dias) + "</b> días en total · duración media <b>" + fmt(dias / r.length, 1) + "</b> d · el más intenso: " + INFO[top.tipo].uno.toLowerCase() + " del " + fdate(top.inicio) + " (IS <b>" + fmt(top.IS, 1) + "</b> °C)";
     }
     $("tab-count").innerHTML = txt;
   }
   function drawMonthChart() {
     var ms = mesesSel(), base = EV.filter(function (e) { return pasa(e, true); });
-    var x = MSEASON.map(function (m) { return MESES[m - 1]; });
+    var x = MORD.map(function (m) { return MESES[m - 1].slice(0, 3); }), one = !!F.tipo;
     var tr = TIPOS.filter(function (k) { return !F.tipo || F.tipo === k; }).map(function (k) {
-      var y = MSEASON.map(function (m) { return base.filter(function (e) { return e.tipo === k && e.meses[m]; }).length; });
-      return { x: x, y: y, type: "bar", name: NOM[k], customdata: MSEASON,
-        marker: { color: css("--" + k.toLowerCase()), opacity: MSEASON.map(function (m) { return !ms.length || F.meses[m] ? 1 : 0.3; }) },
-        text: y, textposition: "outside", cliponaxis: false, textfont: { family: "IBM Plex Mono, monospace", size: 11, color: css("--ink-2") },
-        hovertemplate: "%{x}<br>" + NOM[k] + ": %{y} eventos<extra></extra>" };
+      var y = MORD.map(function (m) { return base.filter(function (e) { return e.tipo === k && e.meses[m]; }).length; });
+      return { x: x, y: y, type: "bar", name: INFO[k].nom, customdata: MORD,
+        marker: { color: col(k), opacity: MORD.map(function (m) { return !ms.length || F.meses[m] ? 1 : 0.3; }) },
+        text: one ? y : null, textposition: "outside", cliponaxis: false, textfont: { family: "IBM Plex Mono, monospace", size: 11, color: css("--ink-2") },
+        hovertemplate: "%{x}<br>" + INFO[k].nom + ": %{y} eventos<extra></extra>" };
     });
-    var lay = baseLayout({ barmode: "group", bargap: 0.25, bargroupgap: 0.08, showlegend: true, legend: { orientation: "h", y: 1.3, x: 0, font: { color: css("--ink-2") } }, margin: { l: 44, r: 12, t: 52, b: 36 } });
+    var lay = baseLayout({ barmode: "group", bargap: 0.2, bargroupgap: 0.05, showlegend: true, legend: legendH(1.32), margin: { l: 44, r: 12, t: 58, b: 36 },
+      shapes: [{ type: "line", x0: 5.5, x1: 5.5, yref: "paper", y0: 0, y1: 1, line: { color: css("--ink-3"), width: 1, dash: "dot" } }] });
     lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Número de eventos", font: { size: 12 } }, rangemode: "tozero" });
     lay.xaxis = Object.assign(lay.xaxis, { tickfont: { family: "Public Sans, Arial, sans-serif", size: 12 } });
     var el = $("mes-chart");
@@ -1037,19 +1208,19 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     onClick(el, function (ev) { var m = ev.points[0].customdata; F.meses[m] = !F.meses[m]; drawSearch(); });
   }
   function drawHeat() {
-    var k = F.tipo || "TX", d = DAILY.d, flag = k === "TX" ? d.ola : d.noc, decs = decades();
-    $("heat-title").innerHTML = '<span class="dot" style="background:var(--' + k.toLowerCase() + ')"></span>' + (k === "TX" ? "Días en ola de calor" : "Noches en racha cálida") + " por mes y década";
-    var z = decs.map(function (D) {
-      var Ts = TEMPS.filter(function (T) { return decOf(T) === D; }), cnt = {};
-      Ts.forEach(function (T) { (DAILY.idx[T] || []).forEach(function (i) { if (flag[i]) { var m = +d.fecha[i].slice(5, 7); cnt[m] = (cnt[m] || 0) + 1; } }); });
-      return MSEASON.map(function (m) { return (cnt[m] || 0) / Ts.length; });
+    var k = F.tipo || "HD", flag = D.fl[k], Ts = validT("a"), decs = decades(Ts), R = ramp(k);
+    $("heat-title").innerHTML = dot(k) + INFO[k].y + " por mes y década";
+    var z = decs.map(function (Dc) {
+      var tt = Ts.filter(function (T) { return decOf(T) === Dc; }), cnt = {};
+      tt.forEach(function (T) { dayIdx(T).forEach(function (i) { if (flag[i]) cnt[D.m[i]] = (cnt[D.m[i]] || 0) + 1; }); });
+      return MORD.map(function (m) { return (cnt[m] || 0) / tt.length; });
     });
     var zmax = Math.max.apply(null, z.map(function (r) { return Math.max.apply(null, r); }).concat([0.1]));
-    var tr = [{ z: z, x: MSEASON.map(function (m) { return MESES[m - 1]; }), y: decs.map(function (D) { return D + "s"; }), type: "heatmap",
-      colorscale: [[0, css("--surface-2")], [0.004, css("--surface-2")]].concat(HEAT.map(function (h, i) { return [i === 0 ? 0.005 : i / (HEAT.length - 1), h]; })), zmin: 0, zmax: zmax, xgap: 3, ygap: 3, showscale: false,
+    var tr = [{ z: z, x: MORD.map(function (m) { return MESES[m - 1].slice(0, 3); }), y: decs.map(function (Dc) { return Dc + "s"; }), type: "heatmap",
+      colorscale: [[0, css("--surface-2")], [0.004, css("--surface-2")]].concat(R.map(function (h, i) { return [i === 0 ? 0.005 : i / (R.length - 1), h]; })), zmin: 0, zmax: zmax, xgap: 3, ygap: 3, showscale: false,
       text: z.map(function (r) { return r.map(function (v) { return v ? fmt(v, 1) : "·"; }); }), texttemplate: "%{text}",
-      textfont: { family: "IBM Plex Mono, monospace", size: 11 },
-      hovertemplate: "%{y} · %{x}<br>%{z:.2f} " + UNI[k][2] + " por temporada<extra></extra>" }];
+      textfont: { family: "IBM Plex Mono, monospace", size: 10 },
+      hovertemplate: "%{y} · %{x}<br>%{z:.2f} días por temporada<extra></extra>" }];
     var lay = baseLayout({ margin: { l: 56, r: 12, t: 8, b: 36 } });
     lay.xaxis = Object.assign(lay.xaxis, { showgrid: false, tickfont: { family: "Public Sans, Arial, sans-serif", size: 12 } });
     lay.yaxis = Object.assign(lay.yaxis, { showgrid: false, autorange: "reversed" });
@@ -1058,90 +1229,94 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   function drawSearch() { drawSearchControls(); drawTable(); if (window.Plotly) { drawMonthChart(); drawHeat(); } }
   function downloadCsv() {
     var r = resultRows();
-    var L = ["tipo,temporada,inicio,fin,dias,IS_C,IS_por_dia,maximo_C,media_C"].concat(r.map(function (e) {
-      return [NOM1[e.tipo], lab(e.T), e.inicio, e.fin, e.duracion, e.IS, e.IS_dia.toFixed(2), e.maximo, e.media].join(",");
+    var L = ["tipo,temporada,semestre,inicio,fin,dias,IS_C,IS_por_dia,extremo_C,media_C"].concat(r.map(function (e) {
+      return [INFO[e.tipo].uno, lab(e.T), SEM1[e.sem], e.inicio, e.fin, e.duracion, e.IS, e.IS_dia.toFixed(2), e.ext, e.media].join(",");
     }));
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + L.join("\n")], { type: "text/csv;charset=utf-8" }));
-    a.download = "eventos_calor_quinta_normal.csv"; document.body.appendChild(a); a.click(); a.remove();
+    a.download = "olas_calor_frio_quinta_normal.csv"; document.body.appendChild(a); a.click(); a.remove();
   }
   function lookupDate() {
-    var f = $("f-fecha").value, out = $("fecha-out"), d = DAILY.d;
+    var f = $("f-fecha").value, out = $("fecha-out");
     if (!f) return;
-    var i = FIDX[f];
-    if (i === undefined) {
-      var m = +f.slice(5, 7);
-      out.textContent = (m >= 4 && m <= 10) ? "Este visor solo cubre la temporada cálida (noviembre a marzo). Elige una fecha dentro de esos meses." : "No hay datos para esa fecha.";
-      return;
+    var i = iOf(f);
+    if (!(i >= 0 && i < N) || (D.tx[i] === null && D.tn[i] === null)) { out.textContent = "No hay datos para esa fecha."; return; }
+    function part(nm, v, txt, c) { return v === null ? nm + " sin dato" : nm + ' <b class="num" style="color:var(' + c + ')">' + fmt(v, 1) + " °C</b> (" + txt + ")"; }
+    var msg = TIPOS.filter(function (k) { return D.fl[k][i]; }).map(function (k) {
+      var e = EV.filter(function (x) { return x.tipo === k && x.i0 <= i && i <= x.i1; })[0];
+      return "Fue parte de una <b>" + INFO[k].uno.toLowerCase() + "</b> de " + e.duracion + " días (" + rng(e) + ").";
+    });
+    if (!msg.length) {
+      var hot = (D.tx[i] !== null && D.tx[i] >= D.ptx[i]) || (D.tn[i] !== null && D.tn[i] >= D.ptn[i]), cold = D.tn[i] !== null && D.tn[i] <= D.p10[i];
+      msg.push(hot || cold ? "Alcanzó un umbral, pero no llegó a formar un evento de tres días seguidos." : "No alcanzó los umbrales ni formó parte de un evento.");
     }
-    function part(nm, v, p, col) {
-      if (v === null) return nm + " sin dato";
-      var dif = v - p;
-      return nm + ' <b class="num" style="color:var(--' + col + ')">' + fmt(v, 1) + " °C</b> (umbral " + fmt(p, 1) + "; " + (dif > 0 ? "+" : "−") + fmt(Math.abs(dif), 1) + ")";
-    }
-    function evOf(k) { return EV.filter(function (e) { return e.tipo === k && e.inicio <= f && f <= e.fin; })[0]; }
-    var eo = evOf("TX"), en = evOf("TN"), msg = [];
-    if (eo) msg.push("Fue parte de una <b>ola de calor</b> de " + eo.duracion + " días (" + fshort(eo.inicio) + " al " + fdate(eo.fin) + ").");
-    if (en) msg.push("Fue parte de una <b>racha de noches cálidas</b> de " + en.duracion + " noches (" + fshort(en.inicio) + " al " + fdate(en.fin) + ").");
-    if (!eo && !en) msg.push((d.tx[i] !== null && d.tx[i] > d.p90_tx[i]) || (d.tn[i] !== null && d.tn[i] > d.p90_tn[i]) ? "Superó el umbral, pero no llegó a formar un evento de tres días seguidos." : "No superó los umbrales ni formó parte de un evento.");
     var T = seasonOf(f);
-    out.innerHTML = "<b>" + fdate(f) + ".</b> " + part("TX", d.tx[i], d.p90_tx[i], "tx") + " · " + part("TN", d.tn[i], d.p90_tn[i], "tn") + ". " + msg.join(" ") +
-      (allSeasons().indexOf(T) >= 0 ? ' <button class="btn ghost small" type="button" id="fecha-abrir">Abrir temporada ' + lab(T) + "</button>" : "");
-    var b = $("fecha-abrir"); if (b) b.addEventListener("click", function () { openSeason(T); });
+    out.innerHTML = "<b>" + fdate(f) + ".</b> " + part("TX", D.tx[i], "P90 " + fmt(D.ptx[i], 1), "--tx") + " · " + part("TN", D.tn[i], "P90 " + fmt(D.ptn[i], 1) + "; P10 " + fmt(D.p10[i], 1), "--tn") + ". " + msg.join(" ") +
+      ' <button class="btn ghost small" type="button" id="fecha-abrir">Abrir temporada ' + lab(T) + "</button>";
+    $("fecha-abrir").addEventListener("click", function () { openSeason(T); });
   }
 
   // ---------- explorador ----------
   function fillSeasonSelect() {
     var s = $("sel-temp");
-    s.innerHTML = allSeasons().reverse().map(function (T) { return '<option value="' + T + '">' + lab(T) + (T === ACTUAL ? " (en curso)" : "") + "</option>"; }).join("");
-    if (!state.T) state.T = series("TX").slice().sort(function (a, b) { return b.dias - a.dias; })[0].T;
+    s.innerHTML = ALLT.slice().reverse().map(function (T) { return '<option value="' + T + '">' + lab(T) + (T === ACTUAL ? " (en curso)" : "") + "</option>"; }).join("");
+    if (!state.T) state.T = series("HD", "a").slice().sort(function (a, b) { return b.dias - a.dias; })[0].T;
     s.value = state.T;
   }
   function shift(s, h) { var dt = new Date(s + "T12:00:00Z"); dt.setUTCHours(12 + h * 24); return dt.toISOString().slice(0, 19).replace("T", " "); }
-  function bands(ii, f, flag, color, y0, y1) {
+  function bands(ii, flag, color, y0, y1) {
     var out = [], run = null;
     ii.forEach(function (i, k) {
       if (flag[i] && run === null) run = k;
       if ((!flag[i] || k === ii.length - 1) && run !== null) {
         var end = flag[i] ? k : k - 1;
-        out.push({ type: "rect", xref: "x", yref: "paper", x0: shift(f[run], -0.5), x1: shift(f[end], 0.5), y0: y0, y1: y1, fillcolor: color, line: { width: 0 }, layer: "below" });
+        out.push({ type: "rect", xref: "x", yref: "paper", x0: shift(D.fecha[ii[run]], -0.5), x1: shift(D.fecha[ii[end]], 0.5), y0: y0, y1: y1, fillcolor: color, line: { width: 0 }, layer: "below" });
         run = null;
       }
     });
     return out;
   }
+  function viewRange(T, v) {
+    var a = v === "f" ? T + "-04-01" : (T - 1) + "-10-01", b = v === "c" ? T + "-03-31" : T + "-09-30";
+    return [shift(a, -0.5), shift(b, 0.5)];
+  }
   function drawDaily() {
-    var T = state.T, d = DAILY.d, ii = DAILY.idx[T] || [];
-    var f = ii.map(function (i) { return d.fecha[i]; });
-    var shapes = bands(ii, f, d.ola, css("--band"), 0.5, 1).concat(bands(ii, f, d.noc, css("--band-tn"), 0, 0.5));
+    var T = state.T, ii = dayIdx(T), f = ii.map(function (i) { return D.fecha[i]; });
+    function y(arr) { return ii.map(function (i) { return arr[i]; }); }
+    var shapes = bands(ii, D.fl.HD, css("--band-hd"), 0.5, 1).concat(bands(ii, D.fl.HN, css("--band-hn"), 0, 0.5), bands(ii, D.fl.FR, css("--band-fr"), 0, 0.5));
+    if (state.view === "a") shapes.push({ type: "line", xref: "x", yref: "paper", x0: T + "-04-01", x1: T + "-04-01", y0: 0, y1: 1, line: { color: css("--ink-3"), width: 1, dash: "dot" } });
     var traces = [
-      { x: f, y: ii.map(function (i) { return d.p90_tx[i]; }), name: "P90 TX", mode: "lines", line: { color: css("--tx"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TX %{y:.1f} °C<extra></extra>" },
-      { x: f, y: ii.map(function (i) { return d.tx[i]; }), name: "TX", mode: "lines+markers", line: { color: css("--tx"), width: 2 }, marker: { size: 4 }, hovertemplate: "TX %{y:.1f} °C<extra></extra>" },
-      { x: f, y: ii.map(function (i) { return d.p90_tn[i]; }), name: "P90 TN", mode: "lines", line: { color: css("--tn"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TN %{y:.1f} °C<extra></extra>" },
-      { x: f, y: ii.map(function (i) { return d.tn[i]; }), name: "TN", mode: "lines+markers", line: { color: css("--tn"), width: 2 }, marker: { size: 4 }, hovertemplate: "TN %{y:.1f} °C<extra></extra>" }
+      { x: f, y: y(D.ptx), name: "P90 TX", mode: "lines", line: { color: css("--tx"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TX %{y:.1f} °C<extra></extra>" },
+      { x: f, y: y(D.tx), name: "TX", mode: "lines", line: { color: css("--tx"), width: 1.6 }, hovertemplate: "TX %{y:.1f} °C<extra></extra>" },
+      { x: f, y: y(D.ptn), name: "P90 TN", mode: "lines", line: { color: css("--hn"), width: 1.2, dash: "dot" }, hovertemplate: "P90 TN %{y:.1f} °C<extra></extra>" },
+      { x: f, y: y(D.tn), name: "TN", mode: "lines", line: { color: css("--tn"), width: 1.6 }, hovertemplate: "TN %{y:.1f} °C<extra></extra>" },
+      { x: f, y: y(D.p10), name: "P10 TN", mode: "lines", line: { color: css("--fr"), width: 1.2, dash: "dot" }, hovertemplate: "P10 TN %{y:.1f} °C<extra></extra>" }
     ];
-    var ic = ii.filter(function (i) { return d.comp[i]; });
-    if (ic.length) traces.push({ x: ic.map(function (i) { return d.fecha[i]; }), y: ic.map(function (i) { return d.tx[i]; }), name: "Día compuesto", mode: "markers",
-      marker: { symbol: "diamond", size: 10, color: css("--both"), line: { color: css("--surface"), width: 1.5 } }, hovertemplate: "Día compuesto (ola + noche cálida)<extra></extra>" });
+    var ic = ii.filter(function (i) { return D.fl.CO[i]; });
+    if (ic.length) traces.push({ x: ic.map(function (i) { return D.fecha[i]; }), y: ic.map(function (i) { return D.tx[i]; }), name: "Día de ola compuesta", mode: "markers",
+      marker: { symbol: "diamond", size: 10, color: col("CO"), line: { color: css("--surface"), width: 1.5 } }, hovertemplate: "Día de ola compuesta<extra></extra>" });
     var lay = baseLayout({ shapes: shapes, hovermode: "x unified", showlegend: true,
       legend: { orientation: "h", y: 1.08, x: 0, font: { size: 12, color: css("--ink-2") } }, margin: { l: 48, r: 12, t: 30, b: 40 } });
     lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Temperatura (°C)", font: { size: 12 } } });
-    lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%d %b", hoverformat: "%a %d %b %Y", range: [shift((T - 1) + "-11-01", -0.5), shift(T + "-03-31", 0.5)] });
+    lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%d %b", hoverformat: "%a %d %b %Y", range: viewRange(T, state.view) });
     Plotly.react("daily", traces, lay, CFG);
   }
   function drawSeasonInfo() {
-    var T = state.T, d = DAILY.d, ii = DAILY.idx[T] || [];
-    var nO = ii.filter(function (i) { return d.ola[i]; }).length, nN = ii.filter(function (i) { return d.noc[i]; }).length;
-    var txs = ii.filter(function (i) { return d.tx[i] !== null; }), bi = txs.slice().sort(function (a, b) { return d.tx[b] - d.tx[a]; })[0];
-    var sob = txs.filter(function (i) { return d.tx[i] > d.p90_tx[i]; }).length;
-    $("season-stats").innerHTML = '<span><b style="color:var(--tx)">' + nO + '</b> días en ola</span><span><b style="color:var(--tn)">' + nN + "</b> noches en racha</span><span><b style=\"color:var(--both)\">" + compDias(T) + "</b> días compuestos</span><span><b>" + sob + "</b> días con TX sobre el umbral</span>" +
-      (bi !== undefined ? "<span>máxima <b>" + fmt(d.tx[bi], 1) + " °C</b> (" + fshort(d.fecha[bi]) + ")</span>" : "");
-    var ev = EV.filter(function (e) { return e.T === T; }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : 1; });
+    var T = state.T, v = state.view, ii = dayIdx(T, v);
+    document.querySelectorAll("#exp-sem button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.v === v)); });
+    var txs = ii.filter(function (i) { return D.tx[i] !== null; }), tns = ii.filter(function (i) { return D.tn[i] !== null; });
+    var bi = txs.slice().sort(function (a, b) { return D.tx[b] - D.tx[a]; })[0], bn = tns.slice().sort(function (a, b) { return D.tn[a] - D.tn[b]; })[0];
+    $("season-stats").innerHTML = TIPOS.map(function (k) {
+      return '<span><b style="color:var(' + INFO[k].col + ')">' + ii.filter(function (i) { return D.fl[k][i]; }).length + "</b> días en ola " + (k === "FR" ? "de frío" : INFO[k].corto.toLowerCase()) + "</span>";
+    }).join("") +
+      (bi !== undefined ? "<span>máxima <b>" + fmt(D.tx[bi], 1) + " °C</b> (" + fshort(D.fecha[bi]) + ")</span>" : "") +
+      (bn !== undefined ? "<span>mínima <b>" + fmt(D.tn[bn], 1) + " °C</b> (" + fshort(D.fecha[bn]) + ")</span>" : "");
+    var ev = EV.filter(function (e) { return e.T === T && (v === "a" || e.sem === v); }).sort(function (a, b) { return a.inicio < b.inicio ? -1 : 1; });
     $("ev-list").innerHTML = ev.length ? ev.map(function (e) {
-      return '<div class="ev-chip"><span class="dot" style="background:var(--' + e.tipo.toLowerCase() + ')"></span> ' + NOM1[e.tipo] + " · " + fdate(e.inicio) + " → " + fdate(e.fin) + " · <b>" + e.duracion + " d</b> · IS <b>" + fmt(e.IS, 1) + " °C</b> · máx <b>" + fmt(e.maximo, 1) + " °C</b></div>";
-    }).join("") : '<div class="muted">Sin olas de calor ni rachas de noches cálidas en ' + lab(T) + ".</div>";
-    var S = allSeasons(), p = S.indexOf(T);
-    $("t-prev").disabled = p <= 0; $("t-next").disabled = p >= S.length - 1;
+      return '<div class="ev-chip">' + dot(e.tipo) + " " + INFO[e.tipo].corto + " · " + fshort(e.inicio) + " → " + fdate(e.fin) + " · <b>" + e.duracion + " d</b> · IS <b>" + fmt(e.IS, 1) + " °C</b> · " + (e.tipo === "FR" ? "mín" : "máx") + " <b>" + fmt(e.ext, 1) + " °C</b></div>";
+    }).join("") : '<div class="muted">Sin olas de calor ni de frío en este tramo de ' + lab(T) + ".</div>";
+    var p = ALLT.indexOf(T);
+    $("t-prev").disabled = p <= 0; $("t-next").disabled = p >= ALLT.length - 1;
   }
   function setSeason(T, scroll) {
     state.T = +T;
@@ -1151,65 +1326,72 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     try { history.replaceState(null, "", "?temporada=" + lab(state.T) + (scroll ? "#explorador" : location.hash)); } catch (e) {}
     if (scroll) $("explorador").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" });
   }
-  function openSeason(T) { setSeason(T, true); }
+  function openSeason(T) { if (SEAS[+T]) setSeason(T, true); }
 
   // ---------- umbrales ----------
   function drawUmbrales() {
-    var u = UMB, by = {}, fechas = [];
-    u.doy.forEach(function (doy, i) {
-      var dt = new Date(Date.UTC(2001, 0, doy)), m = dt.getUTCMonth();
-      (by[m] = by[m] || { tx: [], tn: [] }); by[m].tx.push(u.tx_p90[i]); by[m].tn.push(u.tn_p90[i]);
-      var y = m >= 6 ? 2000 : 2001; fechas.push(y + "-" + String(m + 1).padStart(2, "0") + "-" + String(dt.getUTCDate()).padStart(2, "0"));
-    });
-    var orden = [6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4, 5];
+    var by = {}, x = [], ytx = [], ytn = [], y10 = [];
+    for (var o = 0; o < 366; o++) {
+      var f = addDays("1999-10-01", o), m = +f.slice(5, 7), u = umbralDe(m, +f.slice(8, 10));
+      (by[m] = by[m] || { tx: [], tn: [], p10: [] }); by[m].tx.push(u.tx); by[m].tn.push(u.tn); by[m].p10.push(u.p10);
+      x.push(f); ytx.push(u.tx); ytn.push(u.tn); y10.push(u.p10);
+    }
     function mn(a) { return Math.min.apply(null, a); } function mx(a) { return Math.max.apply(null, a); }
-    document.querySelector("#umb-tabla tbody").innerHTML = orden.map(function (m) {
-      var b = by[m], act = m >= 10 || m <= 2;
-      return "<tr" + (act ? ' class="hl"' : "") + "><td>" + MESES[m] + "</td><td>" + fmt(mean(b.tx), 1) + "</td><td>" + fmt(mn(b.tx), 1) + "–" + fmt(mx(b.tx), 1) + "</td><td>" + fmt(mean(b.tn), 1) + "</td><td>" + fmt(mn(b.tn), 1) + "–" + fmt(mx(b.tn), 1) + "</td></tr>";
+    function cell(a) { return "<td>" + fmt(mean(a), 1) + ' <span class="muted">(' + fmt(mn(a), 1) + " a " + fmt(mx(a), 1) + ")</span></td>"; }
+    document.querySelector("#umb-tabla tbody").innerHTML = MORD.map(function (m) {
+      var b = by[m];
+      return "<tr" + (semOfM(m) === "c" ? ' class="hl"' : "") + "><td>" + MESES[m - 1] + "</td>" + cell(b.tx) + cell(b.tn) + cell(b.p10) + "</tr>";
     }).join("");
-    $("ap-umb").innerHTML = "En Quinta Normal, el umbral medio de la máxima pasa de <b>" + fmt(mean(by[10].tx), 1) + " °C</b> en noviembre a <b>" + fmt(mean(by[0].tx), 1) + " °C</b> en enero.";
+    $("ap-umb").innerHTML = "En Quinta Normal, el umbral de la máxima va de <b>" + fmt(mn(U.tx_p90), 1) + " °C</b> en julio a <b>" + fmt(mx(U.tx_p90), 1) + " °C</b> a fines de enero.";
+    $("ap-frio").innerHTML = "En Quinta Normal, el umbral de frío va de <b>" + fmt(mn(U.tn_p10), 1) + " °C</b> en julio a <b>" + fmt(mx(U.tn_p10), 1) + " °C</b> en enero.";
+    var V = META.verificacion;
+    $("umb-verif").innerHTML = "<b>Verificación.</b> Los umbrales de este visor son las tablas oficiales que la DMC publica para la estación 330020 (percentil 90 diario de la máxima y de la mínima, y percentil 10 de la mínima), no una estimación propia." +
+      (V ? " Como control, se recalcularon con la serie diaria usada aquí (percentil por día del año en " + REF[0] + "-" + REF[1] + " y ajuste de dos armónicos): la diferencia media con la tabla oficial es de <b>" + fmt(V.tx_p90.mae_arm, 2) + " °C</b> en el P90 de TX, <b>" + fmt(V.tn_p90.mae_arm, 2) + " °C</b> en el P90 de TN y <b>" + fmt(V.tn_p10.mae_arm, 2) + " °C</b> en el P10 de TN, es decir, dentro del redondeo. " +
+        'El percentil empírico sin suavizar, que usaba la versión anterior del visor, se apartaba en promedio ' + fmt(V.tx_p90.mae_bruto, 1) + " °C del umbral oficial de TX y hasta " + fmt(V.tx_p90.max_bruto, 1) + " °C en días puntuales." : "") +
+      '<span class="cav">La comparación con el umbral incluye la igualdad (TX ≥ P90, TN ≤ P10): así se reproduce el catálogo histórico de olas que publica la DMC para Quinta Normal.</span>';
     if (!window.Plotly) return;
-    var ix = fechas.map(function (_, i) { return i; }).sort(function (a, b) { return fechas[a] < fechas[b] ? -1 : 1; });
-    var x = ix.map(function (i) { return fechas[i]; });
     var tr = [
-      { x: x, y: ix.map(function (i) { return u.tx_p90[i]; }), name: "P90 TX", mode: "lines", line: { color: css("--tx"), width: 2 }, hovertemplate: "%{x|%d %b}: P90 TX %{y:.1f} °C<extra></extra>" },
-      { x: x, y: ix.map(function (i) { return u.tn_p90[i]; }), name: "P90 TN", mode: "lines", line: { color: css("--tn"), width: 2 }, hovertemplate: "%{x|%d %b}: P90 TN %{y:.1f} °C<extra></extra>" }
+      { x: x, y: ytx, name: "P90 TX · olas diurnas", mode: "lines", line: { color: css("--tx"), width: 2 }, hovertemplate: "%{x|%d %b}: P90 TX %{y:.1f} °C<extra></extra>" },
+      { x: x, y: ytn, name: "P90 TN · olas nocturnas", mode: "lines", line: { color: css("--hn"), width: 2 }, hovertemplate: "%{x|%d %b}: P90 TN %{y:.1f} °C<extra></extra>" },
+      { x: x, y: y10, name: "P10 TN · olas de frío", mode: "lines", line: { color: css("--fr"), width: 2 }, hovertemplate: "%{x|%d %b}: P10 TN %{y:.1f} °C<extra></extra>" }
     ];
-    var lay = baseLayout({ showlegend: true, legend: { orientation: "h", y: 1.1, x: 0, font: { color: css("--ink-2") } }, margin: { l: 44, r: 12, t: 30, b: 40 },
-      shapes: [{ type: "rect", xref: "x", yref: "paper", x0: "2000-11-01", x1: "2001-03-31", y0: 0, y1: 1, fillcolor: css("--surface-2"), line: { width: 0 }, layer: "below" }],
-      annotations: [{ x: "2001-01-15", y: 1, yref: "paper", yanchor: "top", showarrow: false, text: "Temporada de búsqueda (nov-mar)", font: { size: 11, color: css("--ink-3") } }] });
-    lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%b", dtick: "M1", range: ["2000-07-01", "2001-06-30"] });
+    var lay = baseLayout({ showlegend: true, legend: legendH(1.16), margin: { l: 44, r: 12, t: 40, b: 40 },
+      shapes: [{ type: "rect", xref: "x", yref: "paper", x0: "2000-04-01", x1: "2000-09-30", y0: 0, y1: 1, fillcolor: css("--surface-2"), line: { width: 0 }, layer: "below" }],
+      annotations: [{ x: "1999-12-31", y: 0, yref: "paper", yanchor: "bottom", showarrow: false, text: "Semestre cálido · ONDEFM", font: { size: 11, color: css("--ink-3") } },
+        { x: "2000-07-01", y: 0, yref: "paper", yanchor: "bottom", showarrow: false, text: "Semestre frío · AMJJAS", font: { size: 11, color: css("--ink-3") } }] });
+    lay.xaxis = Object.assign(lay.xaxis, { tickformat: "%b", dtick: "M1", range: ["1999-10-01", "2000-09-30"] });
     lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Umbral (°C)", font: { size: 12 } } });
     Plotly.react("umb-chart", tr, lay, CFG);
   }
 
   // ---------- calendario ----------
   function drawCalendar() {
-    var d = DAILY.d, NC = 152;
-    TIPOS.forEach(function (k) {
-      var flag = k === "TX" ? d.ola : d.noc, z = [], txt = [], Ts = allSeasons();
-      Ts.forEach(function (T) {
-        var row = new Array(NC).fill(null), tr = new Array(NC).fill(""), start = Date.UTC(T - 1, 10, 1);
-        (DAILY.idx[T] || []).forEach(function (i) {
-          var f = d.fecha[i], c = Math.round((Date.parse(f + "T00:00:00Z") - start) / 864e5);
-          if (c < 0 || c >= NC) return;
-          var tx = d.tx[i], tn = d.tn[i];
-          row[c] = (tx === null && tn === null) ? null : (flag[i] ? 1 : 0);
-          tr[c] = fdate(f) + "<br>TX " + (tx === null ? "–" : tx) + " °C (P90 " + d.p90_tx[i] + ")<br>TN " + (tn === null ? "–" : tn) + " °C (P90 " + d.p90_tn[i] + ")" + (flag[i] ? "<br><b>" + (k === "TX" ? "En ola de calor" : "En racha de noches cálidas") + "</b>" : "");
-        });
-        z.push(row); txt.push(tr);
+    var NC = 366, z = [], txt = [], Ts = ALLT, cs = [css("--surface-2"), col("HD"), col("HN"), col("CO"), col("FR")], stops = [];
+    cs.forEach(function (c, j) { stops.push([j / 5, c], [(j + 1) / 5, c]); });
+    Ts.forEach(function (T) {
+      var row = new Array(NC).fill(null), tr = new Array(NC).fill("");
+      dayIdx(T).forEach(function (i) {
+        var f = D.fecha[i], c = colOf(f), tx = D.tx[i], tn = D.tn[i], fl = D.fl;
+        if (tx === null && tn === null) return;
+        row[c] = fl.CO[i] ? 3 : fl.HD[i] ? 1 : fl.HN[i] ? 2 : fl.FR[i] ? 4 : 0;
+        var en = TIPOS.filter(function (k) { return fl[k][i]; }).map(function (k) { return INFO[k].uno; });
+        tr[c] = fdate(f) + "<br>TX " + (tx === null ? "–" : tx) + " °C (P90 " + D.ptx[i] + ")<br>TN " + (tn === null ? "–" : tn) + " °C (P90 " + D.ptn[i] + " · P10 " + D.p10[i] + ")" + (en.length ? "<br><b>" + en.join(" + ") + "</b>" : "");
       });
-      var col = css("--" + k.toLowerCase());
-      var tr = [{ z: z, text: txt, x: Array.from({ length: NC }, function (_, c) { return c; }), y: Ts.map(lab), type: "heatmap", hoverongaps: false,
-        colorscale: [[0, css("--surface-2")], [0.5, css("--surface-2")], [0.5, col], [1, col]], zmin: 0, zmax: 1, showscale: false, xgap: 0.5, ygap: 1,
-        hovertemplate: "<b>%{y}</b><br>%{text}<extra></extra>" }];
-      var lay = baseLayout({ margin: { l: 60, r: 8, t: 6, b: 34 } });
-      lay.xaxis = Object.assign(lay.xaxis, { tickvals: [0, 30, 61, 92, 120, 150], ticktext: ["1 nov", "1 dic", "1 ene", "1 feb", "1 mar", "31 mar"], showgrid: false });
-      lay.yaxis = Object.assign(lay.yaxis, { type: "category", tickvals: Ts.filter(function (T) { return T % 10 === 1; }).map(lab), showgrid: false, autorange: "reversed" });
-      var el = $("cal-" + k);
-      Plotly.react(el, tr, lay, CFG);
-      onClick(el, function (ev) { openSeason(+ev.points[0].y.slice(0, 4) + 1); });
+      if (row[151] === null && row[150] !== null) row[151] = row[152] === row[150] ? row[150] : 0; // 29 de febrero en años no bisiestos
+      z.push(row); txt.push(tr);
     });
+    var tr = [{ z: z, text: txt, x: Array.from({ length: NC }, function (_, c) { return c; }), y: Ts.map(lab), type: "heatmap", hoverongaps: false,
+      colorscale: stops, zmin: -0.5, zmax: 4.5, showscale: false, xgap: 0, ygap: 1,
+      hovertemplate: "<b>%{y}</b><br>%{text}<extra></extra>" }];
+    var lay = baseLayout({ margin: { l: 60, r: 8, t: 22, b: 34 },
+      shapes: [{ type: "line", x0: 182.5, x1: 182.5, yref: "paper", y0: 0, y1: 1, line: { color: css("--ink"), width: 1, dash: "dot" } }],
+      annotations: [{ x: 91, y: 1, yref: "paper", yanchor: "bottom", showarrow: false, text: "Semestre cálido · ONDEFM", font: { size: 11, color: css("--ink-3") } },
+        { x: 274, y: 1, yref: "paper", yanchor: "bottom", showarrow: false, text: "Semestre frío · AMJJAS", font: { size: 11, color: css("--ink-3") } }] });
+    lay.xaxis = Object.assign(lay.xaxis, { tickvals: MORD.map(function (m) { return CUMY[m]; }), ticktext: MORD.map(function (m) { return "1 " + MES[m - 1]; }), showgrid: false });
+    lay.yaxis = Object.assign(lay.yaxis, { type: "category", tickvals: Ts.filter(function (T) { return T % 10 === 1; }).map(lab), showgrid: false, autorange: "reversed" });
+    var el = $("cal");
+    Plotly.react(el, tr, lay, CFG);
+    onClick(el, function (ev) { openSeason(+ev.points[0].y.slice(0, 4) + 1); });
   }
 
   // ---------- histogramas ----------
@@ -1217,10 +1399,10 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
     function hist(id, key, size, start, xt) {
       var tr = TIPOS.map(function (k) {
         return { x: EV.filter(function (e) { return e.tipo === k; }).map(function (e) { return e[key]; }),
-          type: "histogram", name: NOM[k], xbins: { start: start, size: size }, marker: { color: css("--" + k.toLowerCase()), line: { color: css("--surface"), width: 1 } },
-          hovertemplate: NOM[k] + ": %{y} eventos<br>" + xt + " %{x}<extra></extra>" };
+          type: "histogram", name: INFO[k].nom, xbins: { start: start, size: size }, marker: { color: col(k), line: { color: css("--surface"), width: 1 } },
+          hovertemplate: INFO[k].nom + ": %{y} eventos<br>" + xt + " %{x}<extra></extra>" };
       });
-      var lay = baseLayout({ barmode: "group", bargap: 0.18, bargroupgap: 0.06, showlegend: true, legend: { orientation: "h", y: 1.12, x: 0, font: { color: css("--ink-2") } }, margin: { l: 44, r: 12, t: 30, b: 40 } });
+      var lay = baseLayout({ barmode: "group", bargap: 0.18, bargroupgap: 0.06, showlegend: true, legend: legendH(1.2), margin: { l: 44, r: 12, t: 44, b: 40 } });
       lay.yaxis = Object.assign(lay.yaxis, { title: { text: "Número de eventos", font: { size: 12 } } });
       lay.xaxis = Object.assign(lay.xaxis, { title: { text: xt, font: { size: 12 } } });
       Plotly.react(id, tr, lay, CFG);
@@ -1245,8 +1427,7 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   function drawLab(setInputs) {
     var W = 640, H = 250, L = 44, R = 12, Tp = 14, B = 34, y0 = 26, y1 = 40, n = 7, bw = (W - L - R) / n;
     function Y(v) { return Tp + (H - Tp - B) * (1 - (Math.max(y0, Math.min(y1, v)) - y0) / (y1 - y0)); }
-    var above = LAB.t.map(function (v, i) { return v > LAB.p90[i]; });
-    // racha más larga
+    var above = LAB.t.map(function (v, i) { return v >= LAB.p90[i]; });
     var best = { len: 0, s: -1 }, cur = 0;
     above.forEach(function (a, i) { cur = a ? cur + 1 : 0; if (cur > best.len) best = { len: cur, s: i - cur + 1 }; });
     var olas = [], run = 0;
@@ -1258,14 +1439,14 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
         '<text x="' + (L - 6) + '" y="' + (Y(g) + 4) + '" text-anchor="end" font-size="11" font-family="IBM Plex Mono, monospace" fill="' + css("--ink-3") + '">' + g + "°</text>";
     });
     LAB.t.forEach(function (v, i) {
-      var x = L + i * bw + bw * 0.18, w = bw * 0.64, col = inOla[i] ? css("--tx") : (above[i] ? "#f4a54a" : css("--ink-3"));
-      s += '<rect x="' + x + '" y="' + Y(v) + '" width="' + w + '" height="' + Math.max(0, Y(y0) - Y(v)) + '" rx="3" fill="' + col + '" opacity="' + (above[i] ? 1 : 0.45) + '"/>' +
+      var x = L + i * bw + bw * 0.18, w = bw * 0.64, c = inOla[i] ? css("--tx") : (above[i] ? "#f4a54a" : css("--ink-3"));
+      s += '<rect x="' + x + '" y="' + Y(v) + '" width="' + w + '" height="' + Math.max(0, Y(y0) - Y(v)) + '" rx="3" fill="' + c + '" opacity="' + (above[i] ? 1 : 0.45) + '"/>' +
         '<line x1="' + (x - 6) + '" x2="' + (x + w + 6) + '" y1="' + Y(LAB.p90[i]) + '" y2="' + Y(LAB.p90[i]) + '" stroke="' + css("--ink") + '" stroke-width="2" stroke-dasharray="4 3"/>' +
         '<text x="' + (x + w / 2) + '" y="' + (Y(v) - 5) + '" text-anchor="middle" font-size="11" font-family="IBM Plex Mono, monospace" fill="' + css("--ink") + '">' + fmt(v, 1) + "</text>" +
         '<text x="' + (x + w / 2) + '" y="' + (H - 12) + '" text-anchor="middle" font-size="12" font-family="Public Sans, Arial" fill="' + css("--ink-2") + '">' + LAB.dias[i] + " ene</text>";
       $("lab-v" + i).textContent = fmt(v, 1) + " °C";
       var dif = v - LAB.p90[i], ex = $("lab-x" + i);
-      ex.textContent = (dif > 0 ? "+" : "−") + fmt(Math.abs(dif), 1); ex.className = "ex" + (dif > 0 ? " up" : "");
+      ex.textContent = (dif >= 0 ? "+" : "−") + fmt(Math.abs(dif), 1); ex.className = "ex" + (dif >= 0 ? " up" : "");
       if (setInputs) $("lab-" + i).value = v;
     });
     s += '<text x="' + (W - R) + '" y="' + (Tp - 2) + '" text-anchor="end" font-size="11" font-family="Public Sans, Arial" fill="' + css("--ink-3") + '">- - umbral P90 de cada día</text>';
@@ -1276,11 +1457,11 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
         var IS = 0; for (var i = o[0]; i <= o[1]; i++) IS += LAB.t[i] - LAB.p90[i];
         return "del " + LAB.dias[o[0]] + " al " + LAB.dias[o[1]] + " de enero (" + (o[1] - o[0] + 1) + " días, IS = " + fmt(IS, 1) + " °C)";
       }).join(" y otra ");
-      v.className = "verdict yes"; v.innerHTML = "<b>Sí, es una ola de calor:</b> " + txt + ". Los días en rojo forman el evento.";
+      v.className = "verdict yes"; v.innerHTML = "<b>Sí, es una ola de calor diurna:</b> " + txt + ". Los días en rojo forman el evento.";
     } else {
       var nA = above.filter(Boolean).length;
       v.className = "verdict";
-      v.innerHTML = "<b>No es una ola de calor.</b> " + (nA ? "Hay " + nA + (nA === 1 ? " día" : " días") + " sobre el umbral, pero la racha más larga es de " + best.len + (best.len === 1 ? " día" : " días") + ": se necesitan al menos 3 seguidos." : "Ningún día supera su umbral.");
+      v.innerHTML = "<b>No es una ola de calor.</b> " + (nA ? "Hay " + nA + (nA === 1 ? " día que alcanza" : " días que alcanzan") + " el umbral, pero la racha más larga es de " + best.len + (best.len === 1 ? " día" : " días") + ": se necesitan al menos 3 seguidos." : "Ningún día alcanza su umbral.");
     }
   }
 
@@ -1288,31 +1469,29 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   function buildQuiz() {
     var Q = [];
     Q.push({ q: "¿Cuántos días seguidos sobre el umbral se necesitan, como mínimo, para hablar de una ola de calor?", o: ["1", "2", "3", "5"], a: "3",
-      e: "Tres o más días consecutivos con la máxima sobre su percentil 90." });
-    var top = series("TX").slice().sort(function (a, b) { return b.dias - a.dias; });
+      e: "Tres o más días consecutivos con la temperatura en su percentil 90 o por encima." });
+    var top = series("HD", "a").slice().sort(function (a, b) { return b.dias - a.dias; }), TA = validT("a");
     if (top.length > 3 && top[0].dias > top[1].dias) {
-      var op = [top[0], top[1], top[2]].map(function (r) { return lab(r.T); }), viejo = lab(TEMPS[Math.floor(TEMPS.length / 3)]);
+      var op = [top[0], top[1], top[2]].map(function (r) { return lab(r.T); }), viejo = lab(TA[Math.floor(TA.length / 3)]);
       if (op.indexOf(viejo) < 0) op.push(viejo);
-      Q.push({ q: "¿En qué temporada Quinta Normal acumuló más días dentro de una ola de calor?", o: op.slice().sort(), a: lab(top[0].T),
-        e: "La temporada " + lab(top[0].T) + " sumó " + top[0].dias + " días en ola de calor, el máximo del registro." });
+      Q.push({ q: "¿En qué año climático Quinta Normal acumuló más días dentro de olas de calor diurnas?", o: op.slice().sort(), a: lab(top[0].T),
+        e: "La temporada " + lab(top[0].T) + " sumó " + top[0].dias + " días en olas diurnas, el máximo del registro." });
     }
-    function mesTop(k) {
-      var c = MSEASON.map(function (m) { return [m, EV.filter(function (e) { return e.tipo === k && +e.inicio.slice(5, 7) === m; }).length]; }).sort(function (a, b) { return b[1] - a[1]; });
-      return c[0][1] > c[1][1] ? c[0] : null;
-    }
-    var mn = mesTop("TN");
-    if (mn) Q.push({ q: "¿En qué mes han comenzado más rachas de noches cálidas?", o: MSEASON.map(function (m) { return MESES[m - 1]; }), a: MESES[mn[0] - 1],
-      e: MESES[mn[0] - 1] + " concentra " + mn[1] + " inicios de rachas de noches cálidas. Puedes comprobarlo en el buscador por mes." });
-    var t = TEND.olas_calor_dias;
+    Q.push({ q: "¿Puede haber una ola de calor en julio?", o: ["Sí, si la máxima alcanza el P90 de esas fechas tres días seguidos", "No, solo existen entre noviembre y marzo", "Solo si se superan los 30 °C"], a: "Sí, si la máxima alcanza el P90 de esas fechas tres días seguidos",
+      e: "El umbral se calcula para cada día del año. En julio ronda los " + fmt(umbralDe(7, 15).tx, 0) + " °C, así que una ola de calor invernal es una racha de días templados, muy por sobre lo normal." });
+    var n = {}; TIPOS.forEach(function (k) { n[k] = EV.filter(function (e) { return e.tipo === k; }).length; });
+    Q.push({ q: "¿Qué tipo de evento es el menos frecuente en el registro?", o: TIPOS.map(function (k) { return INFO[k].nom; }), a: INFO.CO.nom,
+      e: "Solo hay " + n.CO + " olas compuestas, frente a " + n.HD + " diurnas, " + n.HN + " nocturnas y " + n.FR + " de frío: es raro que máxima y mínima sean extremas a la vez tres días seguidos." });
+    var t = tend("HD", "a");
     if (t) {
-      var sig = t.p_valor < 0.05, ans = sig ? (t.ols_por_decada > 0 ? "Aumentan de forma significativa" : "Disminuyen de forma significativa") : "No hay un cambio significativo";
-      Q.push({ q: "¿Qué muestra la tendencia de los días en ola de calor por temporada?", o: ["Aumentan de forma significativa", "Disminuyen de forma significativa", "No hay un cambio significativo"], a: ans,
-        e: "La pendiente es de " + (t.ols_por_decada > 0 ? "+" : "") + fmt(t.ols_por_decada, 1) + " días por década" + (sig ? ", estadísticamente significativa según Mann-Kendall." : ", sin significancia estadística.") });
+      var sig = t.p < 0.05, ans = sig ? (t.b > 0 ? "Aumentan de forma significativa" : "Disminuyen de forma significativa") : "No hay un cambio significativo";
+      Q.push({ q: "¿Qué muestra la tendencia de los días en ola de calor diurna por año climático?", o: ["Aumentan de forma significativa", "Disminuyen de forma significativa", "No hay un cambio significativo"], a: ans,
+        e: "La pendiente es de " + signed(t.b, 1) + " días por década" + (sig ? ", estadísticamente significativa según Mann-Kendall." : ", sin significancia estadística.") });
     }
+    Q.push({ q: "¿Cómo se define una ola de frío?", o: ["Tres o más días con la mínima en su percentil 10 o por debajo", "Tres o más días con heladas", "Un día con la mínima más baja del mes"], a: "Tres o más días con la mínima en su percentil 10 o por debajo",
+      e: "Es el espejo de la ola de calor nocturna. No exige heladas: en verano basta con noches inusualmente frescas para la fecha." });
     Q.push({ q: "Una ola dura 4 días, cada uno 1,5 °C sobre su umbral. ¿Cuál es su intensidad IS?", o: ["1,5 °C", "4 °C", "6 °C", "8 °C"], a: "6 °C",
       e: "IS suma los grados sobre el umbral de cada día: 4 × 1,5 = 6 °C." });
-    Q.push({ q: "¿Por qué el umbral de una ola de calor es más bajo en noviembre que en enero?", o: ["Porque se calcula para cada día del calendario", "Porque en noviembre llueve más", "Porque el termómetro cambia"], a: "Porque se calcula para cada día del calendario",
-      e: "El P90 se calcula por separado para cada día del año, así que refleja lo que es inusualmente cálido para esa fecha." });
     var done = 0, ok = 0, box = $("quiz"); box.innerHTML = "";
     Q.forEach(function (q, qi) {
       var el = document.createElement("div"); el.className = "q";
@@ -1331,32 +1510,38 @@ footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--line);
   }
 
   // ---------- inicio ----------
+  function paintScope() {
+    document.querySelectorAll(".scope-txt").forEach(function (el) { el.textContent = SEMN[G.sem]; });
+    document.querySelectorAll(".ref-txt").forEach(function (el) { el.textContent = REF[0] + "-" + REF[1]; });
+    $("scope-tag").innerHTML = "Mostrando: <b>&nbsp;" + SEMN[G.sem] + "</b>&nbsp;· " + TEMPS.length + " temporadas, de " + lab(TEMPS[0]) + " a " + lab(TEMPS[TEMPS.length - 1]);
+    $("g-sem").value = G.sem;
+  }
   function drawCharts() { if (!window.Plotly) return; drawBubbles(); drawDecades(); drawDaily(); drawCalendar(); drawHists(); }
-  function drawAll() { drawStripes(); drawKpis(); drawRecords(); drawCompound(); drawSeasonality(); drawSearch(); drawSeasonInfo(); drawUmbrales(); drawCharts(); drawLab(false); }
+  function drawAll() { TEMPS = validT(G.sem); paintScope(); drawStripes(); drawKpis(); drawRecords(); drawSemesters(); drawCompound(); drawSeasonality(); drawSearch(); drawSeasonInfo(); drawUmbrales(); drawCharts(); drawLab(false); }
   function init() {
     document.querySelectorAll("#tabla th").forEach(function (th) {
       th.addEventListener("click", function () {
-        if (state.sortK === th.dataset.k) state.sortDir *= -1; else { state.sortK = th.dataset.k; state.sortDir = ["tipo", "T", "inicio", "fin"].indexOf(th.dataset.k) >= 0 ? 1 : -1; }
+        if (state.sortK === th.dataset.k) state.sortDir *= -1; else { state.sortK = th.dataset.k; state.sortDir = ["tipo", "sem"].indexOf(th.dataset.k) >= 0 ? 1 : -1; }
         drawTable();
       });
     });
     document.querySelector("#tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr && tr.dataset.t) openSeason(tr.dataset.t); });
     document.querySelector("#comp-tabla tbody").addEventListener("click", function (ev) { var tr = ev.target.closest("tr"); if (tr && tr.dataset.t) openSeason(tr.dataset.t); });
     $("est-tipo").addEventListener("click", function (ev) { var b = ev.target.closest("button"); if (!b) return; EST.tipo = b.dataset.v; drawSeasonality(); });
+    $("exp-sem").addEventListener("click", function (ev) { var b = ev.target.closest("button"); if (!b) return; state.view = b.dataset.v; drawSeasonInfo(); if (window.Plotly) drawDaily(); });
+    $("g-sem").addEventListener("change", function (e) { G.sem = e.target.value; state.view = G.sem; drawAll(); });
     $("sel-temp").addEventListener("change", function (e) { setSeason(+e.target.value, false); });
-    function step(n) { var S = allSeasons(), p = S.indexOf(state.T) + n; if (p >= 0 && p < S.length) setSeason(S[p], false); }
+    function step(n) { var p = ALLT.indexOf(state.T) + n; if (p >= 0 && p < ALLT.length) setSeason(ALLT[p], false); }
     $("t-prev").addEventListener("click", function () { step(-1); });
     $("t-next").addEventListener("click", function () { step(1); });
     $("t-link").addEventListener("click", function () { copy(location.origin + location.pathname + "?temporada=" + lab(state.T) + "#explorador", $("t-link"), "Enlace copiado"); });
     $("btn-cita").addEventListener("click", function () { copy($("cita").textContent, $("btn-cita")); });
 
-    $("t-n").textContent = TEMPS.length;
-    $("t-ini").textContent = lab(TEMPS[0]);
-    $("t-fin").textContent = lab(TEMPS[TEMPS.length - 1]);
-    $("gen").textContent = fdate(DAILY.last);
+    $("t-ini").textContent = D.fecha[0].slice(0, 4);
+    $("gen").textContent = fdate(LAST);
 
     var q = /[?&]temporada=(\d{4})-\d{2}/.exec(location.search);
-    if (q && allSeasons().indexOf(+q[1] + 1) >= 0) state.T = +q[1] + 1;
+    if (q && SEAS[+q[1] + 1]) state.T = +q[1] + 1;
     drawStatus();
     fillSeasonSelect();
     fillFilters();
